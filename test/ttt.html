@@ -3,8 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <title>Document</title>
+    <style>
+        .multiselector__input {
+
+        }
+
+        .multiselector__ul {
+            display: none;
+        }
+    </style>
 </head>
 <body>
+<input class="multiselector__input" value="hello"/>
+<ul class="multiselector__ul">
+    <li class="multiselector__ul__item"><input type="checkbox"><span>item01</span></li>
+    <li class="multiselector__ul__item"><input type="checkbox" class="item"><span>item02</span></li>
+    <li class="multiselector__ul__item"><input type="checkbox" class="item"><span>item03</span></li>
+</ul>
+<script>
+    var oInput = document.querySelector('input');
+    var oUl = document.querySelector('ul');
+    var oLis = document.querySelectorAll('li');
 
+    for (var i = 0; i < oLis.length; i++) {
+        oLis[i].onclick = function (event) {
+            if (this.querySelector('input').checked) {
+                oInput.value += this.querySelector('span').innerHTML;
+            } else {
+                oInput.value = oInput.value.replace(this.querySelector('span').innerHTML, '');
+            }
+            console.log(document.styleSheets);
+        }
+    }
+    oInput.onclick = function () {
+        console.log(oUl.getComputedStyle('display'));
+        oUl.style.display = oUl.style.display === 'none' ? 'block' : 'none';
+    };
+    
+</script>
 </body>
 </html>
