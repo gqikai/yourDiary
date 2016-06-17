@@ -14,16 +14,26 @@
     </style>
 </head>
 <body>
-<input class="multiselector__input" value="hello"/>
-<ul class="multiselector__ul">
-    <li class="multiselector__ul__item"><input type="checkbox"><span>item01</span></li>
-    <li class="multiselector__ul__item"><input type="checkbox" class="item"><span>item02</span></li>
-    <li class="multiselector__ul__item"><input type="checkbox" class="item"><span>item03</span></li>
-</ul>
+<div class="multiselector">
+    <input class="multiselector__input" value="hello"/>
+    <ul class="multiselector__ul">
+        <li class="multiselector__ul__item"><input type="checkbox"><span>item01</span></li>
+        <li class="multiselector__ul__item"><input type="checkbox" class="item"><span>item02</span></li>
+        <li class="multiselector__ul__item"><input type="checkbox" class="item"><span>item03</span></li>
+    </ul>
+</div>
+
 <script>
     var oInput = document.querySelector('input');
     var oUl = document.querySelector('ul');
     var oLis = document.querySelectorAll('li');
+    var oSelector = document.querySelector('.multiselector');
+
+
+    document.addEventListener('click', function () {
+        console.log('2');
+        oUl.style.display = 'none';
+    },false);
 
     for (var i = 0; i < oLis.length; i++) {
         oLis[i].onclick = function (event) {
@@ -35,9 +45,10 @@
             console.log(document.styleSheets);
         }
     }
-    oInput.onclick = function () {
-        console.log(oUl.getComputedStyle('display'));
-        oUl.style.display = oUl.style.display === 'none' ? 'block' : 'none';
+    oInput.onclick = function (event) {
+        console.log('1');
+        oUl.style.display = getComputedStyle(oUl).display === 'none' ? 'block' : 'none';
+        event.stopPropagation();
     };
     
 </script>
