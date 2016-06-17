@@ -1,0 +1,162 @@
+.game__main-title {
+  position: relative;
+  margin: 0 auto;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+
+}
+
+.game__main-title__background {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1597px;
+  height: 1128px;
+  .scale(1.5);
+}
+
+.game__main-title__logo {
+  .scale(1.5);
+  z-index: 5;
+  position: absolute;
+  top: 224px;
+  left: 511px;
+}
+
+.game__main-title__loading {
+  height: 140px;
+  width: 150px;
+  padding-top: 10px;
+  margin-left: 900px;
+  float: left;
+  position: relative;
+}
+
+.game__main-title__loading__text {
+  color: white;
+  text-align: center;
+  font-family: Tahoma, Geneva, sans-serif;
+  font-size: 60px;
+  margin-top: 50px;
+  text-shadow: 0 0 5px #e0e0e0, 0 0 10px #dddddd, 0 0 15px #d4d4d4, 0 0 40px #e800cc, 0 0 70px #d00098;
+}
+
+.game__main-title__loading__ball {
+  height: 30px;
+  width: 30px;
+  position: absolute;
+  top: 150px;
+  background-color: white;
+  border-radius: 50%;
+  animation: boule 2s infinite;
+  -webkit-animation: boule 2s infinite;
+  box-shadow: 0 0 10px #db0095;
+}
+
+.game__main-title__menu {
+  z-index: 1;
+  position: absolute;
+  bottom: 0;
+}
+
+.game__main-title__menu__item {
+  display: inline-block;
+  .scale(2);
+  &:nth-of-type(1) {
+    .nthOfType(1);
+    margin-left: 485px;
+  }
+  &:nth-of-type(2) {
+    .nthOfType(2);
+  }
+  &:nth-of-type(3) {
+    .nthOfType(3);
+  }
+  &:hover {
+    background-position-x: 110px;
+  }
+}
+
+.game__main-title__black-bar {
+  z-index: 0;
+  position: absolute;
+  top: 934px;
+  height: 137px;
+  width: 100%;
+  background-color: black;
+  .opacityPercent(40);
+}
+
+.nthOfType(@index) {
+  width: 109px;
+  height: 54px;
+  background: url("../assets/parts/frame/FRM_056@{index}.png");
+  margin-bottom: 75px;
+  margin-left: 246px;
+}
+
+.scale(@times) {
+  -webkit-transform: scale(@times);
+  -webkit-transform-origin: top left;
+
+  transform: scale(@times);
+  transform-origin: top left;
+
+  -ms-transform: scale(@times); /* IE 9 */
+  -ms-transform-origin: top left; /* IE 9 */
+
+  -webkit-transform: scale(@times); /* Safari 和 Chrome */
+  -webkit-transform-origin: top left; /* Safari 和 Chrome */
+
+  -moz-transform: scale(@times); /* Firefox */
+  -moz-transform-origin: top left; /* Firefox */
+
+  -o-transform: scale(@times); /* Opera */
+  -o-transform-origin: top left; /* Opera */
+}
+
+.opacityPercent(@opacity) {
+  filter: alpha(opacity=@opacity); /*支持 IE 浏览器*/
+  -moz-opacity: @opacity / 100; /*支持 FireFox 浏览器*/
+  opacity: @opacity / 100; /*支持 Chrome, Opera, Safari 等浏览器*/
+}
+
+//loading animate
+@keyframes boule {
+  0% {
+    left: 0;
+    opacity: 0;
+  }
+  50% {
+    height: 20px;
+    width: 20px;
+    opacity: 1;
+  }
+  100% {
+    left: 300px;
+    opacity: 0;
+    height: 10px;
+    width: 10px;
+  }
+}
+
+@-webkit-keyframes boule {
+  0% {
+    left: 10px;
+    opacity: 0;
+  }
+  50% {
+    height: 20px;
+    width: 20px;
+    opacity: 1;
+  }
+  100% {
+    left: 300px;
+    opacity: 0;
+    height: 10px;
+    width: 10px;
+  }
+}
+
+//end loading animate

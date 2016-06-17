@@ -1,0 +1,23 @@
+{
+  "name": "yourdiary",
+  "version": "1.0.0",
+  "description": "your diary",
+  "main": "karma.config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jasmine-core": "^2.4.1",
+    "karma": "^0.13.22",
+    "karma-chrome-launcher": "^1.0.1",
+    "karma-jasmine": "^1.0.2",
+    "karma-ng-scenario": "^1.0.0",
+    "karma-requirejs": "^1.0.0",
+    "requirejs": "^2.2.0"
+  }
+}

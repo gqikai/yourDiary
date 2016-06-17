@@ -1,0 +1,10 @@
+#!/bin/bash
+
+for file in `find . -name "*.png"`
+do
+pngquant $file -o ${file%.*}.min.png
+rm $file
+mv ${file%.*}.min.png $file
+echo $file finished
+#echo ${file%.*}.min.png
+done

@@ -1,0 +1,22 @@
+<div class="game__game" ng-click="next()">
+    <img class="game__game__background" ng-src="{{background.src}}" ng-style="background.css"> </img>
+    <img class="game__game__animation-shell" ng-src="{{background.shell.src}}"> </img>
+
+    <div class="game__game__characters">
+        <div class="game__game__character" ng-repeat="character in characters" ng-style="character.css.div">
+            <img class="game__game__character__body" src="{{character.body.src}}" ng-style="character.css.img"/>
+            <img class="game__game__character__head" src="{{character.head.src}}" ng-style="character.css.img"/>
+        </div>
+        <img class="game__game__character__face" src="{{face.src}}">
+    </div>
+    <div class="game__game__dialogue-box" ng-controller="dialogueController">
+        <p class="game__game__dialogue-box__name">{{name}}</p>
+        <p class="game__game__dialogue-box__dialogue">
+            <span ng-repeat="line in dialogue">{{line}}</span>
+        </p>
+    </div>
+    <ul class="game__game__menu">
+        <li class="game__game__menu-item" ng-click="quickSave()"></li>
+        <li class="game__game__menu-item" ng-click="quickLoad()"></li>
+    </ul>
+</div>
