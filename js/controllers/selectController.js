@@ -1,6 +1,6 @@
 "use strict";
 angular.module('gal')
-    .controller('selectController',['$scope', 'plotService', function ($scope, plotService) {
+    .controller('selectController',['$scope', function ($scope) {
         'use strict';
 
         $scope.selection = {
@@ -8,20 +8,19 @@ angular.module('gal')
             selections: []
         }
 
-        $scope.playerSelect = function (selection, $event) {
+        $scope.playerSelect = function (select, $event) {
             console.log('playerSelect triggered');
-            console.log(selection);
-            plotService.playerSelect(selection);
+            console.log(select);
             $event.stopPropagation();
-            $scope.$emit('next', {});
+            $scope.$emit('playerSelect', $scope.selection.selections.indexOf(select));
         }
 
-        $scope.$on('sele', function (event, currentToken) {
-            $scope.selection.selections = currentToken.selections;
-            $scope.selection.show = true;
+        $scope.$on('AddSelect', function (event, text) {
+            $scope.selection.selections.push(text);
+            console.log(text);
         })
 
-        $scope.$on('dsele', function (event, currentToken) {
-            $scope.selection.show = false;
+        $scope.$on('StartSelect', function (event, currentToken) {
+            $scope.selection.show = true;
         })
     }]);

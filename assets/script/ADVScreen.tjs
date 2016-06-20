@@ -1,0 +1,4736 @@
+/*
+	ADV娗棟僋儔僗
+*/
+
+//僞僌僴儞僪儔偺曉抣
+var taghandler_end = 0;				//僞僌偺庢摼傪廔椆偟偰丄張棟傪媑棦媑棦偵栠偡
+var taghandler_getcontinue = -1;	//懕偗偰僞僌傪庢摼偡傞
+
+var UPDATE_CG		= 0x01;
+var UPDATE_BUSTUP	= 0x02;
+var UPDATE_CUTIN	= 0x03;
+
+//僇儊儔
+var camera_fix  = 0;	//屌掕
+var camera_auto = 1;	//帺摦捛旜
+
+//婎杮嫍棧
+var BG_RANGE_MAX = 128;
+
+class ADVScreen extends Layer, InputNotifyBase, SelectItemNotifyBase, SceneBase{
+	var _scenario = "";
+	var _scene = "";	//僔乕儞僞僀僩儖
+	var _name = "";
+	var _mess = "";
+	var _voice = "";
+	var _pan = "";
+	//僔僫儕僆惂屼
+	var _scCtrl;
+	var _orderList;
+	var _orderIndex;
+	var _end = false;	//偙偺僼儔僌偑恀側傜偽丄僩儔儞僕僔儑儞偑廔椆偟偨帪揰偱close()偡傞
+	//儀乕僗儗僀儎
+	var _baseOrder;
+	//僆僽僕僃僋僩娗棟
+	var _objList;
+	//儊僢僙乕僕娗棟
+	var _msg;
+	var _msgX, _msgY;	//昞帵埵抲丄婎杮埵抲偐傜偺憡懳嵗昗
+	//僇僢僩僀儞
+	var _cutin;
+	var _cutinParam = %[file:"", pos:""];
+
+	//僷儔儊乕僞(僼儔僌)娗棟
+	var _param, _paramPrev;
+
+	//儘僌娗棟
+	var _logName, _logMess, _logVoice, _logParam;
+
+	//夋柺峏怴娗棟
+	var _update;		//
+
+	var _sprTrans;		//僩儔儞僕僔儑儞梡儗僀儎
+	var _eyeCatch;		//傾僀僉儍僢僠梡儗僀儎
+
+	var _sprFlash;		//僼儔僢僔儏梡儗僀儎
+	var _flashLeave;	//僼儔僢僔儏丂暅婣帪娫 .beginActivation(_flashLeave);
+
+	//儊僢僙乕僕僼儗乕儉偺旕昞帵
+	//true偵偡傞偲師偺hitret偑偔傞傑偱擖椡偱嵞昞帵偱偒側偄丅
+	var _advHide;
+	//擔晅丒儖乕僾昞帵偺惂屼
+	//巜掕偑偁傞傑偱昞帵偱偒側偄丅
+	var _advLoopHide, _advDateHide;
+
+	//僇儊儔
+	var _fCamera_move;		//
+	var _camera_mode;		//僇儊儔儌乕僪
+	var _camera_pos;		//僇儊儔埵抲
+							//x : 墶幉
+							//y : 廲幉
+							//z : 僇儊儔嫍棧
+	var _camera_move;		//僇儊儔偺堏摦儔僀儞
+	var _camera_move_start;	//僇儊儔偺堏摦奐巒帪娫
+	var _camera_move_time;	//僇儊儔偺堏摦帪娫
+
+	//傾僋僔儑儞
+	var _fAction;
+	var _actionTimeKeeper;
+	var _actionList;
+	var _actionWaitTarget;
+
+	//僗僉僢僾
+	var _requestStopSkip;	//師偺Hitret帪偵僗僉僢僾傪掆巭偝偣傞丅
+
+	//僆乕僩
+	var _autoTimer;
+	var _autoState;
+	var _fPlayVoice;		//壒惡傪巜掕偑偁偭偨乮@talk偵壒惡僼傽僀儖偺巜掕偑偁偭偨乯
+	var _fPlayedVoice;		//幚嵺偵壒惡偑嵞惗偝傟偨偐
+
+	//慖戰巿
+	var _startSelect;
+	var _select;
+	var _selectBase;
+	var _selectBtn;
+	var ret_select;		//慖戰偝傟偨斣崋忋偐傜弴
+	var ret_select_str;	//慖戰偝傟偨暥帤楍
+	var _logSelect;		//慖戰巿偱慖傫偩寢壥傪婰壇 僙乕僽暅婣梡
+
+	var _hitretWaitUntil;
+	var _hitretState;	//hitret, startSelect忬懺(false: true:hitret懸偪拞)
+						//true偱側偄偲偒偼俻僙乕僽偱偒側偄丅
+	var _hitretNum;		//hitret夞悢(startSelect傕僇僂儞僩) 僙乕僽暅婣梡
+	var _quickSave;		//偙偺hitret偱僋僀僢僋僙乕僽偟偨丅
+
+	var _fFont;				//師偺1儊僢僙乕僕偵尷傝僼僅儞僩傪曄峏偡傞
+	var _fontElm;
+	var _fIgnoreKinsoku;	//師偺1儊僢僙乕僕偵尷傝嬛懃張棟傪柍帇偡傞
+
+	var _partMess;			//師偺儊僢僙乕僕偺巜掕暥帤偺怓傪曄峏偡傞
+	var _ruby;				//師偺儊僢僙乕僕偺巜掕暥帤偵儖價傪昞帵偡傞
+
+	var _face;				//僼僃僀僗偺擟堄曄峏
+
+	var _fBustupAutoPositioning;	//僶僗僩傾僢僾偺帺摦埵抲挷惍
+	var _fBustupRelateFlip;			//僶僗僩傾僢僾偺埵抲娭學偺斀揮
+
+	var _fMovie;			//儉乕價乕嵞惗拞
+
+	var _fRecollect;		//夞憐儌乕僪僼儔僌
+
+	var _shift;
+
+	//儘乕僪張棟梡
+	var _fLoad;
+	var _hitretCnt;
+	var _selectCnt;
+	var _saveData;		//儘乕僪偟偨僙乕僽僨乕僞偺曐帩
+
+	//僨僶僢僌梡
+	var _strSearch;			//僒乕僠僗僉僢僾
+
+	var AUTOSTATE_MESSAGE_END = 0x01;
+	var AUTOSTATE_VOICE_END = 0x02;
+	var AUTOSTATE_TRANSITION_END = 0x04;
+	var AUTOSTATE_ALL_END = AUTOSTATE_MESSAGE_END | 
+							AUTOSTATE_VOICE_END | 
+							AUTOSTATE_TRANSITION_END;
+
+	var CUTIN_X = WINDOW_WIDTH / 2;
+	var CUTIN_Y = WINDOW_HEIGHT / 2 - 50;
+
+	function ADVScreen(win, order=0, msgOrder=10, fRecollect=false){
+		Layer(win, win.baseLayer);
+
+		_scCtrl = new ScController(getHandlers());
+
+		_orderList = new Array();
+		_orderIndex = 0;
+
+		_fRecollect = fRecollect;
+
+		_objList = new Array();
+
+		_baseOrder = order;
+
+		hasImage = false;
+		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+		absolute = _baseOrder;
+		hitType = htMask;
+		hitThreshold = 0;
+		visible = true;
+
+		_sprTrans = new Sprite(window, window.baseLayer);
+		with(_sprTrans){
+			.setImageSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+			.setSizeToImageSize();
+			.absolute = _baseOrder + 1;
+			.setTransitionCompleteCall(transitionComplete);
+			.setActionCall(action);
+		}
+
+		_eyeCatch = null;
+
+		var id;
+		id = addADVObject("攚宨");
+		with(_objList[id]){
+			.kind = ADVOBJ_CG;
+			._spr.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+			.setWorldPos(0, 0, BG_RANGE_MAX);
+			.setBasePos(WINDOW_CENTER_X, WINDOW_CENTER_Y);
+			.setCenter(WINDOW_CENTER_X, WINDOW_CENTER_Y);
+			._spr.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, GetDefineColorA("black"));
+			.absolute = 5;
+			.visible = true;
+			.onPaint();
+		}
+
+		//儊僢僙乕僕僄儕傾嶌惉
+		_msg = new MessageFrame(window, window.baseLayer, this);
+		_msg.absolute = msgOrder;
+		_msgX = 0;
+		_msgY = 0;
+
+		_param = new Parameter(PARAMETER_MAX);
+		_paramPrev = new Parameter(PARAMETER_MAX);
+
+		_logName = [];
+		_logMess = [];
+		_logVoice = [];
+		_logParam = [];
+
+		_advHide = true;
+
+		//僇儊儔弶婜愝掕
+		_fCamera_move = false;
+		_camera_mode = camera_auto;
+		_camera_pos = new Point(0, 0, -BG_RANGE_MAX);
+		_camera_move = new D3Linear();
+		_camera_move_start = 0;
+		_camera_move_time = 500;
+
+		//傾僋僔儑儞
+		_fAction = false;
+		_actionTimeKeeper = new TimeKeeper();
+		_actionTimeKeeper.start();
+		_actionList = new ActionList(this);
+		_actionWaitTarget = null;
+
+		_sprFlash = void;
+
+		//僗僉僢僾
+		_requestStopSkip = false;
+		//僆乕僩
+		_autoTimer = new Timer(onAutoCallback, "");
+		_autoTimer.interval = CONFIG.autoSpeed + 1;
+		_autoState = 0;
+		_fPlayVoice = false;
+		_fPlayedVoice = false;
+
+		_select = [];
+		_selectBtn = [];
+		_selectBase = new SelectItemGroupSprite(win, this);
+		with(_selectBase){
+			.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+			.absolute = ADVLAYER_SELECT;
+			.hitType = htMask;
+			.hitThreshold = 0;
+			.opacity = 0;
+		}
+		_logSelect = [];
+
+		_hitretState = false;
+		_hitretNum = 0;
+
+		_update = 0;
+
+		_msg.skip = _msg.auto = false;
+
+		_fFont = false;
+		_fontElm = new Dictionary();
+		_fIgnoreKinsoku = false;
+		resetFontElm();
+
+		_partMess = [];
+		_ruby = [];
+
+		_face = "";
+
+		_fBustupAutoPositioning = true;
+		_fBustupRelateFlip = false;
+
+		_strSearch = "";
+
+		_fLoad = false;
+		_saveData = null;
+
+		_fMovie = false;
+
+		window.addInputNotify(this);
+	}
+
+	function finalize(){
+		@if(__DEBUGMODE__)
+			win.caption = global.GAME_CAPTION;
+		@endif
+		@if(__DEBUGMODE__)
+			debug.applyFlagToDebug();
+		@endif
+
+		window.removeInputNotify(this);
+
+		endSelect();
+
+		if(IsStaffRoll()) StaffRollDelete();
+
+		//僂傿儞僪僂娭學
+		//ConfirmDelete();
+		ConfigDelete();
+		LoadSaveDelete();
+		HistoryDelete();
+
+		System.removeContinuousHandler(onActionCallback);
+
+		if(_eyeCatch) invalidate _eyeCatch;
+		invalidate _sprFlash;
+		invalidate _fontElm;
+		InvalidateArray(_selectBtn);
+		invalidate _selectBtn;
+		invalidate _selectBase;
+		invalidate _select;
+		invalidate _camera_pos;
+		invalidate _camera_move;
+		invalidate _param;
+		invalidate _paramPrev;
+		invalidate _orderList;
+		invalidate _msg;
+		invalidate _sprTrans;
+		invalidate _scCtrl;
+		InvalidateArray(_objList);
+		invalidate _objList;
+		invalidate _logName;
+		invalidate _logMess;
+		invalidate _logVoice;
+		invalidate _logParam;
+		invalidate _actionList;
+		invalidate _actionTimeKeeper;
+
+		global.Layer.finalize();
+	}
+
+	function who(){return "ADVScreen";}
+
+	function start(name, label=""){
+		if(!_fLoad){
+			ParameterInit(_param);
+			_logName.clear();
+			_logMess.clear();
+			_logVoice.clear();
+			_logParam.clear();
+		}
+
+		change(name, label);
+	}
+
+	function debugStart(name, label=""){
+		if(!_fLoad){
+			_logName.clear();
+			_logMess.clear();
+			_logVoice.clear();
+			_logParam.clear();
+		}
+
+		if(_startSelect) endSelect();
+		cutin(%[hide:1]);
+
+		change(name, label);
+	}
+
+	function trigger(trig){
+		_scCtrl.trigger(trig);
+	}
+
+	function rClick(){
+		//儉乕價乕偑嵞惗偝傟偰偄偨傜儉乕價乕傪僉儍儞僙儖
+		if(IsPlayMovie() && _scCtrl.isTrigger("rclick")) onStopMovie();
+
+		_scCtrl.trigger("rclick");
+	}
+
+	function click(){
+		//僂傿儞僪僂徚嫀拞側傜僋儕僢僋側偟
+		//仸壓偵堏摦偝偣傑偟偨丅
+		//if(!isShow()) return;
+
+		//僇儊儔堏摦懸婡拞偐偮丄僋儕僢僋僉儍儞僙儖桳岠偺帪偼
+		//僇儊儔堏摦傪姰椆偝偣傞丅
+		if(_scCtrl.isTrigger("movecamera_end") && _scCtrl.isTrigger("click")){
+			flushMoveCamera();
+		}
+
+		//傾僋僔儑儞懸偪拞偐偮丄僋儕僢僋僉儍儞僙儖桳岠偺帪偼
+		//傾僋僔儑儞傪姰椆偝偣傞丅
+		if(_scCtrl.isTrigger("action_end") && _scCtrl.isTrigger("click")){
+			flushAction(_actionWaitTarget);
+			_actionWaitTarget = null;
+		}
+
+		//僼儔僢僔儏懸偪拞丄僋儕僢僋僉儍儞僙儖桳岠偺帪偼
+		//僼儔僢僔儏傪姰椆偝偣傞丅
+		if(_scCtrl.isTrigger("flash_end") && _scCtrl.isTrigger("click")){
+			if(_sprFlash !== void){
+				if(_sprFlash.isActivation()) _sprFlash.flushActivation();
+			}
+		}
+
+		//僂傿儞僪僂徚嫀拞側傜僋儕僢僋側偟
+		if(!isShow()) return;
+
+		if(_msg.isPending()){
+		//儊僢僙乕僕弌椡拞
+			_msg.flush();
+			return;
+		}
+
+		if(_scCtrl.trigger("click")){
+		//僋儕僢僋僩儕僈乕偑敪惗偟偨
+			_msg.hideBlink();
+
+//			if(_sprFlash !== void){
+//				if(_sprFlash.isActivation()) _sprFlash.flushActivation();
+//			}
+
+			//hitret拞偵僋儕僢僋偝傟偨丅
+			//偙傟埲崀偼_hitretState偑true偵側傞傑偱俻僙乕僽偑梷惂偝傟傞丅
+			if(_hitretState){
+				_hitretState = false;
+				if(_face != "") _face = "";
+			}
+
+			if(CONFIG.voiceStopOnClick){
+			//壒惡嵞惗拞偵僋儕僢僋偑敪惗偟偨応崌偼掆巭偡傞
+				_fPlayVoice = false;
+				if(VOICE.isPlay()) StopVoice();
+			}
+		}
+
+		//僆乕僩僞僀儅乕傪夝彍偟偰偍偔
+		stopAutoTimer();
+	}
+
+	//儊僢僙乕僕弌椡偑姰椆偟偨
+	function onCompleteOutput(){
+		checkAutoEvent(AUTOSTATE_MESSAGE_END);
+
+		if(isSkip()){
+		//僗僉僢僾拞側傜僋儕僢僋
+			click();
+		}else if(isAuto()){
+		//僆乕僩拞側傜僋儕僢僋僠僃僢僋
+			if(checkAutoEvent()){ startAutoTimer(); }
+		}
+	}
+
+	function startAutoTimer(){
+		_autoTimer.interval = CONFIG.autoSpeed + 1;
+		_autoTimer.enabled = true;
+	}
+	function stopAutoTimer(){
+		if(!_autoTimer.enabled) return;
+		_autoTimer.enabled = false;
+	}
+
+	//儊僢僙乕僕弌椡姰椆丄壒惡嵞惗姰椆丄僩儔儞僕僔儑儞姰椆
+	//仾偑慡偰姰椆偟偨帪丄儊僢僙乕僕傪恑傔傞弨旛偑弌棃偨偙偲偵側傞丅
+	function checkAutoEvent(state=0){
+		_autoState |= state;
+		if(_autoState == AUTOSTATE_ALL_END) return isAuto();
+		return false;
+	}
+
+	function updateEnding(){
+		_scCtrl.trigger("update");
+	}
+
+	//僆乕僟乕儕僗僩
+	function addOrderList(elm){
+		var index = _orderList.count;
+		_orderList[index] = new Dictionary();
+		(Dictionary.assign incontextof _orderList[index])(elm);
+	}
+	function clearOrderList(){
+		_orderList.clear();
+		_orderIndex = 0;
+	}
+	function processOrder(list=[], elm=%[]){
+		for(var i=0;i<list.count;i++){
+			//time傪update偱巜掕偝傟偨抣偲摨偠偵偡傞偐偳偆偐丒丒丒
+			//if(elm.time !== void) list[i].time = elm.time;
+
+			if(elm.flush !== void){
+				if(elm.flush == 1) list[i].time = 0;
+			}
+
+			//僞僌柤傪昡壙偟偰僼傽儞僋僔儑儞傪摼傞
+			//var func = Scripts.eval("ADVScreen."+list[i].tagname);
+			//func(list[i]);
+
+			switch(list[i].tagname){
+			case "cg":
+				cg(list[i]);
+				break;
+			case "char":
+				char(list[i]);
+				break;
+			case "clearchar":
+				clearChar(list[i]);
+				break;
+			case "cutin":
+				cutin(list[i]);
+				break;
+			case "movecamera":
+				moveCamera(list[i]);
+				break;
+			case "move":
+				move(list[i]);
+				break;
+			case "action":
+				asyncAction(list[i]);
+				break;
+			case "stopaction":
+				stopAsyncAction(list[i]);
+				break;
+			case "tone":
+				tone(list[i]);
+				break;
+			case "focus":
+				focus(list[i]);
+				break;
+			case "update":
+				update(list[i]);
+				break;
+			}
+		}
+		list.clear();
+	}
+	function separateOrder(srcList, preList, postList){
+		for(var i=0;i<srcList.count;i++){
+			switch(srcList[i].tagname){
+			case "action" :
+			case "focus" :
+			case "tone" :
+				var index = postList.count;
+				postList[index] = %[];
+				(Dictionary.assign incontextof postList[index])(srcList[i]);
+				break;
+			default:
+				var index = preList.count;
+				preList[index] = %[];
+				(Dictionary.assign incontextof preList[index])(srcList[i]);
+				break;
+			}
+		}
+	}
+
+	//ADVObject娗棟
+	function addADVObject(id){
+	//僆僽僕僃僋僩儕僗僩偺捛壛
+		if(_objList.count > 0){
+			for(var i=_objList.count-1;i>=0;i--){
+				if(_objList[i].id == id){
+					return i;
+				}
+			}
+		}
+
+		var i = _objList.count;
+		_objList[i] = new ADVObject(window, this);
+		_objList[i].id = id;
+		return i;
+	}
+	function removeADVObject(id){
+	//僆僽僕僃僋僩儕僗僩偺嶍彍
+		if(typeof id == "String"){
+			for(var i=_objList.count-1;i>=0;i--){
+				if(_objList[i].id == id){
+					_objList[i].visible = false;
+					if(_objList[i].isActivation()) _objList[i].stopActivation();
+					if(_objList[i].isTransition()) _objList[i].stopTransition();
+					invalidate _objList[i];
+					_objList.erase(i);
+					return 0;
+				}
+			}
+			return -1;
+		}else if(typeof id == "Integer"){
+			for(var i=_objList.count-1;i>=0;i--){
+				if(_objList[i].kind == id){
+					_objList[i].visible = false;
+					if(_objList[i].isActivation()) _objList[i].stopActivation();
+					if(_objList[i].isTransition()) _objList[i].stopTransition();
+					invalidate _objList[i];
+					_objList.erase(i);
+				}
+			}
+			return 0;
+		}
+	}
+	function countADVObjCg(){
+		cleaningADVObjectList();
+
+		var cnt = 0;
+		for(var i=_objList.count-1;i>=0;i--){
+			if((_objList[i].kind == ADVOBJ_CG) &&
+			   (_objList[i].destroy == ADVOBJ_DESTROY_NONE))
+				cnt++;
+		}
+		return cnt;
+	}
+	function countADVObjBustup(){
+		cleaningADVObjectList();
+
+		var cnt = 0;
+		for(var i=_objList.count-1;i>=0;i--){
+			if((_objList[i].kind == ADVOBJ_BUSTUP) &&
+			   (_objList[i].destroy == ADVOBJ_DESTROY_NONE))
+				cnt++;
+		}
+		return cnt;
+	}
+	//id偐傜僀儞僨僢僋僗傪庢摼偡傞
+	function getADVObjectIndex(id, fAll=false){
+		cleaningADVObjectList();
+
+		for(var i=0;i<_objList.count;i++){
+			if(fAll){
+				if(_objList[i].id == id){
+					return i;
+				}
+			}else{
+			//徚柵梊掕偺僆僽僕僃僋僩偼柍帇偡傞
+				if((_objList[i].id == id)  &&
+				   (_objList[i].destroy == ADVOBJ_DESTROY_NONE)){
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+	//id偐傜僆僽僕僃僋僩傪庢摼偡傞
+	function getADVObjectObject(id, fAll=false){
+		cleaningADVObjectList();
+
+		for(var i=0;i<_objList.count;i++){
+			if(fAll){
+				if(_objList[i].id == id){
+					return _objList[i];
+				}
+			}else{
+			//徚柵梊掕偺僆僽僕僃僋僩偼柍帇偡傞
+				if((_objList[i].id == id)  &&
+				   (_objList[i].destroy == ADVOBJ_DESTROY_NONE)){
+					return _objList[i];
+				}
+			}
+		}
+		return -1;
+	}
+	function cleaningADVObjectList(){
+		for(var i=_objList.count-1;i>=0;i--){
+			if(_objList[i].destroy == ADVOBJ_DESTROY_STANDBY){
+				invalidate _objList[i];
+				_objList.erase(i);
+			}
+		}
+	}
+	function sortADVObjectBustupRelate(){
+	//儕僗僩撪偺僶僗僩傾僢僾傪relate偺徃弴偵暲傃懼偊傞
+		//ADVOBJ_CG傪愭摢傊婑偣傞
+		var i, j;
+		for(i=0;i<_objList.count-1;i++){
+			if(_objList[i].kind == ADVOBJ_BUSTUP){
+				for(j=i+1;j<_objList.count;j++){
+					if(!_fBustupRelateFlip){
+						if((_objList[j].kind == ADVOBJ_BUSTUP) &&
+						   (_objList[i].relate > _objList[j].relate)){
+							_objList[i] <-> _objList[j];
+						}
+					}else{
+					//埵抲娭學斀揮
+						if((_objList[j].kind == ADVOBJ_BUSTUP) &&
+						   (_objList[i].relate < _objList[j].relate)){
+							_objList[i] <-> _objList[j];
+						}
+					}
+				}
+			}
+		}
+	}
+
+	//僇儊儔憖嶌
+	function cameraMode(mode=camera_auto){
+		_camera_mode = mode;
+	}
+	function moveCamera(elm=%[]){
+		//僇儊儔偑傾僋僔儑儞拞側傜巭傔傞
+		if(_actionList.isAction(_camera_pos))
+			_actionList.stopAction(_camera_pos);
+
+//		var scale = 2.0 * (1.0 + ((_camera_pos.z+BG_RANGE_MAX)) / BG_RANGE_MAX);
+		var scale = 2.0;
+
+		cleaningADVObjectList();
+
+		var pos;
+		if(elm.pos === void)
+			pos = new Point();
+		else
+			pos = PointStrToNum(elm.pos);
+		if(elm.x !== void) pos.x = elm.x;
+		if(elm.y !== void) pos.y = elm.y;
+		if(elm.z !== void) pos.z = elm.z;
+
+		pos.z -= BG_RANGE_MAX;
+
+		if(elm.id !== void){
+			var id = getADVObjectIndex(elm.id);
+			if(id != -1){
+				pos.x = _objList[id].getWorldPos().x / scale;
+			}
+		}
+		pos.x *= scale;
+		pos.y *= scale;
+
+		var accel;
+		if(elm.accel !== void)
+			accel = elm.accel;
+		else
+			accel = 2;
+
+		var time = 500;
+		if(elm.time !== void)
+			time = int(elm.time);
+		if(isSkip())
+			time = 0;
+		if(CONFIG.screenEffect == 0)
+			time = 0;
+
+		//峏怴帪娫傪墘弌懍搙愝掕偱曗惓
+		time = ReviceEffectSpeed(time);
+
+		if(time == 0){
+			@if(__DEBUGMODE__)
+				debug.setCameraPos(int(pos.x/scale), int(pos.y/scale), pos.z+BG_RANGE_MAX);
+			@endif
+
+			_camera_pos.set(pos);
+
+			putCameraViewObject(pos);
+		}else{
+			startAction();
+
+			_fCamera_move = true;
+			_camera_move.set(_camera_pos, pos, accel);
+			_camera_move_start = _actionTimeKeeper.now();
+			_camera_move_time = time;
+		}
+	}
+	function putCameraViewObject(camera){
+	//僇儊儔偵崌傢偣偰僆僽僕僃僋僩傪攝抲
+		for(var i=0;i<_objList.count;i++){
+			with(_objList[i]){
+				var pos = worldToScreen(camera, .getWorldPos());
+				if(.left != int(-pos.x) || .top != int(-pos.y))
+					.setPos(-pos.x, -pos.y);
+				if(.zoomx != pos.z)
+					.zoom = pos.z;
+			}
+		}
+	}
+
+	function onCameraCallback(now, fPutObj=true){
+		var t;
+		if(_camera_move_time == 0.0){
+			t = 1.0;
+		}else{
+			//宱夁帪娫偐傜恑捇傪寁應
+			t = (now - _camera_move_start) / real(_camera_move_time);
+			if(t > 1.0) t = 1.0;
+		}
+
+		var pt = new Point();
+		if(_fCamera_move){
+			pt.set(_camera_move.pt(t));
+		}else{
+			pt.set(_camera_pos);
+		}
+
+		if(t >= 1.0){
+			flushMoveCamera();
+		}else{
+			if(fPutObj) putCameraViewObject(pt);
+			_camera_pos.set(pt);
+		}
+
+		@if(__DEBUGMODE__)
+//			var scale = 2.0 * (1.0 + ((pt.z+BG_RANGE_MAX)) / BG_RANGE_MAX);
+			var scale = 2.0;
+			debug.setCameraPos(pt.x/scale, pt.y/scale, pt.z + BG_RANGE_MAX);
+		@endif
+	}
+	function flushMoveCamera(fPutObj=true){
+		var pt = new Point();
+		if(_fCamera_move){
+			pt.set(_camera_move.pt(1.0));
+		}else{
+			pt.set(_camera_pos);
+		}
+		if(fPutObj) putCameraViewObject(pt);
+		_camera_pos.set(pt);
+		_fCamera_move = false;
+
+		_scCtrl.trigger("movecamera_end");
+
+		@if(__DEBUGMODE__)
+//			var scale = 2.0 * (1.0 + ((pt.z+BG_RANGE_MAX)) / BG_RANGE_MAX);
+			var scale = 2.0;
+			debug.setCameraPos(pt.x/scale, pt.y/scale);
+		@endif
+	}
+
+	//儚乕儖僪仺僗僋儕乕儞曄姺
+	function worldToScreen(camera, wPos){
+		var tempPos = new Point();
+
+		var z = wPos.z - camera.z;
+		tempPos.x = ((camera.x-wPos.x)*BG_RANGE_MAX) / z;
+		tempPos.y = ((camera.y-wPos.y)*BG_RANGE_MAX) / z;
+		tempPos.z = 100 * (wPos.z+BG_RANGE_MAX) / (wPos.z-camera.z);	//Z偼奼戝棪偱棙梡
+
+		return tempPos;
+	}
+	//僗僋儕乕儞仺儚乕儖僪曄姺
+	function screenToWorld(camera, pos){
+		var tempPos = new Point();
+
+		var z = pos.z-camera.z;
+		tempPos.x = camera.x + (pos.x * z) / BG_RANGE_MAX;
+		tempPos.y = camera.y + (pos.y * z) / BG_RANGE_MAX;
+		tempPos.z = pos.z;
+
+		return tempPos;
+	}
+
+	function onActionCallback(now){
+		var time = _actionTimeKeeper.now();
+
+		//僇儊儔堏摦
+		if(_fCamera_move)
+			onCameraCallback(time, false);
+
+		//傾僋僔儑儞
+		if(_actionList.count != 0){
+			_actionList.doAction(time);
+		}
+
+		//僇儊儔偵崌傢偣偰僆僽僕僃僋僩攝抲
+		putCameraViewObject(_camera_pos);
+
+		@if(__DEBUGMODE__)
+			debug.setCameraPos(_camera_pos.x, _camera_pos.y, _camera_pos.z+BG_RANGE_MAX);
+		@endif
+
+		if(!isActivity()){
+			stopAction();
+		}
+	}
+
+	function startAction(){
+		System.addContinuousHandler(onActionCallback);
+		_fAction = true;
+	}
+	function stopAction(){
+		System.removeContinuousHandler(onActionCallback);
+		_fAction = false;
+	}
+	function pauseAction(){
+		if(!_fAction) return;
+
+		_actionTimeKeeper.pause();
+		System.removeContinuousHandler(onActionCallback);
+	}
+	function restartAction(){
+		if(!_fAction) return;
+
+		_actionTimeKeeper.restart();
+		System.addContinuousHandler(onActionCallback);
+	}
+	function isActivity(){
+	//妶摦拞偺僆僽僕僃僋僩偼偁傞偐丠
+
+		//傾僋僔儑儞儕僗僩偑侾埲忋側傜妶摦拞
+		if(_actionList.count != 0) return true;
+
+		//僇儊儔偑堏摦拞側傜妶摦拞
+		if(_fCamera_move) return true;
+
+		return false;
+	}
+
+	//僂傿儞僪僂僋儔僗偐傜偺擖椡捠抦
+	function onMouseDown(x, y, button, shift){
+		_shift = shift;
+
+//		if(isSkip(true)) skip(false);	//僗僉僢僾夝彍
+
+		if(button == mbLeft){
+			if(!_msg.isShow() && _advHide == false){
+				show(300);
+			}else{
+				click();
+			}
+		}else if(button == mbRight){
+			//儊僢僙乕僕僼儗乕儉徚嫀
+			if(isAuto() || isSkip(true)){
+				skip(false);	//僗僉僢僾夝彍
+				auto(false);	//僆乕僩夝彍
+			}else if(_advHide == false){
+				if(_msg.isActivation()){
+				//僼僃乕僪拞側傜側偵傕偟側偄
+				}else if(_msg.isShow() && _hitretState){
+					hide(300);
+				}else{
+					show(300);
+				}
+			}
+			rClick();
+		}
+	}
+	function onMouseWheel(shift, delta, x, y){
+		_shift = shift;
+
+		if(delta < 0){
+		//儊僢僙乕僕傪恑傔傞
+			click();
+		}else if(delta > 0){
+		//棜楌昞帵
+			callSystemWindow(SYSWIN_HISTORY);
+		}
+	}
+	function onMouseMove(x, y, shift){
+	}
+
+	function onKeyDown(key, shift){
+		_shift = shift;
+		if(key == VK_RETURN ||	//僋儕僢僋
+		   key == VK_DOWN ||
+		   key == VK_NEXT ||
+		   key == VK_SPACE
+		){
+			click();
+
+		//=======================================
+		//僔儑乕僇僢僩僉乕
+		}else if( key == VK_ESCAPE){	//儊僢僙乕僕僼儗乕儉徚嫀
+			if(isAuto() || isSkip(true)){
+				skip(false);	//僗僉僢僾夝彍
+				auto(false);	//僆乕僩夝彍
+			}else if(_advHide == false){
+				if(_msg.isActivation()){
+				//僼僃乕僪拞側傜側偵傕偟側偄
+				}else if(_msg.isShow() && _hitretState){
+					hide(300);
+				}else{
+					show(300);
+				}
+			}
+			rClick();
+		}else if(key == VK_CONTROL){	//儊僢僙乕僕憲傝
+			click();
+		//----------------------------------------
+		@if(__DEBUGMODE__)
+			}else if( key == VK_F10){
+			//尰嵼偺僔僫儕僆丒峴傪僄僨傿僞乕偱奐偔
+				var exe = CONFIG.debugEditerPath;
+				if(exe == ""){
+					var param = %[];
+					with(param){
+						.title = "僥僉僗僩僄僨傿僞乕傪慖戰偟偰偔偩偝偄";
+						.filter = ["僄僨傿僞乕(*.exe)|*.exe"];
+						.initialDir = "";
+					}
+
+					Storages.selectFile(param);
+					if(param.name != "")
+						CONFIG.debugEditerPath = exe = Storages.getLocalName(param.name);
+					else
+						CONFIG.debugEditerPath = exe = "C:\\Windows\\notepad.exe";
+				}
+				exe = exe.toUpperCase();
+
+				var file = Storages.getPlacedPath(_scenario + ".ks");
+				var path = Storages.getLocalName(file);
+				var param = path;
+				if(exe.indexOf("HIDEMARU") != -1)	//廏娵側傜峴巜掕傕
+					param = "/j%d ".sprintf(_scCtrl.curLine) + path;
+
+				if(Storages.isExistentStorage(exe))
+					System.shellExecute(exe, param);
+				else
+					System.shellExecute(path);
+			}else if(key == VK_S){
+				//傾僋僔儑儞僞僀儅偺堦帪掆巭丒嵞奐
+				if(!_actionTimeKeeper.isPause())
+					pauseAction();
+				else
+					restartAction();
+			}else if(key == VK_D){
+				cleaningADVObjectList();
+			}else if(key == VK_A){
+		@endif
+
+		//----------------------------------------
+		//僼傽儞僋僔儑儞
+		}else if( key == VK_F1){	//Q.save
+			quickSave();
+		}else if( key == VK_F2){	//Q.load
+			quickLoad();
+		}else if( key == VK_F3 && !(shift&ssAlt)){	//僙乕僽
+			callSystemWindow(SYSWIN_SAVE);
+		}else if( key == VK_F4){	//儘乕僪
+			callSystemWindow(SYSWIN_LOAD);
+		}else if( key == VK_F5){	//僐儞僼傿僌
+			callSystemWindow(SYSWIN_CONFIG);
+		}else if( key == VK_F6){	//僆乕僩
+			auto(!_msg.auto);
+		}else if( key == VK_F7){	//僗僉僢僾
+			skip(!_msg.skip);
+		}else if( key == VK_F8 ||	//棜楌
+		          key == VK_PRIOR ||
+		          key == VK_UP){
+			callSystemWindow(SYSWIN_HISTORY);
+		}else if( key == VK_F9){	//壒惡嵞惗
+			if(_msg._voice != "" && _hitretState)
+				playVoice(_msg._voice, _msg._pan, false);
+		}
+
+		if( isSkip(true) && !_startSelect &&
+			(key == VK_RETURN || key == VK_SPACE || key == VK_ESCAPE)){
+			skip(false);	//僗僉僢僾夝彍
+		}
+	}
+
+	function onKeyUp(key, shift){
+		_shift = shift;
+	}
+
+	//僞僀儉傾僂僩捠抦
+	function onTimeOut(){
+		_scCtrl.trigger("timeout");
+	}
+
+	function action(ev){
+		//僩儔儞僕僔儑儞拞偵僋儕僢僋偝傟偨
+		if(ev.target == _sprTrans){
+			switch(ev.type){
+			case "onMouseDown":
+				onMouseDown(ev.x, ev.y, ev.button, ev.shift);
+				break;
+			case "onMouseWheel":
+				onMouseWheel(ev.shift, ev.delta, ev.x, ev.y);
+				break;
+			case "onKeyDown":
+				onKeyDown(ev.key, ev.shift);
+				break;
+			}
+
+		//僒僂儞僪僀儀儞僩
+		}else if(ev.type == "onStatusChanged" && ev.status == "stop"){
+			var snd = ev.target;
+			if(BGM.indexOfObject(snd) != -1){
+				_scCtrl.trigger("bgm_end");
+			}else if(SE.indexOfObject(snd) != -1){
+				_scCtrl.trigger("se_end");
+			}else if(ENVSE.indexOfObject(snd) != -1){
+				_scCtrl.trigger("envse_end");				//
+				_scCtrl.trigger("envse_end:"+snd.id);		//id傪捛壛偟偨僩儕僈乕傕堷偔
+			}else if(VOICE.indexOfObject(snd) != -1){
+				//摨帪壒惡偺応崌偼嵟屻偵廔椆偟偨壒惡偺傒僩儕僈乕傪堷偔
+				if(!VOICE.isPlay()) _scCtrl.trigger("voice_end");
+
+				if(!VOICE.isPlay()){
+				//慡偰偺壒惡偑廔椆偟偨
+					if(_fPlayedVoice){
+						if(checkAutoEvent(AUTOSTATE_VOICE_END)){ click();}
+						_fPlayedVoice = false;
+					}
+				}
+
+				@if(__DEBUGMODE__)
+					//_msg.stopVoice();
+				@endif
+			}else if(SYSTEMSOUND.indexOfObject(snd) != -1){
+				_scCtrl.trigger("system_end");
+			}
+		}else if(ev.type == "onStatusChanged" && ev.status == "play"){
+			var snd = ev.target;
+			if(BGM.indexOfObject(snd) != -1){
+				_scCtrl.trigger("bgm_play");
+			}else if(SE.indexOfObject(snd) != -1){
+				_scCtrl.trigger("se_play");
+			}else if(ENVSE.indexOfObject(snd) != -1){
+				_scCtrl.trigger("envse_play");
+			}else if(VOICE.indexOfObject(snd) != -1){
+				_scCtrl.trigger("voice_play");
+			}else if(SYSTEMSOUND.indexOfObject(snd) != -1){
+				_scCtrl.trigger("system_play");
+			}
+		//儉乕價乕僀儀儞僩
+		}else if(ev.type == "Movie.onStatusChanged" && ev.status == "play"){
+			_scCtrl.trigger("movie_start");
+		}else if(ev.type == "Movie.onStatusChanged" && ev.status == "stop"){
+			_scCtrl.trigger("movie_end");
+			onStopMovie();
+
+		//僗僞僢僼儘乕儖廔椆
+		}else if(ev.type == "staffroll_end"){
+			_scCtrl.trigger("staffroll_end");
+
+		//僂傿儞僪僂傾僋僥傿僽丒旕傾僋僥傿僽
+		}else if(ev.type == "onActivate"){
+			_shift = 0x0;
+			if(System.getKeyState(VK_SHIFT)) _shift |= ssShift;
+			if(System.getKeyState(VK_MENU)) _shift |= ssAlt;
+			if(System.getKeyState(VK_CONTROL)){
+				_shift |= ssCtrl;
+				click();
+			}
+		}else if(ev.type == "onDeactivate"){
+
+		}else if(ev.type == "onCloseQuery"){
+		//暵偠傞儃僞儞偑墴偝傟偨
+			if(isAuto()) auto(false, true);
+//			if(isSkip()) skip(false);
+			if(isSkip()) _requestStopSkip = true;
+
+			if(!game.enableClose) return;		//暵偠傞儃僞儞梷惂
+
+//			if(!_hitretState && !IsPlayMovie() && !IsStaffRoll())
+//				_scCtrl.wait(_hitretWaitUntil);
+		}
+	}
+
+	function onButtonDownL(target){
+		if(_startSelect){
+			for(var i=0;i<_select.count;i++){
+				if((target == _selectBtn[i].btn)){
+					ret_select = i+1;
+					ret_select_str = _select[i].text;
+					_logSelect.add(ret_select);		//儘僌偵婰榐
+					endSelect();
+
+					//慖戰巿傪儘僌偵曐懚
+					_logName.add("■选择项■");
+					_logMess.add("／『" + ret_select_str + "』");
+					_logVoice.add("");
+					_logParam.add(%[font:%[], pan:""]);
+
+					//慖戰巿偑寛掕偝傟偨丅
+					//偙傟埲崀偼_hitretState偑true偵側傞傑偱俻僙乕僽偑梷惂偝傟傞丅
+					_hitretState = false;
+
+					//if(CONFIG.lockSkip == 0 && isSkip())
+					//	skip(false);
+				}
+			}
+			if(CONFIG.voiceStopOnClick){
+			//壒惡嵞惗拞偵僋儕僢僋偑敪惗偟偨応崌偼掆巭偡傞
+				_fPlayVoice = false;
+				if(VOICE.isPlay()) StopVoice();
+			}
+		}
+	}
+	function onButtonDownR(target){
+		onMouseDown(0, 0, mbRight, 0);
+	}
+	function onButtonEnter(target){
+		if(_startSelect){
+			for(var i=0;i<_selectBtn.count;i++){
+				if(target == _selectBtn[i].btn) blurSelectHint(i);
+			}
+		}
+	}
+
+	//僞僌僴儞僪儔
+	function getHandlers(){
+		return %[
+
+		//儊僢僙乕僕張棟宯
+		talk : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			var pan = "";
+			if(elm.pan !== void)
+				pan = string(elm.pan);
+			var voice = "";
+			if(elm.voice !== void)
+				voice = elm.voice;
+
+			talk(elm.name, voice, pan);
+
+			//埲崀丄夵峴僐乕僪偺庢摼傪桳岠偵偡傞丅
+			//夵峴僐乕僪傪庢摼偡傞斖埻偼@Tal乣@Hitret
+			_scCtrl.ignoreCR = false;
+
+			return taghandler_end;
+		} incontextof this,
+
+		ch : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			ch(elm.text);
+			return taghandler_getcontinue;
+		} incontextof this,
+		r : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			ch("／");
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		font : function(elm){
+			_fFont = true;
+			_fontElm.face = elm.face;
+			if(elm.size !== void)
+				_fontElm.size = elm.size;
+			else
+				_fontElm.size = ADV_FONT_MESS_SIZE;
+			if(elm.bold !== void)
+				_fontElm.bold = 1;
+			else
+				_fontElm.bold = 0;
+			if(elm.italic !== void)
+				_fontElm.italic = 1;
+			else
+				_fontElm.italic = 0;
+			if(elm.color !== void)
+				_fontElm.color = GetDefineColor(elm.color) & 0xffffff;
+			else
+				_fontElm.color = -1;
+			if(elm.bkcolor !== void)
+				_fontElm.bkcolor = GetDefineColor(elm.bkcolor) & 0xffffff;
+			else
+				_fontElm.bkcolor = -1;
+			if(elm.indent !== void)
+				_fontElm.indent = int elm.indent;
+			else
+				_fontElm.indent = ADV_FONT_MESS_INDENT;
+
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		partmess : function(elm){
+			_partMess.add(
+			%[mess:elm.mess, face:elm.font, size:elm.size, color:elm.color, bkcolor:elm.bkcolor, bold:elm.bold, italic:elm.italic]
+			);
+
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		ruby : function(elm){
+			if(elm.mess === void || elm.read === void) return;
+
+			_ruby.add(%[mess:elm.mess, read:elm.read]);
+
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		ignorekinsoku : function(elm){
+			_fIgnoreKinsoku = true;
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		scene : function(elm){
+			_scene = elm.text;
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		hitret : function(elm){
+			//埲崀丄夵峴僐乕僪偺庢摼傪柍岠偵偡傞丅
+			_scCtrl.ignoreCR = true;
+
+			if(_fLoad && _hitretCnt > 0){
+			//傑偩暅婣抧揰傑偱堏摦拞丅丅丅
+				if(_fFont) resetFontElm();
+
+				_hitretCnt--;
+				return taghandler_getcontinue;
+			}
+
+			if(elm.id === void)
+				hitret();
+			else
+				hitret(elm.id);
+
+			_hitretWaitUntil = %[
+			click : function(){
+			} incontextof this
+			];
+
+			_hitretState = false;
+
+			if(isSkip()){
+			//Ctrl墴壓拞偼僔僫儕僆傪巭傔偢偵恑傔傞丅
+				if(_face != "") _face = "";
+
+				return taghandler_getcontinue;
+//			}else if(checkAutoClick()){
+//				click();
+//				return taghandler_end;
+			}else{
+				_hitretState = true;		//hitret拞
+
+				//僔僫儕僆傪掆巭偟偰擖椡懸偪丅
+				_scCtrl.wait(_hitretWaitUntil);
+
+				var fVoice = VOICE.isPlay();
+
+				if(isAuto() && !fVoice){
+					startAutoTimer();
+				}
+
+				return taghandler_end;
+			}
+		} incontextof this,
+		hitwait : function(elm){
+		//壒惡廔椆懸偪傕壛偊偨@hitret
+			if(_fLoad && _hitretCnt > 0){
+			//傑偩暅婣抧揰傑偱堏摦拞丅丅丅
+				if(_fFont) resetFontElm();
+
+				_hitretCnt--;
+				return taghandler_getcontinue;
+			}
+
+			if(elm.id === void)
+				hitret();
+			else
+				hitret(elm.id);
+
+			_hitretWaitUntil = %[
+			click : function(){
+			} incontextof this,
+			voice_end : function(){
+			} incontextof this
+			];
+
+			if(isSkip()){
+			//Ctrl墴壓拞偼僔僫儕僆傪巭傔偢偵恑傔傞丅
+				return taghandler_getcontinue;
+//			}else if(checkAutoClick()){
+//				click();
+//				return taghandler_end;
+			}else{
+				//僔僫儕僆傪掆巭偟偰擖椡懸偪丅
+				_scCtrl.wait(_hitretWaitUntil);
+
+				var fVoice = VOICE.isPlay();
+
+				if(isAuto() && !fVoice){
+					startAutoTimer();
+				}
+
+				return taghandler_end;
+			}
+		} incontextof this,
+
+		show : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			show(300);
+			if(elm.wait === void){
+				return taghandler_getcontinue;
+			}else{
+				_scCtrl.wait( %[
+				show_end : function(){
+				} incontextof this
+				]);
+
+				return taghandler_end;
+			}
+		} incontextof this,
+
+		hide : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			hide(300, true);
+			if(elm.wait === void){
+				return taghandler_getcontinue;
+			}else{
+				_scCtrl.wait( %[
+				hide_end : function(){
+				} incontextof this
+				]);
+
+				return taghandler_end;
+			}
+		} incontextof this,
+
+		movewindow : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			var x, y;
+			x = elm.x !== void ? int elm.x : 0;
+			y = elm.y !== void ? int elm.y : 0;
+			moveWindow(x, y);
+
+			return taghandler_getcontinue;
+		} incontextof this,
+
+
+		//夋柺昞帵宯
+		cg : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			elm.file = elm.file.toUpperCase();
+			addOrderList(elm);
+			_update |= UPDATE_CG;
+
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		char : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			elm.file = elm.file.toUpperCase();
+			addOrderList(elm);
+			_update |= UPDATE_BUSTUP;
+
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		clearchar : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			addOrderList(elm);
+			_update |= UPDATE_BUSTUP;
+
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		autoposition : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			_fBustupAutoPositioning = true;
+
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		charrelate : function(elm){
+			_fBustupRelateFlip = elm.flip!==void?true:false;
+			_update |= UPDATE_CG;
+
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		update : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			if(elm.time === void) elm.time = 500;
+
+			var ret = taghandler_getcontinue;
+			if(isAuto() && _update & UPDATE_CG){
+			//僆乕僩儌乕僪拞偺慡夋柺峏怴偼峏怴廔椆傪懸偮
+				_scCtrl.wait(
+				%[
+				click : function(){
+				} incontextof this,
+				transition_end : function(){
+				} incontextof this
+				]
+				);
+				ret = taghandler_end;
+			}
+
+			update(elm);
+
+			return ret;
+		} incontextof this,
+
+		waitupdate : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			if(isTransition()){
+				if(elm.hitcancel === void){
+					_scCtrl.wait(
+					%[
+					click : function(){
+					} incontextof this,
+					transition_end : function(){
+					} incontextof this
+					]
+					);
+				}else{
+				//僋儕僢僋僉儍儞僙儖柍岠
+					_scCtrl.wait(
+					%[
+					transition_end : function(){
+					} incontextof this
+					]
+					);
+				}
+
+				return taghandler_end;
+			}else{
+				return taghandler_getcontinue;
+			}
+		} incontextof this,
+
+		//僇儊儔憖嶌
+		cameraauto : function(elm){		//帺摦捛旜
+			if(_fLoad) return taghandler_getcontinue;
+
+			cameraMode(camera_auto);
+			return taghandler_getcontinue;
+		} incontextof this,
+		camerafix : function(elm){		//屌掕
+			if(_fLoad) return taghandler_getcontinue;
+
+			cameraMode(camera_fix);
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		movecamera : function(elm){
+		/*
+			僇儊儔埵抲曄峏
+			elm.pos.x : 0偱嵍塃拞墰丅惓偱塃丄晧偱嵍丅
+			elm.pos.y : 0偱忋壓拞墰丅惓偱壓丄晧偱忋丅
+			elm.pos.z : 0偱昗弨埵抲丅惓偱僘乕儉傾僢僾丅晧偱僘乕儉僟僂儞丅
+			elm.time : 0偱弖帪堏摦
+		*/
+			if(_fLoad) return taghandler_getcontinue;
+
+//			addOrderList(elm);
+			moveCamera(elm);
+			return taghandler_getcontinue;
+		} incontextof this,
+		waitcamera : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			if(!_fAction)
+				return taghandler_getcontinue;
+
+			if(!_fCamera_move)
+				return taghandler_getcontinue;
+
+			if(elm.hitcancel === void){
+				_scCtrl.wait(
+				%[
+				click : function(){
+				} incontextof this,
+				movecamera_end : function(){
+				} incontextof this
+				]
+				);
+			}else{
+			//僋儕僢僋僉儍儞僙儖柍岠
+				_scCtrl.wait(
+				%[
+				movecamera_end : function(){
+				} incontextof this
+				]
+				);
+			}
+			return taghandler_end;
+		} incontextof this,
+
+		//慖戰巿
+		addselect : function(elm){
+			addSelect(elm);
+			return taghandler_getcontinue;
+		} incontextof this,
+		startselect : function(elm){
+			if(_fLoad && _hitretCnt > 0){
+				_hitretCnt--;
+
+				ret_select = _logSelect[_selectCnt];
+				ret_select_str = _select[_selectCnt-1];
+				_selectCnt++;
+
+				_select.clear();
+				return taghandler_getcontinue;
+			}
+
+			startSelect();
+			_hitretState = true;
+
+			_scCtrl.wait(
+			%[
+			select : function(){
+			} incontextof this
+			]
+			);
+
+			return taghandler_end;
+		} incontextof this,
+		setselect : function(elm){
+			ret_select = elm.id;
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		//傾僋僔儑儞
+		action : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			addOrderList(elm);
+			return taghandler_getcontinue;
+		} incontextof this,
+		stopaction : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			addOrderList(elm);
+			return taghandler_getcontinue;
+		} incontextof this,
+		waitaction : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			//id巜掕偑柍偄応崌偼柍岠
+			if(elm.id === void) return taghandler_getcontinue;
+
+			//峏怴偑偁傞側傜偙偙偱傗偭偰偟傑偆
+			if(_update) update();
+
+			//杮懱
+			var index  = getADVObjectIndex(elm.id, true);
+			if(index == -1){
+			//杮懱偑側偄丅徚偊傛偆偲偟偰偄傞僆僽僕僃僋僩偐傕
+				index  = getADVObjectIndex(elm.id+"-trans", true);
+			}
+
+			var target;
+			if(index != -1){
+			//ADV僆僽僕僃僋僩
+				target = _objList[index];
+			}else if(elm.id == "儊僢僙乕僕"){
+				target = _msg;
+			}else if(elm.id == "僇儊儔"){
+				target = _camera_pos;
+			}else if(elm.id == "僼僃僀僗"){
+				target = _msg._sprFace;
+			}else{
+				return taghandler_getcontinue;
+			}
+
+			//僞乕僎僢僩僆僽僕僃僋僩偑傾僋僔儑儞拞偐
+			if(!_actionList.isAction(target))
+				return taghandler_getcontinue;
+
+			//儖乕僾傾僋僔儑儞偩偲廔椆偟側偄偺偱柍岠
+			if(_actionList.sequence(target).isLoop())
+				return taghandler_getcontinue;
+
+			_actionWaitTarget = target;
+
+			if(elm.hitcancel === void){
+				_scCtrl.wait(
+				%[
+				click : function(){
+				} incontextof this,
+				action_end : function(){
+				} incontextof this
+				]
+				);
+			}else{
+			//僋儕僢僋僉儍儞僙儖柍岠
+				_scCtrl.wait(
+				%[
+				action_end : function(){
+				} incontextof this
+				]
+				);
+			}
+			return taghandler_end;
+		} incontextof this,
+
+		//僉儍儔傾僋僔儑儞梡傾僋僔儑儞丒儔僢僷乕
+		//嵗昗堏摦
+		move : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			if(elm.left !== void) elm.mx = -int(elm.left);
+			else if(elm.right !== void) elm.mx = int(elm.right);
+			if(elm.top !== void) elm.my = -int(elm.top);
+			else if(elm.bottom !== void) elm.my = int(elm.bottom);
+
+			elm.tagname = "action";		//action偲偟偰搊榐
+			elm.action = "ActionAdvMove";
+			addOrderList(elm);
+			_update |= UPDATE_BUSTUP;
+			return taghandler_getcontinue;
+		} incontextof this,
+		//搊応
+		enter : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			if(elm.mx !== void) elm.mx = int(elm.mx);
+			else if(elm.left !== void) elm.mx = -int(elm.left);
+			else if(elm.right !== void) elm.mx = int(elm.right);
+			else elm.mx = -100;
+			elm.x = int(elm.x) + int(elm.mx);
+			if(elm.my !== void) elm.my = int(elm.my);
+			else if(elm.top !== void) elm.my = -int(elm.top);
+			else if(elm.bottom !== void) elm.my = int(elm.bottom);
+			elm.y = int(elm.y) + int(elm.my);
+
+			//僼傽僀儖柤偐傜ID傪挷傋傞
+			var info = new ADVObjectInfo();
+			SetupBustup(info, elm.file);
+			//id偑巜掕偝傟偰偄傞偲偒偼偦傟傪巊梡偡傞
+			if(elm.id !== void) info.id = elm.id;
+
+			//char偲偟偰搊榐
+			elm.tagname = "char";
+			//elm.tempPosition = true;	//嵗昗巜掕偑偁偭偰傕帺摦埵抲挷惍愝掕傪曐帩偝偣傞
+			addOrderList(elm);
+			_update |= UPDATE_BUSTUP;
+
+			//action偲偟偰搊榐
+			addOrderList(%[tagname:"action", id:info.id, action:"ActionAdvMove", mx:-elm.mx, my:-elm.my, cycle:elm.cycle, accel:elm.accel]);
+			return taghandler_getcontinue;
+		} incontextof this,
+		//嫀傞
+		leave : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			if(elm.mx !== void) elm.mx = int(elm.mx);
+			else if(elm.left !== void) elm.mx = -int(elm.left);
+			else if(elm.right !== void) elm.mx = int(elm.right);
+			else elm.mx = 100;
+			if(elm.my !== void) elm.my = int(elm.my);
+			else if(elm.top !== void) elm.my = -int(elm.top);
+			else if(elm.bottom !== void) elm.my = int(elm.bottom);
+			elm.y = int(elm.y) + int(elm.my);
+
+			elm.tagname = "action";		//action偲偟偰搊榐
+			elm.action = "ActionAdvMoveFadeOut";
+			addOrderList(elm);
+
+			addOrderList(%[tagname:"clearchar", id:elm.id]);
+
+			_fBustupAutoPositioning = false;			//帺摦埵抲挷惍傪柍岠偵丅
+
+			_update |= UPDATE_BUSTUP;
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		//僇僢僩僀儞
+		cutin : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			addOrderList(elm);
+			if(elm.file !== void || elm.hide !== void)
+				_update |= UPDATE_CUTIN;
+
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		//僼儔僌宯
+		onflag : function(elm){
+			onFlag(elm.id);
+			return taghandler_getcontinue;
+		} incontextof this,
+		offflag : function(elm){
+			offFlag(elm.id);
+			return taghandler_getcontinue;
+		} incontextof this,
+		setparam : function(elm){
+			var pos = PointStrToNum(elm.arg);
+			setParam(pos.x, pos.y);
+			return taghandler_getcontinue;
+		} incontextof this,
+		addparam : function(elm){
+			var pos = PointStrToNum(elm.arg);
+			addParam(pos.x, pos.y);
+			return taghandler_getcontinue;
+		} incontextof this,
+		clearparam : function(elm){
+			var pos = PointStrToNum(elm.arg);
+			clearParam(pos.x, pos.y);
+			return taghandler_getcontinue;
+		} incontextof this,
+		//僌儘乕僶儖僼儔僌
+		onglobalflag : function(elm){
+			onGlobalFlag(elm.id);
+			return taghandler_getcontinue;
+		} incontextof this,
+		offglobalflag : function(elm){
+			offGlobalFlag(elm.id);
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		//壒妝丒岠壥壒宯
+		playbgm : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			playBgm(elm);
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		stopbgm : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			stopBgm(elm);
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		playse : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			playSe(elm);
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		stopse : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			stopSe(elm);
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		playenvse : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			playEnvSe(elm);
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		stopenvse : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			stopEnvSe(elm);
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		playvoice : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			playVoice(elm.file, elm.pan);
+			return taghandler_getcontinue;
+		} incontextof this,
+		stopvoice : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			stopVoice(elm);
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		//墘弌宯
+		blackout : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			elm.tagname = "cg";
+			elm.file = "BLACK";
+			addOrderList(elm);
+			_update |= UPDATE_CG;
+
+			elm.color = "BLACK";
+			elm.enter = elm.time;
+			elm.leave = 0;
+
+			var func = getHandlers()["flash"];
+			return func(elm);
+
+		} incontextof this,
+		whiteout : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			elm.tagname = "cg";
+			elm.file = "WHITE";
+			addOrderList(elm);
+			_update |= UPDATE_CG;
+
+			elm.color = "WHITE";
+			elm.enter = elm.time;
+			elm.leave = 0;
+
+			var func = getHandlers()["flash"];
+			return func(elm);
+		} incontextof this,
+		colorout : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			colorOut(elm);
+
+			if(isSkip())
+				return taghandler_end;
+
+			if(!_sprTrans.isTransition()){
+				return taghandler_end;
+			}else if(elm.hitcancel === void){
+				_scCtrl.wait(
+				%[
+				click : function(){
+				} incontextof this,
+				transition_end : function(){
+				} incontextof this
+				]
+				);
+			}else{
+				_scCtrl.wait(
+				%[
+				transition_end : function(){
+				} incontextof this
+				]
+				);
+			}
+
+			return taghandler_end;
+		} incontextof this,
+
+		flash : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			if(isSkip()){
+				flashEnter(elm);
+				flashLeave();
+				return taghandler_end;
+			}
+
+			if(_sprFlash !== void){
+				flashEnd();
+			}
+
+			flashEnter(elm);
+
+			if(elm.hitcancel === void){
+				_scCtrl.wait(
+				%[
+				click : function(){
+				} incontextof this,
+				flash_end : function(){
+				} incontextof this
+				]
+				);
+			}else{
+				_scCtrl.wait(
+				%[
+				flash_end : function(){
+				} incontextof this
+				]
+				);
+			}
+
+			return taghandler_end;
+		} incontextof this,
+
+		tone : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			addOrderList(elm);
+			_update |= UPDATE_CG;
+
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		focus : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			addOrderList(elm);
+			_update |= UPDATE_CG;
+			//focus(elm);
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		//僔僫儕僆惂屼宯
+		//巜掕帪娫懸偪
+		wait : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			if(isSkip())
+				return taghandler_end;
+
+			if(elm.hitcancel === void){
+				_scCtrl.waitTimeOut( %[
+				click : function(){
+				} incontextof this,
+				timeout : function(){
+				} incontextof this
+				],
+				elm.time);
+			}else{
+				_scCtrl.waitTimeOut( %[
+				timeout : function(){
+				} incontextof this
+				],
+				elm.time);
+			}
+			return taghandler_end;
+		} incontextof this,
+		//壒妝偺廔椆懸偪
+		waitbgm : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			if(isSkip())
+				return taghandler_end;
+
+			if(BGM.isPlay()){
+				_scCtrl.wait( %[
+				click : function(){
+				} incontextof this,
+				bgm_end : function(){
+				} incontextof this
+				]);
+				return taghandler_end;
+			}else{
+				return taghandler_getcontinue;
+			}
+		} incontextof this,
+		//岠壥壒偺廔椆懸偪
+		waitse : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			if(isSkip())
+				return taghandler_end;
+
+			if(SE.isPlay()){
+				_scCtrl.wait( %[
+				click : function(){
+				} incontextof this,
+				se_end : function(){
+				} incontextof this
+				]);
+				return taghandler_end;
+			}else{
+				return taghandler_getcontinue;
+			}
+		} incontextof this,
+		//娐嫬壒偺廔椆懸偪
+		waitenvse : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			if(isSkip())
+				return taghandler_end;
+
+			var f = false;
+			if(elm.id !== void){
+			//id巜掕偑偁偭偨
+				var obj;
+				if((obj = ENVSE.objectOfId(elm.id, false)) != -1){
+					if(obj._waitEnding)
+					//僶僢僼傽偑懚嵼偟偰巭傑傠偆偲偟偰偄傞
+						f = true;
+				}
+			}else{
+			//巜掕側偟
+				f = ENVSE.isPlay();
+			}
+
+			if(f){
+				if(elm.id === void){
+					_scCtrl.wait( %[
+					click : function(){
+					} incontextof this,
+					envse_end : function(){
+					} incontextof this
+					]);
+				}else{
+					var wait = %[];
+					wait.click = function {};
+					wait["envse_end:"+elm.id.toUpperCase()] = function {};
+					_scCtrl.wait(wait);
+				}
+				return taghandler_end;
+			}else{
+				return taghandler_getcontinue;
+			}
+		} incontextof this,
+		//壒惡偺廔椆懸偪
+		waitvoice : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			if(isSkip())
+				return taghandler_end;
+
+			var fPlay = VOICE.isPlay();
+
+			if(fPlay){
+				if(elm.hitcancel === void){
+					_scCtrl.wait( %[
+					click : function(){
+					} incontextof this,
+					voice_end : function(){
+					} incontextof this
+					]);
+				}else{
+					_scCtrl.wait( %[
+					voice_end : function(){
+					} incontextof this
+					]);
+				}
+				return taghandler_end;
+			}else{
+				return taghandler_getcontinue;
+			}
+		} incontextof this,
+		pausebgm : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			pauseBgm();
+		} incontextof this,
+		restartbgm : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			restartBgm();
+		} incontextof this,
+		//僩儔儞僕僢僔儑儞偺廔椆懸偪
+		waittransition : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			if(isSkip())
+				return taghandler_end;
+
+			_scCtrl.wait( %[
+			click : function(){
+			} incontextof this,
+			transition_end : function(){
+			} incontextof this
+			]);
+			return taghandler_end;
+		} incontextof this,
+		//僗僋儘乕儖偺廔椆懸偪
+		waitscroll : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			if(isSkip())
+				return taghandler_end;
+
+			_scCtrl.wait( %[
+			click : function(){
+			} incontextof this,
+			scroll_end : function(){
+			} incontextof this
+			]);
+			return taghandler_end;
+		} incontextof this,
+
+		//僼傽僀儖僠僃儞僕
+		change : function(elm){
+			change(elm.target);
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		//儘僑偵栠傞
+		tologo : function(elm){
+			returnTo(SCENE_LOGO);
+
+			return taghandler_end;
+		} incontextof this,
+
+		//僞僀僩儖偵栠傞
+		totitle : function(elm){
+			returnTo(SCENE_TITLE);
+
+			return taghandler_end;
+		} incontextof this,
+
+		//夞憐拞側傜夞憐偵栠傞
+		recollect_end : function(elm){
+			if(_fRecollect){
+				returnTo(SCENE_MEMORIES);
+				return taghandler_end;
+			}
+
+			//僼儔僌傪僆儞
+			if(elm.id !== void) SetGlobalFlag(int elm.id, true);
+
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		//僔僫儕僆廔抂
+		terminate : function(elm){
+			returnTo(SCENE_LOGO);
+
+			return taghandler_end;
+		} incontextof this,
+
+		//儉乕價乕偺嵞惗
+		playmovie : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			playMovie(elm);
+
+			if(elm.hitcancel === void){
+				_scCtrl.wait( %[
+				rclick : function(){
+				} incontextof this,
+				movie_end : function(){
+				} incontextof this
+				]);
+			}else{
+				_scCtrl.wait( %[
+				movie_end : function(){
+				} incontextof this
+				]);
+			}
+
+			return taghandler_end;
+		} incontextof this,
+
+		staffroll : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			staffroll(elm);
+
+			_scCtrl.wait( %[
+			staffroll_end : function(){
+			} incontextof this
+			]);
+		} incontextof this,
+
+		//暵偠傞儃僞儞桳岠乛柍岠
+		canclose : function(elm){
+			if(elm.yes !== void) game.enableClose = true;
+			if(elm.no !== void) game.enableClose = false;
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		//僨僶僢僋梡儊僢僙乕僕
+		dm : function(elm){
+			dm(elm.text);
+			return taghandler_getcontinue;
+		} incontextof this,
+
+		//僎乕儉屌桳僐儅儞僪
+		eyecatch : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			eyeCatch(elm);
+
+			_scCtrl.wait( %[
+			eyecatch_end : function(){
+			} incontextof this
+			]);
+
+			return taghandler_end;
+		} incontextof this,
+		changedate : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+			return taghandler_getcontinue;
+		} incontextof this,
+		messageframe : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			messageFrame(elm);
+
+			return taghandler_getcontinue;
+		} incontextof this,
+		face : function(elm){
+			if(_fLoad) return taghandler_getcontinue;
+
+			var file = "";
+			if(elm.hide !== void){
+				file = "hide";
+			}else if(elm.hideonce !== void){
+				file = "hideonce";
+			}else if(elm.show !== void){
+				file = "show";
+			}else if(elm.file !== void){
+				file = elm.file;
+			}
+			_face = file;
+
+			return taghandler_getcontinue;
+		} incontextof this
+
+		];
+	}
+
+	//僐儅儞僪僼傽儞僋僔儑儞
+	function talk(name="心之声", voice="", pan=""){
+		cleaningADVObjectList();
+
+		_name = name;
+		_mess = "";
+		_voice = voice;
+		_pan = pan;
+	}
+
+	function ch(code){
+		_mess += code;
+	}
+
+	function hitret(id=0){
+		var fLoadEnd = false;
+		if(_fLoad){
+			loadEnd();
+			fLoadEnd = true;
+		}else{
+			if(_update) update();
+			if(_orderList.count) processOrder(_orderList);
+
+			_hitretNum++;
+		}
+
+		_quickSave = false;
+
+		//昞帵柤偲僉儍儔柤傪暘棧
+		//@talk 昞帵柤/僉儍儔柤
+		//暘棧偱偒側偄傕偺偼昞帵柤=僉儍儔柤
+		var name = _name.split("/");
+		var trueName;
+		var dispName;
+		if(name.count == 1){
+			dispName = name[0];
+		}else{
+			dispName = name[1];
+		}
+		trueName = name[0];
+
+		//暥帤憰忺
+		for(var i=0;i<_partMess.count;i++){
+			with(_partMess[i]){
+				var mess = .mess;
+				var reg = new RegExp(mess, "g");
+				if(.face !== void){
+					var replace = "$f:" + .face + ";" + mess + "$fd;";
+					_mess = _mess.replace(reg, replace);
+				}
+				if(.color !== void){
+					var color = .color;
+					var bkcolor = .bkcolor;
+					var replace = "$c:" + color + "," + bkcolor + ";" + mess + "$c;";
+					_mess = _mess.replace(reg, replace);
+				}
+				if(.size !== void){
+					var replace = "$s:" + .size + ";" + mess + "$sd;";
+					_mess = _mess.replace(reg, replace);
+				}
+				if(.bold !== void){
+					var replace = "$b;" + mess + "$bd;";
+					_mess = _mess.replace(reg, replace);
+				}
+				if(.italic !== void){
+					var replace = "$i;" + mess + "$id;";
+					_mess = _mess.replace(reg, replace);
+				}
+				invalidate reg;
+			}
+		}
+		_partMess.clear();
+		//儖價
+		for(var i=0;i<_ruby.count;i++){
+			var mess = _ruby[i].mess;
+			var read = _ruby[i].read;
+			var replace = "$r:" + mess + "," + read + ";";
+			var reg = new RegExp(mess);
+			_mess = _mess.replace(reg, replace);
+			invalidate reg;
+		}
+		_ruby.clear();
+
+		//婛撉僼儔僌僠僃僢僋
+		var fRead = ChkReadFlag(id);
+		if(!fRead){
+			SetReadFlag(id, true);
+			if(isSkip(true) && CONFIG.readSkip == 1) skip(false);	//僗僉僢僾傪夝彍偡傞
+		}
+
+		//壒惡嵞惗
+		playVoice(_voice, _pan);
+
+		//儘僌曐懚
+		if(fLoadEnd == false){
+			_logName.add(_name);
+			_logMess.add(_mess);
+			_logVoice.add(_voice);
+			_logParam.add(%[font:%[], pan:_pan]);
+			(Dictionary.assign incontextof _logParam[_logParam.count-1].font)(_fontElm);
+		}
+
+		_autoState = 0;	//僆乕僩忬懺儕僙僢僩
+
+		//僩儔儞僕僔儑儞偑敪惗偟偰側偄偺偱姰椆埖偄
+		if(!_sprTrans.isTransition())
+			checkAutoEvent(AUTOSTATE_TRANSITION_END);
+
+		//壒惡偼嵞惗偝傟側偐偭偨偺偱姰椆埖偄
+		if(!_fPlayedVoice)
+			checkAutoEvent(AUTOSTATE_VOICE_END);
+
+		_advHide = false;	//儊僢僙乕僕昞帵偺夝彍
+		//儊僢僙乕僕弌椡
+		outputMessage(dispName, _mess, _voice, _pan, fRead, trueName);
+
+		if(_strSearch.length != 0 && isSkip(true)){
+			if(_mess.indexOf(_strSearch) != -1){
+			//専嶕暥帤楍偑尒偮偐偭偨
+				_strSearch = "";
+				skip(false);
+			}
+		}
+
+		//僗僉僢僾掆巭梫媮
+		if(_requestStopSkip){
+			if(isSkip()) skip(false);
+			_requestStopSkip = false;
+		}
+	}
+
+	function outputMessage(name, mess, voice, pan, fRead, trueName=""){
+		if(_fFont){
+			_msg.output(name, mess, voice, pan, isSkip(), _fontElm, _fIgnoreKinsoku, fRead, trueName, _face);
+		}else{
+			_msg.output(name, mess, voice, pan, isSkip(), null, _fIgnoreKinsoku, fRead, trueName, _face);
+		}
+
+		if(!_msg.isShow()) show(300);
+
+		if(_fFont) resetFontElm();
+		if(_fIgnoreKinsoku) _fIgnoreKinsoku = false;
+	}
+
+	function resetFontElm(){
+		_fFont = false;
+		_fontElm.face = ADV_FONT_MESS_FACE;
+		_fontElm.size = ADV_FONT_MESS_SIZE;
+		_fontElm.indent = ADV_FONT_MESS_INDENT;
+		_fontElm.face = ADV_FONT_MESS_FACE;
+		_fontElm.bold = 0;
+		_fontElm.italic = 0;
+		_fontElm.color = -1;
+		_fontElm.bkcolor = -1;
+	}
+
+	function transitionComplete(dest, src){
+		_sprTrans.stopTransition();
+		_sprTrans.visible = false;
+
+		_autoState |= AUTOSTATE_TRANSITION_END;
+
+		if(isTransition() == false){
+			if(_sprTrans == dest){
+				_scCtrl.trigger("transition_end");
+
+				if(checkAutoEvent(AUTOSTATE_TRANSITION_END) && _hitretState){
+					if(_fPlayVoice){
+//					if(_fPlayedVoice){
+						click();
+					}else{
+						startAutoTimer();
+					}
+				}
+
+				//僩儔儞僕僔儑儞偑廔椆偟偨傜ADVScreen傪暵偠傞傛偆偵偡傞
+				if(_end) close();
+			}
+		}
+	}
+
+	function cg(elm=%[]){
+	//elm.file
+	//elm.pos
+		_update |= UPDATE_CG;
+		_fBustupAutoPositioning = true;
+
+		//傾僋僔儑儞拞側傜巭傔傞
+		if(_actionList.count) _actionList.stopAction();
+
+		//僶僗僩傾僢僾慡徚嫀
+		//elm.clear僞僌偑搊榐偝傟偰偄側偄丄傕偟偔偼1側傜徚嫀
+		if(elm.clear === void){
+		//僞僌側偟
+			clearChar();
+			cutin(%[hide:1]);
+		}else if(elm.clear == 1){
+		//1偑愝掕偝傟偰偄傞
+			clearChar();
+			cutin(%[hide:1]);
+		}
+
+		var info = new ADVObjectInfo();
+		SetupCg(info, elm.file);
+		var id = getADVObjectIndex("攚宨");
+		with(_objList[id]){
+			.info.copy(info);
+
+			if(elm.color === void){
+				var success = .setup(elm);
+
+				@if(__DEBUGMODE__)
+				//僼傽僀儖忣曬傪彂偒崬傓
+					if(!success){
+						.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+						._spr.fillRect(0, 0, .width, .height, RGBA(64, 64, 64));
+						info.center.set(WINDOW_WIDTH/2, WINDOW_HEIGHT/2);
+					}
+					if(debug.tglSupExp.state){
+						var text = CG_INFO[elm.file];
+						if(text === void) text = elm.file;
+						._spr.font.height = 32 + random(32);
+						var w = ._spr.font.getTextWidth(text);
+						._spr.drawText((._spr.width-w)/2, (._spr.height-._spr.font.height)/2-280, text, RGB(127+random(128), 127+random(128), 127+random(128)), 255, true, 1024, 0x0, 2);
+					}
+				@endif
+			}else{
+				._spr.setImageSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+				._spr.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, int(elm.color) | 0xff000000);
+			}
+
+			.setSizeToImageSize();
+
+			if(info.center.x == ADVOBJ_NULL){
+				.setCenter(int(.imageWidth/2), int(.imageHeight/2));
+			}else{
+				.setCenter(info.center.x, info.center.y);
+			}
+
+			if(elm.blur !== void){
+				.doBoxBlur(int(elm.blur), int(elm.blur));
+			}
+
+			@if(__DEBUGMODE__)
+				debug.setCameraRange(0, 0, .imageWidth, .imageHeight, ._spr._image);
+				debug.setCameraPos(_camera_pos.x, _camera_pos.y);
+			@endif
+			//僇儊儔埵抲偺挷惍
+			if(elm.pos === void){
+				moveCamera(%[pos:"0,0,0", time:0]);		//拞墰
+			}else{
+				moveCamera(%[pos:elm.pos, time:0]);		//擟堄
+			}
+		}
+		invalidate info;
+	}
+
+	function char(elm=%[]){
+	//elm.file
+	//elm.pos
+	//elm.trans
+		var check = UPDATE_CG|UPDATE_BUSTUP;
+		var info = new ADVObjectInfo();
+		SetupBustup(info, elm.file);	//僶僗僩傾僢僾偺忣曬傪庢摼
+		if(info.id == -1){
+			dm("僶僗僩傾僢僾僼傽僀儖偱偼偁傝傑偣傫 : " + elm.file);
+			return;
+		}
+
+		//id偑巜掕偝傟偰偄傞偲偒偼偦傟傪巊梡偡傞
+		if(elm.id !== void) info.id = elm.id;
+
+		var newObject = false;
+		var transIndex;
+		var index = getADVObjectIndex(info.id);
+		var preWorld = new Point();
+		var preFocus = -1;
+		var preTone = "";
+		var preTrans = -1;
+
+		if(index == -1){
+		//怴婯ID
+			index = addADVObject(info.id);
+			newObject = true;
+			_objList[index].fresh = true;
+		}else{
+		//婛偵懚嵼偡傞ID側偺偱丄擖傟懼偊張棟
+
+			//側偵偐傾僋僔儑儞拞側傜掆巭偡傞
+			if(_actionList.isAction(_objList[index]))
+				_actionList.stopAction(_objList[index]);
+
+			preWorld.set(_objList[index].world);	//尰嵼偺嵗昗傪曐懚
+			preFocus = _objList[index]._focus;
+			preTone = _objList[index]._tone;
+			preTrans = _objList[index].opacity;
+
+			transIndex = getADVObjectIndex(info.id+"-trans");
+			if(transIndex != -1){
+			//ID+"-trans" 偑懚嵼偡傞偲偄偆偙偲偼丄僩儔儞僕僔儑儞張棟拞偲偄偆偙偲側偺偱嶍彍偟偰怴婯ID偲偟偰埖偆丅
+				removeADVObject(info.id+"-trans");
+				newObject = true;
+			}else{
+				//尰嵼偺ID傪曄峏
+				_objList[index].id = _objList[index].id + "-trans";
+				_objList[index].destroy = ADVOBJ_DESTROY_WAIT;	//昁梫側偔側偭偨傜帺柵偝偣傞
+				transIndex = index;
+			}
+
+			//怴婯ADVObject嶌惉
+			index = addADVObject(info.id);
+			_objList[index].absolute = _objList[transIndex].absolute;
+		}
+		with(_objList[index]){
+			elm.file = info.file;
+			elm.diff = info.diffBase;
+
+			.setup(elm);
+			.info.copy(info);
+
+			if(preFocus != -1) .focus(preFocus);
+			if(preTone != "") .tone(preTone);
+
+			.kind = ADVOBJ_BUSTUP;
+			.relate = info.relate;
+
+			if(info.center.x == ADVOBJ_NULL){
+				.setCenter(.imageWidth/2, .imageHeight - 50);
+			}else{
+				.setCenter(info.center.x, info.center.y);
+			}
+
+			var fAppointPos = false;
+			var pos = new Point(0, 0, 50);
+			if(elm.pos !== void){
+				pos = PointStrToNum(elm.pos);
+				fAppointPos = true;
+			}
+			if(elm.x !== void){
+				pos.x = int(elm.x);
+				fAppointPos = true;
+			}
+			if(elm.y !== void){
+				pos.y = int(elm.y);
+				fAppointPos = true;
+			}
+			if(elm.z !== void){
+				pos.z = int(elm.z);
+				fAppointPos = true;
+			}else{
+				pos.z = info.zOrder;
+			}
+			preWorld.z = pos.z;
+
+			if(elm.wpos !== void){
+				pos = PointStrToNum(elm.wpos);
+				fAppointPos = true;
+			}
+
+			//僗僋儕乕儞嵗昗巜掕傪儚乕儖僪嵗昗偵曄姺
+			//var tempY = pos.y;	//Y嵗昗曐懚
+			//pos = screenToWorld(_camera_pos, pos);
+			//pos.y = tempY;	//Y嵗昗偼傾僀儔僀儞傪崌傢偣傞昁梫偑偁傞偐傜尦偵栠偡丅
+
+			var fActivationChange = false;		//恀側傜僩儔儞僕僔儑儞傪巊傢偢傾僋僥傿儀乕僔儑儞偱屄暿偵張棟偡傞
+
+			//慡夋柺峏怴偺応崌偼傾僋僥傿儀乕僔儑儞偱張棟
+			if(_update & UPDATE_CG) fActivationChange = true;
+
+			var trans = 255;
+			if(elm.trans !== void){
+				preTrans = trans = int(elm.trans);
+				fActivationChange = true;
+			}
+			var time = 500;
+			if(elm.time !== void)
+				time = int(elm.time);
+			if(isSkip())
+				time = 0;
+
+			//峏怴帪娫傪墘弌懍搙愝掕偱曗惓
+			time = ReviceEffectSpeed(time);
+
+			if(fAppointPos == false && newObject == false){
+			//嵗昗巜掕偑柍偔丄偐偮婛懚僆僽僕僃僋僩偺応崌偼埲慜偺嵗昗傪堷偒宲偖
+				.setWorldPos(preWorld.x, preWorld.y, preWorld.z);
+			}else{
+			//嵗昗巜掕偑偁偭偨偺偱丄偦偪傜傪巊偆
+				.setWorldPos(pos.x, pos.y, pos.z);
+			}
+
+			if(fAppointPos){							//嵗昗巜掕偑偁傝丄
+				if(elm.tempPosition === void)			//tempPosition僞僌偑側偗傟偽丄
+					_fBustupAutoPositioning = false;	//僶僗僩傾僢僾偺帺摦埵抲挷惍傪柍岠偵丅
+				else
+					._tempPositioning = true;			//壖埵抲愝掕丗帺摦埵抲挷惍偺塭嬁傪庴偗側偄
+			}
+
+			.setBasePos(WINDOW_CENTER_X, WINDOW_CENTER_Y);
+
+			var order = info.order;
+			if(elm.order !== void)
+				.info.order = order = elm.order;
+
+			if(.absolute != order) fActivationChange = true;
+			.absolute = order;
+
+			if(preTrans == -1)
+				.opacity = trans;
+			else
+				.opacity = preTrans;
+
+			.onPaint();				//堦夞儗僀儎傪峏怴偡傞
+
+			if(elm.blur !== void)
+				.doBoxBlur(int(elm.blur), int(elm.blur));
+
+			if(newObject){
+				var pos = worldToScreen(_camera_pos, .getWorldPos());
+				.setPos(pos.x, pos.y);
+				.visible = true;
+				if((_update & check) == check || time == 0){
+					.opacity = trans;
+				}else{
+					.opacity = 0;
+					.setBlendingEnvelope(trans);
+					.beginActivation(time);
+				}
+			}else{
+				if(time == 0){
+					.visible = true;
+					removeADVObject(_objList[transIndex].info.id);
+				}else{
+					if(fActivationChange){
+					//僆乕僟乕偵曄峏丄傑偨偼慡夋柺峏怴偺応崌偼暿乆偵張棟偡傞丅
+						_objList[transIndex].setBlendingEnvelope(0);
+						_objList[transIndex].beginActivation(time);
+						.visible = true;
+						.opacity = 0;
+						.setBlendingEnvelope(trans);
+						.beginActivation(time);
+					}else{
+						_objList[transIndex].beginTransition("crossfade", true, _objList[index], %[time:time]);
+					}
+				}
+			}
+
+			.setTransitionCompleteCall(transitionComplete);
+
+			invalidate pos;
+		}
+		if(elm.action !== void){
+			elm.id = info.id;
+			asyncAction(elm);
+		}
+
+		invalidate info;
+		_update |= UPDATE_BUSTUP;
+	}
+
+	function clearChar(elm=%[]){
+	//elm.id
+		if(_update & UPDATE_CG){
+		//慡夋柺峏怴偺帪偼僶僗僩傾僢僾傪偦偺傑傑徚偡
+			_fBustupAutoPositioning = true;
+			removeADVObject(ADVOBJ_BUSTUP);
+		}else{
+		//僶僗僩傾僢僾峏怴偺帪偼僼僃乕僪傾僂僩偝偣傞
+			var time = 500;
+			if(elm.time !== void)
+				time = int(elm.time);
+			if(isSkip())
+				time = 0;
+
+			//峏怴帪娫傪墘弌懍搙愝掕偱曗惓
+			time = ReviceEffectSpeed(time);
+
+			if(elm.id === void)
+				elm.id = -1;
+
+			if(elm.id != -1){
+			//屄暿徚嫀
+				var index = getADVObjectIndex(elm.id);
+				if(index != -1){
+					with(_objList[index]){
+						if(time == 0){
+							removeADVObject(.info.id);
+						}else if(.id.indexOf("-trans") == -1){
+							.id = .id + "-trans";	//ID傪曄峏偡傞
+							.setBlendingEnvelope(0);
+							.beginActivation(time);
+							.destroy = ADVOBJ_DESTROY_WAIT;
+						}
+					}
+				}
+			}else{
+			//慡徚嫀
+				_fBustupAutoPositioning = true;
+				for(var i=_objList.count-1;i>=0;i--){
+					with(_objList[i]){
+						if(.kind == ADVOBJ_BUSTUP){
+							if(time == 0){
+								removeADVObject(.info.id);
+							}else if(.id.indexOf("-trans") == -1){
+								.id = .id + "-trans";	//ID傪曄峏偡傞
+								.setBlendingEnvelope(0);
+								.beginActivation(time);
+								.destroy = ADVOBJ_DESTROY_WAIT;
+							}
+						}
+					}
+				}
+			}
+		}
+		_update |= UPDATE_BUSTUP;
+	}
+
+	function cutin(elm){
+	//elm.file
+	//elm.pos
+	//elm.action
+		//if(elm.file === void) return;
+
+		if(elm.hide !== void){
+			_cutinParam.file = "";
+			invalidate _cutin;
+			return;
+		}
+		if(elm.file !== void){
+			invalidate _cutin;
+			_cutin = new ADVObject(window, this);
+			with(_cutin){
+				SetupSd(elm.file);	//偨偩偺僼儔僌棫偰
+				.setup(elm);
+				.kind = ADVOBJ_SCREEN;
+				.absolute = ADVLAYER_CUTIN;
+				.setCenter(.width/2, .height/2);
+				var pos = new Point(0, 0, 0);
+				if(elm.pos !== void){
+					pos = PointStrToNum(elm.pos);
+					_cutinParam.pos = elm.pos;
+				}
+				.setPos(CUTIN_X + pos.x, CUTIN_Y + pos.y);
+				.visible = true;
+			}
+			_cutinParam.file = elm.file;
+		}
+		if(elm.action !== void){
+			//傾僋僔儑儞拞側傜廔椆偝偣傞
+			if(_actionList.isAction(_cutin))
+				_actionList.stopAction(_cutin);
+
+			elm.id = "僇僢僩僀儞";
+			if(elm.move !== void || elm.mx !== void || elm.my !== void){
+				if(elm.move !== void){
+					var move = PointStrToNum(elm.move);
+					elm.mx = move.x;
+					elm.my = move.y;
+				}
+				if(elm.mx === void)	elm.mx = 0;
+				else				elm.mx = int(elm.mx);
+				if(elm.my === void)	elm.my = 0;
+				else				elm.my = int(elm.my);
+
+				elm.mx += _cutin.left;
+				elm.my += _cutin.top;
+
+				_cutinParam.pos = PointNumToStr(elm.mx-CUTIN_X, elm.my-CUTIN_Y);
+			}
+
+			if(elm.accel === void) elm.accel = 2;
+			asyncAction(elm);
+		}
+	}
+
+	//夋柺僼儔僢僔儏
+	function flashEnter(elm){
+		var color = "WHITE";
+		var enter = 200;
+		_flashLeave = 200;
+
+		if(elm.color !== void) color = elm.color;
+		if(elm.enter !== void) enter = int(elm.enter);
+		if(elm.leave !== void) _flashLeave = int(elm.leave);
+
+		invalidate _sprFlash;
+		_sprFlash = new Sprite(window, this);
+		with(_sprFlash){
+			.setImageSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+			.setSizeToImageSize();
+
+			FillRect(_sprFlash, color);
+			color = color.toUpperCase();
+			.hitType = htMask;
+			.hitThreshold = 256;
+			.opacity = 0;
+			.absolute = ADVLAYER_FLASH;
+			.setBlendingEnvelope(255);
+			.visible = true;
+			.setTransitionCompleteCall(flashLeave, true);
+			.beginActivation(enter);
+
+			if(elm.add !== void) _sprFlash.type = ltAdditive;
+			if(elm.sub !== void) _sprFlash.type = ltSubtractive;
+		}
+	}
+	function flashLeave(){
+		if(!isvalid this) return;
+		if(_sprFlash === void) return;
+
+		update(%[flush:1, time:0]);
+		with(_sprFlash){
+			.setTransitionCompleteCall(flashEnd, true);
+			.setBlendingEnvelope(0);
+			.beginActivation(_flashLeave);
+		}
+
+		_scCtrl.trigger("flash_end");
+	}
+	function flashEnd(){
+		if(!isvalid this) return;
+		if(_sprFlash === void) return;
+
+		_sprFlash.setTransitionCompleteCall();
+		_sprFlash.visible = false;
+		invalidate _sprFlash;
+		_sprFlash = void;
+
+		//flashLeave傪捠夁偟側偄応崌偑偁傞偐傜丄偙偙偱傕僩儕僈乕傪堷偔
+		_scCtrl.trigger("flash_end");
+	}
+
+	function tone(elm){
+		if(elm.id === void && elm.once === void && elm.all === void){
+		//elm.id偑側偄偲偄偆偙偲偼丄僩乕儞夝彍
+			for(var i=_objList.count-1;i>=0;i--){
+				if(_objList[i].kind != ADVOBJ_SCREEN && _objList[i]._tone != "normal"){
+					_objList[i].tone("normal");
+				}
+			}
+		}else{
+			if(elm.all !== void){
+			//慡偰
+				for(var i=_objList.count-1;i>=0;i--){
+					if(_objList[i].kind != ADVOBJ_SCREEN){
+						_objList[i].tone(elm.type);
+					}
+				}
+			}else if(elm.id !== void){
+			//巜掕僆僽僕僃僋僩
+				for(var i=_objList.count-1;i>=0;i--){
+					if(_objList[i].kind != ADVOBJ_SCREEN && _objList[i].id == elm.id){
+						_objList[i].tone(elm.type);
+					}
+				}
+			}
+		}
+	}
+
+	function focus(elm){
+		if(elm.id === void && elm.once === void && elm.all === void){
+		//elm.id, elm.once, elm.all偑側偄偲偄偆偙偲偼丄僼僅乕僇僗夝彍
+			for(var i=_objList.count-1;i>=0;i--){
+				if(_objList[i].kind != ADVOBJ_SCREEN && _objList[i].id != elm.id){
+					_objList[i].focus(0);
+				}
+			}
+		}else{
+			if(elm.depth === void) elm.depth = 4;
+
+			if(elm.all !== void){
+			//慡偰
+				for(var i=_objList.count-1;i>=0;i--){
+					_objList[i].focus(elm.depth);
+				}
+			}else if(elm.id !== void){
+			//巜掕僆僽僕僃僋僩埲奜
+				for(var i=_objList.count-1;i>=0;i--){
+					if(_objList[i].kind != ADVOBJ_SCREEN && _objList[i].id != elm.id && _objList[i].id != elm.id+"-trans"){
+						_objList[i].focus(elm.depth);
+					}else{
+						_objList[i].focus(0);
+					}
+				}
+			}else if(elm.once !== void){
+			//巜掕僆僽僕僃僋僩偺傒
+				for(var i=_objList.count-1;i>=0;i--){
+					if(_objList[i].kind != ADVOBJ_SCREEN && _objList[i].id == elm.once){
+						_objList[i].focus(elm.depth);
+					}else{
+						_objList[i].focus(0);
+					}
+				}
+			}
+		}
+
+		_update |= UPDATE_CG;
+	}
+
+	function requestUpdateCg(){
+		_update |= UPDATE_CG;
+	}
+
+	function update(elm=%[]){
+		if(!_update) return;
+
+		//徣棯僷儔儊乕僞挷惍
+		if(elm.time === void) elm.time = 500;
+		if(elm.transition === void) elm.transition = "crossfade";
+		if(elm.rule !== void) elm.transition = "universal";
+
+		if(isSkip())
+			elm.time = 0;
+		if(_fLoad)
+			elm.time = 0;
+		if(CONFIG.screenEffect == 0)
+			elm.time = 0;
+
+		//峏怴帪娫傪墘弌懍搙愝掕偱曗惓
+		elm.time = ReviceEffectSpeed(elm.time);
+
+		if(elm.flush === void) elm.flush = 0;
+		if(elm.time <= 0) elm.flush = 1;
+
+		if(_sprTrans.isTransition()){
+		//傑偩慜偺僩儔儞僕僢僔儑儞偑廔椆偟偰偄側偄側傜廔椆偝偣傞丅
+			transitionComplete(_sprTrans);
+		}
+		for(var i=0;i<_objList.count;i++){
+			if(_objList[i].isActivation()) _objList[i].flushActivation();
+			if(_objList[i].isTransition()) _objList[i].stopTransition();
+		}
+
+		//尰嵼偺応柺傪僐僺乕
+		if(_update & UPDATE_CG){
+			hasImage = true;
+			_sprTrans.piledCopy(0, 0, this, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+			hasImage = false;
+			_sprTrans.visible = true;
+		}
+
+		//僇儊儔堏摦拞偺応崌偼丄堏摦傪姰椆偝偣傞丅
+		if(_update & UPDATE_CG && _fAction){
+			flushMoveCamera();
+		}
+
+		//僆乕僟乕傪慜張棟丄屻張棟偵暘偗傞
+		var preOrder = [];
+		var postOrder = [];
+		separateOrder(_orderList, preOrder, postOrder);
+
+		//僆乕僟乕偵廬偭偰丄怴偟偄応柺傪峔抸
+		processOrder(preOrder, elm);
+
+		if(_fBustupAutoPositioning){
+		//僶僗僩傾僢僾偺帺摦埵抲挷惍
+			autoPositioning(elm.flush);
+		}
+
+		//巆傝偺僆乕僟乕傪張棟
+		processOrder(postOrder, elm);
+
+		//僆乕僟乕儕僗僩僋儕傾
+		clearOrderList();
+		invalidate preOrder;
+		invalidate postOrder;
+
+		putCameraViewObject(_camera_pos);
+
+		if(_update & UPDATE_CG){
+			if(elm.transition == "crossfade"){
+				_sprTrans.beginTransition("crossfade", true, this, elm);
+			}else if(elm.transition == "scroll"){
+				var param = %[];
+				switch(elm.to){
+				case   "left": param.from = sttRight; break;
+				case  "right": param.from = sttLeft; break;
+				case    "top": param.from = sttBottom; break;
+				case "bottom": param.from = sttTop; break;
+				}
+				switch(elm.stay){
+				case 'nostay': param.stay = ststNoStay; break;
+				case 'stayback': param.stay = ststStaySrc; break;
+				case 'stayfore': param.stay = ststStayDest; break;
+				default: param.stay = ststNoStay; break;
+				}
+				param.time = elm.time;
+				_sprTrans.beginTransition("scroll", true, this, param);
+			}else if(elm.transition == "universal"){
+				_sprTrans.beginTransition("universal", true, this, elm);
+			}else{
+				_sprTrans.beginTransition(elm.transition, true, this, elm);
+			}
+		}
+
+		//ADV僆僽僕僃僋僩偺怴婯僼儔僌傪false偵
+		for(var i=0;i<_objList.count;i++){
+			if(_objList[i].fresh) _objList[i].fresh = false;
+		}
+
+		_update = 0;
+	}
+
+	function autoPositioning(fFlush=false){
+		sortADVObjectBustupRelate();
+		var nBustup = countADVObjBustup();
+		var indent;
+		var startX;
+		switch(nBustup){
+		case 1:  indent=  0; break;
+		case 2:  indent=600; break;
+		case 3:  indent=400; break;
+		case 4:  indent=350; break;
+		case 5:  indent=300; break;
+		default: indent=250; break;
+		}
+		startX = - ((nBustup-1) * indent)/2;
+		for(var i=0;i<_objList.count;i++){
+			with(_objList[i]){
+				if(.kind == ADVOBJ_BUSTUP && .destroy == ADVOBJ_DESTROY_NONE){
+					var pos = .getWorldPos();
+					if(false){
+					//帋偟偵丒丒丒
+						if(.fresh){
+						//怴婯僆僽僕僃僋僩偺応崌偼丄偦偺傑傑偺埵抲偵愝掕
+							if(!._tempPositioning)
+								.setWorldPos(startX, pos.y, pos.z);
+						}else if(pos.x != startX && !fFlush){
+						//婛懚偱埵抲偑曄峏偝傟偰偄傞側傜丄傾僋僔儑儞偱堏摦
+							asyncAction(%[id:_objList[i]._info.id, action:"ActionAdvMove", x:startX]);
+						}else{
+							if(!._tempPositioning)
+								.setWorldPos(startX, pos.y, pos.z);
+						}
+					}else{
+						if(!._tempPositioning)
+							.setWorldPos(startX, pos.y, pos.z);
+					}
+					._tempPositioning = false;
+					startX += indent;
+				}
+			}
+		}
+	}
+
+	//傾僋僔儑儞
+	function asyncAction(elm){
+		//杮懱
+		var index  = getADVObjectIndex(elm.id, true);
+		//徚偊偐偗偰偄傞傕偺傪曔懆
+		var index_ = getADVObjectIndex(elm.id+"-trans", true);
+
+		if(index != -1 || index_ != -1){
+		//ADV僆僽僕僃僋僩
+			elm.world = 1;
+		}else if(elm.id == "儊僢僙乕僕"){
+			elm.target = _msg;
+		}else if(elm.id == "僇儊儔"){
+			elm.target = _camera_pos;
+			//僇儊儔偑堏摦拞側傜巭傔傞
+			if(_fCamera_move) flushMoveCamera();
+		}else if(elm.id == "僼僃僀僗"){
+			elm.target = _msg._sprFace;
+		}else if(elm.id == "僇僢僩僀儞"){
+			elm.target = _cutin;
+		}else{
+			return;
+		}
+
+		elm.startTime = _actionTimeKeeper.now();
+		if(elm.cycle === void)
+			elm.cycle = 500;
+
+		var fAction = false;
+		if(elm.target !== void){
+			_actionList.add(elm, isSkip());
+			fAction = true;
+		}
+		if(index != -1){
+			elm.target = _objList[index];
+			_actionList.add(elm, isSkip());
+			fAction = true;
+		}
+		if(index_ != -1){
+			elm.target = _objList[index_];
+			_actionList.add(elm, isSkip());
+			fAction = true;
+		}
+
+		//堏摦宯傾僋僔儑儞偼帺摦埵抲挷惍柍岠偵丅
+		//偨偩偟僼僃乕僪傾僂僩宯偼柍帇
+		if(elm.world !== void){
+			switch(elm.action){
+			case "ActionAdvMove" :
+			case "ActionAdvMoveWave" :
+			case "ActionAdvMoveFadeIn" :
+			case "ActionAdvMoveWaveFadeIn" :
+			//case "ActionAdvMoveFadeOut" :
+			//case "ActionAdvMoveWaveFadeOut" :
+				_fBustupAutoPositioning = false;
+				break;
+			}
+		}
+
+		if(fAction) startAction();
+	}
+	function stopAsyncAction(elm){
+		var target = null;
+		if(getADVObjectIndex(elm.id) != -1){
+			target = _objList[getADVObjectIndex(elm.id)];
+		}else if(elm.id == "儊僢僙乕僕"){
+			target = _msg;
+		}else if(elm.id == "僇儊儔"){
+			target = _camera_pos;
+		}else if(elm.id == "僼僃僀僗"){
+			target = _msg._sprFace;
+		}else if(elm.id == "僇僢僩僀儞"){
+			target = _cutin;
+		}
+
+		_actionList.stopAction(target);
+	}
+	function flushAction(target){
+		if(_actionList.isAction(target)){
+			_actionList.stopAction(target);
+		}
+	}
+	function onEndAction(target){
+		if(_actionList.isAction(target) && _actionWaitTarget == target){
+			_scCtrl.trigger("action_end");
+			_actionWaitTarget = null;
+		}
+	}
+
+	function eyeCatch(elm){
+		//壒娭學掆巭
+		StopBgm(3000);
+		StopSe();
+		StopEnvSe("", 3000);
+		StopVoice();
+
+		if(elm.type === void) elm.type = "";
+		if(elm.char === void) elm.char = "";
+
+		_eyeCatch = new EyeCatch(window, window.baseLayer, this, elm.type, elm.char);
+	}
+	function eyeCatchDelete(){
+		_scCtrl.trigger("eyecatch_end");
+
+		if(!isvalid _eyeCatch) return;
+		if(_eyeCatch == null) return;
+
+		invalidate _eyeCatch;
+		_eyeCatch = null;
+	}
+
+	function messageFrame(elm){
+		if(isSkip())
+			elm.time = 0;
+		else
+			elm.time = 300;
+
+		if(elm.type === void) elm.type = 0;
+		_msg.setType(elm.type, elm.time);
+	}
+	function show(fade=300){
+		if(!_msg.isShow() && _advHide == false){
+			_msg.show(fade);
+
+			if(_startSelect){
+				for(var i=0;i<_selectBtn.count;i++)
+					_selectBtn[i].btn.hitThreshold = 0;
+				_selectBase.setBlendingEnvelope(255);
+				_selectBase.beginActivation(300);
+			}
+		}
+	}
+	function hide(fade=300, fAdvHide=false){
+		_advHide = fAdvHide;
+		if(_msg.isShow()){
+			_msg.hide(fade, fAdvHide);
+
+			if(_startSelect){
+				for(var i=0;i<_selectBtn.count;i++)
+					_selectBtn[i].btn.hitThreshold = 256;
+				_selectBase.setBlendingEnvelope(0);
+				_selectBase.beginActivation(300);
+			}
+		}
+	}
+	function moveWindow(x=0, y=0){
+		if(_msg.isShow() && !isSkip())
+			_msg.movePos(x, y);
+		else
+			_msg.movePos(x, y, 0);
+
+		_msgX = x;
+		_msgY = y;
+	}
+
+	function isShow(){
+		return _msg.isShow();
+	}
+
+	function delay(elm){
+	//elm.time
+		if(!_update) return;
+	}
+
+	function addSelect(elm){
+		var temp = %[];
+		(Dictionary.assign incontextof temp)(elm);
+		_select.add(temp);
+	}
+	function startSelect(){
+		if(_select.count == 0) return;
+
+		@if(__DEBUGMODE__)
+			//PlaySe("SE036");
+		@endif
+
+		//僗僉僢僾夝彍愝掕側傜夝彍
+		if(CONFIG.lockSkip == 0 && isSkip())
+			skip(false);
+
+		//僆乕僩夝彍愝掕側傜夝彍
+		if(CONFIG.lockAuto == 0 && isAuto())
+			auto(false);
+
+		_quickSave = false;
+
+		_startSelect = true;
+
+		if(_fLoad){
+			loadEnd(true);
+		}else{
+			if(_update) update();
+			if(_orderList.count) processOrder();
+
+			_hitretNum++;
+		}
+
+		var hint = %[
+		ゆあ : "FRM_0132", 
+		紗雪 : "FRM_0133", 
+		夕陽 : "FRM_0134", 
+		かなで : "FRM_0135", 
+		];
+
+		_selectBtn = [];
+		for(var i=0;i<_select.count;i++){
+			_selectBtn[i] = %[];
+			_selectBtn[i].btn = new Button(win, _selectBase);
+			with(_selectBtn[i].btn){
+				.create("FRM_0131", 2);
+				if(_select[i].invalid !== void) .valid = false;
+			}
+			if(_select[i].hint !== void){
+				_selectBtn[i].hintSpr = new global.Sprite(window, _selectBtn[i].btn);
+				with(_selectBtn[i].hintSpr){
+					.loadImages(hint[_select[i].hint]);
+					.setSize(.imageWidth, 47);
+					.setPos(488, 12);
+					.imageTop = -40;
+					.hitThreshold = 256;
+
+					.opacity = 0;
+					.setBlendingEnvelope(255);
+					.setMovingEnvelope(.left+32, .top, .left, .top, 2);
+					.beginActivation(300);
+					.visible = CONFIG.routeGuide;
+				}
+				_selectBtn[i].hintSprL = new global.Sprite(window, _selectBtn[i].btn);
+				with(_selectBtn[i].hintSprL){
+					.assignImages(_selectBtn[i].hintSpr);
+					.setSize(.imageWidth, 47);
+					.imageTop = _selectBtn[i].hintSpr.imageTop;
+					.doBoxBlur(4, 0);
+					.hitThreshold = 256;
+				}
+				_selectBtn[i].hintSprR = new global.Sprite(window, _selectBtn[i].btn);
+				with(_selectBtn[i].hintSprR){
+					.assignImages(_selectBtn[i].hintSpr);
+					.setSize(.imageWidth, 47);
+					.imageTop = _selectBtn[i].hintSpr.imageTop;
+					.doBoxBlur(4, 0);
+					.hitThreshold = 256;
+				}
+			}
+			_selectBtn[i].mess = new global.Layer(win, _selectBtn[i].btn);
+			with(_selectBtn[i].mess){
+				.setSize(_selectBtn[i].btn.width, _selectBtn[i].btn.height);
+				.font.face = ADV_FONT_MESS_FACE;
+				.font.height = 32;
+				.hitType = htMask;
+				.hitThreshold = 256;
+				var e = DEF_FONT_STYLE;
+				var mx = 128;
+				var my = (_selectBtn[i].btn.height - .font.height) /2;
+				var text = _select[i].text;
+				if(_select[i].invalid === void){
+					.drawText(mx + _selectBtn[i].width * 0, my, text, e.color, e.opa, e.aa, e.shadowlevel, 0x000000, e.shadowwidth, e.shadowx, e.shadowy);
+					.drawText(mx + _selectBtn[i].width * 1, my, text, e.color, e.opa, e.aa, e.shadowlevel, 0x000000, e.shadowwidth, e.shadowx, e.shadowy);
+				}else{
+					.drawText(mx + _selectBtn[i].width * 0, my, text, e.color, 128, e.aa, e.shadowlevel, 0x000000, e.shadowwidth, e.shadowx, e.shadowy);
+					.valid = false;
+				}
+
+				.visible = true;
+			}
+		}
+
+		var cx = (WINDOW_WIDTH-_selectBtn[0].btn.width)/2;
+		var cy = 250 - ((_selectBtn[0].btn.height+4)*_select.count)/2;
+		for(var i=0;i<_select.count;i++){
+			_selectBtn[i].btn.setPos(cx, cy+(_selectBtn[i].btn.height+4)*i);
+		}
+
+		_selectBase.opacity = 0;
+		_selectBase.setBlendingEnvelope(255);
+		_selectBase.beginActivation(300);
+		_selectBase.visible = true;
+	}
+	function endSelect(){
+		if(!_startSelect) return;
+
+		_selectBase.visible = false;
+		_selectBase.setBlendingEnvelope(0);
+		_selectBase.beginActivation(300);
+
+		for(var i=0;i<_selectBtn.count;i++){
+			if(_selectBtn[i].hintSpr !== void){
+				invalidate _selectBtn[i].hintSprL;
+				invalidate _selectBtn[i].hintSprR;
+				invalidate _selectBtn[i].hintSpr;
+			}
+			invalidate _selectBtn[i].btn;
+			invalidate _selectBtn[i].mess;
+		}
+		InvalidateArray(_selectBtn);
+		_selectBtn.clear();
+
+		_select.clear();
+		_startSelect = false;
+		_scCtrl.trigger("select");
+	}
+	function selectDepth(trans){
+		for(var i=0;i<_select.count;i++){
+			_selectBtn[i].btn.opacity = trans;
+		}
+	}
+	function chkSelect(id){
+		return (ret_select == id);
+	}
+	function chkSelectStr(strId){
+		return (ret_select_str == strId);
+	}
+	function isSelect(){
+		return _startSelect;
+	}
+
+	function blurSelectHint(id){
+		if(_selectBtn[id].hintSpr === void) return;
+		if(!_selectBtn[id].hintSpr.visible) return;
+
+		if(_selectBtn[id].hintSpr.isActivation()) _selectBtn[id].hintSpr.flushActivation();
+
+		with(_selectBtn[id].hintSpr){
+			.opacity = 0;
+			.setBlendingEnvelope(255);
+			.beginActivation(500);
+		}
+		with(_selectBtn[id].hintSprL){
+			.setPos(_selectBtn[id].hintSpr.left, _selectBtn[id].hintSpr.top);
+			.opacity = 255;
+			.setBlendingEnvelope(0);
+			.setMovingEnvelope(.left-8, .top, .left, .top, 2);
+			.beginActivation(500);
+			.visible = true;
+		}
+		with(_selectBtn[id].hintSprR){
+			.setPos(_selectBtn[id].hintSpr.left, _selectBtn[id].hintSpr.top);
+			.opacity = 255;
+			.setBlendingEnvelope(0);
+			.setMovingEnvelope(.left-8, .top, .left, .top, 2);
+			.beginActivation(500);
+			.visible = true;
+		}
+	}
+
+	function initParam(){
+		clearParam();
+	}
+	function clearParam(id=0, num=-1){
+		_param.clear(id,num);
+		@if(__DEBUGMODE__)
+			debug.paramUpdate();
+		@endif
+	}
+	function getParam(id){
+		return _param.get(id);
+	}
+	function setParam(id, arg){
+		_param.set(id, arg);
+		@if(__DEBUGMODE__)
+			debug.paramUpdate();
+		@endif
+	}
+	function addParam(id, arg){
+		_param.set(id, _param.get(id)+arg);
+		@if(__DEBUGMODE__)
+			debug.paramUpdate();
+		@endif
+	}
+	function onFlag(id){
+		_param.set(id, 1);
+		@if(__DEBUGMODE__)
+			debug.paramUpdate();
+		@endif
+	}
+	function offFlag(id){
+		_param.set(id, 0);
+		@if(__DEBUGMODE__)
+			debug.paramUpdate();
+		@endif
+	}
+	function chkFlagOn(id){
+		return (_param.get(id) != 0);
+	}
+	function chkFlagOff(id){
+		return (_param.get(id) == 0);
+	}
+	function onGlobalFlag(id){
+		SetGlobalFlag(id, true);
+		@if(__DEBUGMODE__)
+			debug.paramUpdate();
+		@endif
+	}
+	function offGlobalFlag(id){
+		SetGlobalFlag(id, false);
+		@if(__DEBUGMODE__)
+			debug.paramUpdate();
+		@endif
+	}
+
+	function playBgm(elm){
+	//elm.file
+	//elm.fade
+	//elm.pos
+	//elm.loop
+		var fade, pos, loop;
+		if(elm.nonfade !== void)
+			fade = 0;
+		else if(elm.fade === void)
+			fade = 1000;
+		else
+			fade = elm.fade;
+
+		if(elm.pos === void){}
+
+		PlayBgm(elm.file, fade);
+	}
+
+	function stopBgm(elm){
+	//elm.fade
+		var fade;
+		if(elm.nonfade !== void)
+			fade = 0;
+		else if(elm.fade === void)
+			fade = 1000;
+		else
+			fade = elm.fade;
+
+		StopBgm(fade);
+	}
+
+	function pauseBgm(){
+		PauseBgm();
+	}
+	function restartBgm(){
+		RestartBgm();
+	}
+
+	function playSe(elm){
+		var vol=1.0, pan=0;
+		if(elm.vol !== void) vol = int(elm.vol);
+		if(elm.pan !== void) pan = int(elm.pan);
+		PlaySe(elm.file, vol, pan);
+	}
+
+	function stopSe(elm=%[]){
+		var id = "";
+		if(elm.id !== void) id = int elm.id;
+		var fade = 0;
+		if(elm.fade !== void) fade = int elm.fade;
+		else fade = 1000;
+		StopSe(id, fade);
+	}
+
+	function waitSe(elm){
+	}
+
+	function playEnvSe(elm=%[]){
+	//elm.file
+	//elm.fade
+	//elm.playID
+		var fade;
+		if(elm.nonfade !== void)
+			fade = 0;
+		else if(elm.fade === void)
+			fade = 1000;
+		else
+			fade = elm.fade;
+
+		var vol=1.0, pan=0;
+		if(elm.vol !== void) vol = int(elm.vol);
+		if(elm.pan !== void) pan = int(elm.pan);
+
+		PlayEnvSe(elm.file, vol, pan, fade);
+	}
+
+	function stopEnvSe(elm=%[]){
+	//elm.fade
+	//elm.playID
+		var id, fade;
+		if(elm.id === void)
+			id = "";
+		else
+			id = elm.id;
+
+		if(elm.nonfade !== void)
+			fade = 0;
+		else if(elm.fade === void)
+			fade = 1000;
+		else
+			fade = elm.fade;
+
+		StopEnvSe(id, fade);
+	}
+
+	function playVoice(voice, pan, fConfig=true){
+		_fPlayVoice = false;
+		_fPlayedVoice = false;
+
+		if(voice == "") return;
+
+		_fPlayVoice = true;
+
+		if(voice === void) voice = "";
+		if(pan === void) pan = "";
+
+		var voices = voice.split("/");
+		var pans = pan.split("/");
+
+		stopVoice();
+
+		for(var i=0;i<voices.count;i++){
+			var header = voices[i].substring(0, 2);
+			if(CheckPlayVoice(header) || !fConfig){
+				var pan = 0;
+				if(pans.count > i) pan = int(pans[i]);
+				var vol = 1.0;
+				if(HEADER_TO_ID[header] !== void)
+					vol = CONFIG.voiceDetails[HEADER_TO_ID[header]].volume;
+
+				if(!isSkip())
+					PlayVoice(voices[i], vol, pan, fConfig);
+
+				_fPlayedVoice = true;
+			}
+		}
+
+		@if(__DEBUGMODE__)
+			if(_fPlayedVoice){
+				_msg.playVoice();
+			}
+		@endif
+	}
+
+	function repeatVoice(elm, fConfig=true){
+	//elm.file
+	//elm.id
+		_fPlayVoice = false;
+		stopVoice();
+		var vol = 1.0;
+		if(HEADER_TO_ID[header] !== void)
+			vol = CONFIG.voiceDetails[HEADER_TO_ID[header]].volume;
+		PlayVoice(elm.file, vol, 0, fConfig);
+	}
+
+	function stopVoice(elm=%[]){
+		var fade = 0;
+		if(elm.fade !== void) fade = int elm.fade;
+		StopVoice(fade);
+	}
+
+	function transition(elm){
+	//elm.style
+	//elm.time
+	//elm.rule
+	}
+
+	function blackOut(elm=%[]){
+	//elm.time
+		elm.tagname = "cg";
+		elm.file = "BLACK";
+		addOrderList(elm);
+		_update |= UPDATE_CG;
+		update(elm);
+	}
+
+	function whiteOut(elm=%[]){
+	//elm.time
+		elm.tagname = "cg";
+		elm.file = "WHITE";
+		addOrderList(elm);
+		_update |= UPDATE_CG;
+		update(elm);
+	}
+
+	function colorOut(elm=%[]){
+	//elm.col
+	//elm.time
+		elm.tagname = "cg";
+		elm.file = "";
+		addOrderList(elm);
+		_update |= UPDATE_CG;
+		update(elm);
+	}
+
+	function wait(elm){
+	//elm.time
+	}
+
+	function waitBgm(){
+	}
+
+	function waitSe(){
+	}
+
+	function waitVoice(){
+	}
+
+	function waitEnvSe(){
+	}
+
+	function waitTransition(){
+	}
+
+	function skip(f, fClick=true){
+	//fClick : 僗僉僢僾偑僆儞偵側偭偨偲偒偵堦搙僋儕僢僋傪敪惗偝偣傞
+		if(!isShow()) return;
+
+		_msg.skip = (f!=false);	//儊僢僙乕僕僗儗乕儉偵捠抦
+		if(f && fClick){ click(); }
+	}
+
+	function isSkip(mode = false){
+		if(mode)	//僗僉僢僾儌乕僪偺傒偺僠僃僢僋
+			return (_msg.skip);
+		else		//Ctrl僉乕墴壓傪崌傢偣偨僠僃僢僋
+			return ((_shift&ssCtrl && window.activate) || _msg.skip);
+	}
+
+	function searchSkip(strSearch){
+	//僨僶僢僌梡偺僒乕僠僗僉僢僾
+		_strSearch = strSearch;
+		skip(true);
+	}
+
+	function auto(f, fSys=false){
+		if(!isShow() && !fSys) return;
+
+		_msg.auto = (f!=false);	//儊僢僙乕僕僗儗乕儉偵捠抦
+
+		var fVoice = VOICE.isPlay();
+
+		fVoice &= _fPlayedVoice;
+
+		if(f && !fVoice){
+		//僆儞丂壒惡偑嵞惗偝傟偰偄側偄
+		//僋儕僢僋
+			click();
+		}else if(f && fVoice){
+		//僆儞丂壒惡偑偝傟偰偄傞
+		//側偵傕偟側偄
+		}else{
+		//僆僼
+		//僞僀儅乕僗僩僢僾
+			stopAutoTimer();
+		}
+	}
+	function isAuto(){
+		return _msg.auto;
+	}
+	function onAutoCallback(now){
+		if(_msg.isPending() && !_fPlayVoice){
+			_autoTimer.interval = 100;
+		}else{
+			if(_msg.isPending()) _msg.flush();
+			click();
+			stopAutoTimer();
+		}
+	}
+
+	function isTransition(){
+		var ret = false;
+
+		if(_sprTrans.isTransition()) ret = true;
+
+/*
+		for(var i=_objList.count-1;i>=0;i--){
+			if(_objList[i].isTransition()) ret = true;
+			if(_objList[i].isActivation()) ret = true;
+		}
+*/
+
+		return ret;
+	}
+
+	function isRecollect(){
+		return _fRecollect;
+	}
+
+	function change(sc, label=""){
+		@if(__DEBUGMODE__)
+			win.caption = global.GAME_CAPTION + " : " + sc;
+		@endif
+		_scenario = sc;
+		if(!_fLoad){
+			_logSelect.clear();
+			_hitretNum = 0;
+		}
+		_paramPrev.object().assign(_param.object());
+		_scCtrl.clear();
+		_scCtrl.scenarioLoop(sc, label);
+	}
+
+	function returnTo(scene){
+		game.changeScene(scene, true);
+
+		//壒娭學掆巭
+		StopBgm(1000);
+		StopSe("", 1000);
+		StopEnvSe("", 1000);
+		StopVoice(1000);
+		endSelect();
+		hide(300, true);
+
+		_end=true;
+		var temp = CONFIG.screenEffect;
+		CONFIG.screenEffect = 1;		//嫮惂僆儞
+		blackOut(%[time:2000]);
+		CONFIG.screenEffect = temp;
+
+		//僔僫儕僆巭傔傞
+		_scCtrl.interrupt = true;
+	}
+
+	//夋柺偺僐僺乕傪嶌惉偡傞
+	function screenShot(spr, fFrame=true){
+		spr.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+
+		var fVisibleMsg = _msg.visible;
+
+		var fVisibleMsgQSaveInfo = _msg._sprQSaveInfo.visible;
+		_msg._sprQSaveInfo.visible = false;
+
+		var fVisibleInfo;
+		if(SPR_INFORMATION != null){
+			fVisibleInfo = SPR_INFORMATION.visible;
+			SPR_INFORMATION.visible = false;
+		}
+		var fVisibleConfirm;
+		if(SPR_CONFIRM != null){
+			fVisibleConfirm = SPR_CONFIRM.visible;
+			SPR_CONFIRM.visible = false;
+		}
+
+		if(fFrame == false){
+			_msg.visible = false;
+		}
+
+		window.baseLayer.hasImage = true;
+		spr.piledCopy(0, 0, window.baseLayer, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+		window.baseLayer.hasImage = false;
+
+		_msg.visible = fVisibleMsg;
+		_msg._sprQSaveInfo.visible = fVisibleMsgQSaveInfo;
+		if(SPR_INFORMATION != null)
+			SPR_INFORMATION.visible = fVisibleInfo;
+		if(SPR_CONFIRM != null)
+			SPR_CONFIRM.visible = fVisibleConfirm;
+	}
+
+	//儘乕僪張棟
+	//庤弴丗夋柺塀偡仺暅婣億僀儞僩傑偱堏摦仺夋柺峔抸仺夋柺昞帵
+	function load(filename=""){
+		if(_fRecollect) return;
+
+		_saveData = new Savedata();
+		if(_saveData.load(filename) == false) return;
+
+		//僔僫儕僆掆巭
+		_scCtrl.wait(%[]);
+
+		_fLoad = true;
+		_hitretState = false;
+
+		//壒娭學掆巭
+		StopBgm();
+		StopSe();
+		StopEnvSe();
+		StopVoice();
+
+		if(IsPlayMovie())
+			onStopMovie();
+
+		if(IsStaffRoll())
+			StaffRollDelete();
+
+		BeginLoad(this.loadStart);	//儘乕僪張棟奐巒丅尰嵼偺夋柺傪塀偡丅
+	}
+
+	function loadStart(){
+		if(_startSelect) endSelect();
+
+		if(isSkip()) skip(false);
+		if(isAuto()) auto(false);
+
+		hide(0, true);
+
+		_actionList.stopAction(_cutin);
+		cutin(%[hide:1]);
+
+		if(_fAction)
+			flushMoveCamera();
+
+		if(_eyeCatch != null) _eyeCatch.close();
+
+		//BGM
+		if(_saveData.param.bgm != "")
+			playBgm(%[file:_saveData.param.bgm]);
+			if(_saveData.param.pauseBgm) pauseBgm();
+
+		//娐嫬壒
+		var ref = _saveData.param.envSe;
+		for(var i=0;i<_saveData.param.envSe.count;i++){
+			playEnvSe(ref[i]);
+		}
+
+		//僔僫儕僆傪捛愓偡傞偨傔偵丄
+		//僙乕僽僨乕僞偺奺僷儔儊乕僞傪僆僽僕僃僋僩偵斀塮
+		_saveData.applyToAdv(this);
+
+		_hitretCnt = _saveData.param.hitret - 1;
+		_selectCnt = 0;
+
+		start(_saveData.param.scenario);	//僔僫儕僆傪暅婣億僀儞僩傑偱堏摦偝偣傞丅
+	}
+
+	function loadEnd(){
+	//暅婣億僀儞僩偵摓払偟偨偺偱ADV夋柺傪峔抸偡傞丅
+		//--------------------------------------------------------------------------
+		//儊僢僙乕僕丒壒惡
+		var index = _logName.count-1;
+		_name = _logName[index];
+		_mess = _logMess[index];
+		_voice = _logVoice[index];
+		_pan = _logParam[index].pan;
+		_fFont = true;
+		(Dictionary.assign incontextof _fontElm)(_logParam[index].font);
+		@if(__DEBUGMODE__)
+			if(debug.tglFont.state) _fontElm.face = ADV_FONT_MESS_FACE;
+		@endif
+
+		_face = _saveData.param.face;
+
+		if(_startSelect){
+		//慖戰巿拞偺暅婣偺応崌偼偙偙偱儊僢僙乕僕傪弌椡偟偰偍偔丅
+			var name = _name.split("/");
+			var dispName;
+			if(name.count == 1){
+				dispName = name[0];
+			}else{
+				dispName = name[1];
+			}
+			outputMessage(dispName, _mess, _voice, _pan, true);
+			_advHide = false;
+			show(0);
+		}
+
+		_msg.setType(_saveData.param.messageFrame);
+		_msgX = _saveData.param.messageX;
+		_msgY = _saveData.param.messageY;
+		_msg.movePos(_msgX, _msgY, 0);
+
+		//俠俧
+		clearChar();
+		for(var i=0;i<_saveData.param.advObject.count;i++){
+			var file = _saveData.param.advObject[i].file;
+			var id = _saveData.param.advObject[i].id;
+			var order = _saveData.param.advObject[i].order;
+			var zOrder = _saveData.param.advObject[i].zOrder;
+			var relate = _saveData.param.advObject[i].relate;
+			var center = _saveData.param.advObject[i].center;
+			var world = _saveData.param.advObject[i].worldPos;
+			var base = _saveData.param.advObject[i].basePos;
+			var focus = _saveData.param.advObject[i].focus;
+			var tone = _saveData.param.advObject[i].tone;
+			var opacity = _saveData.param.advObject[i].opacity;
+			var flipLR = _saveData.param.advObject[i].flipLR;
+			var flipUD = _saveData.param.advObject[i].flipUD;
+
+			var param = %[file:file, id:id, wpos:world, order:order, time:0, focus:focus, tone:tone, trans:opacity];
+			if(flipLR) param.fliplr = 1;
+			if(flipUD) param.flipud = 1;
+
+			switch(_saveData.param.advObject[i].kind){
+			case ADVOBJ_CG:		cg(param); break;
+			case ADVOBJ_BUSTUP: char(param); break;
+			case ADVOBJ_SCREEN: break;
+			}
+		}
+		//僇僢僩僀儞
+		if(_saveData.param.cutin.file != "")
+			cutin(_saveData.param.cutin);
+
+		//僇儊儔
+		if(_saveData.param.camera_move == ""){
+			moveCamera(%[pos:_saveData.param.camera, time:0]);
+		}else{
+			moveCamera(%[pos:_saveData.param.camera_move, time:0]);
+		}
+
+		//儘乕僪暅婣帪偼帺摦埵抲挷惍偑俷俶偱偁偭偰傕
+		//僙乕僽僨乕僞偵巜掕偝傟偰偄傞嵗昗偱僶僗僩傾僢僾傪昞帵偝偣傞
+		_fBustupAutoPositioning = false;
+		_fBustupRelateFlip = false;
+
+		//--------------------------------------------------------------------------
+		//夋柺峏怴
+		update(%[flush:1]);
+		//--------------------------------------------------------------------------
+
+		//帺摦埵抲挷惍愝掕傪斀塮
+		_fBustupAutoPositioning = _saveData.param.autoPosition;
+
+		//僇儊儔堏摦
+		if(_saveData.param.camera_move != ""){
+			moveCamera(%[pos:_saveData.param.camera, time:_saveData.param.camera_move_time]);
+		}
+
+		//傾僋僔儑儞
+		for(var i=0;i<_saveData.param.action.count;i++){
+			var elm = _saveData.param.action[i];
+			delete elm.target;		//昁梫側偄偺偱嶍彍
+			asyncAction(elm);
+		}
+
+		//ADV夋柺偺峔抸偑廔椆偟偨偺偱丄塀偟偰偄偨夋柺傪昞帵偡傞丅
+		EndLoad();
+
+		_fLoad = false;
+
+		invalidate _saveData;
+		_saveData = null;
+	}
+
+	function quickLoad(){
+		if(_end) return;
+		if(!_hitretState) return;
+		if(_fRecollect) return;
+		if(IsLoadProccesing()) return;
+
+		var temp = saveMan.atQSave();
+		if(temp.valid){
+			if(isAuto()) auto(false);
+			if(isSkip()) skip(false);
+
+			if(CONFIG.confirmWindow[SystemRegister.CONFIRM_LOAD])
+				PlaySystemVoice("俻儘乕僪妋擣");
+			CallConfirm("$c:cyan,blue;快速读取$c;确认？", SystemRegister.CONFIRM_LOAD, quickLoadRun, null);
+		}
+	}
+	function quickLoadRun(){
+		load("qsave.dat");
+		dm("僋僀僢僋儘乕僪偟傑偡");
+	}
+
+	function quickSave(){
+		if(_end) return;
+		if(_fRecollect) return;
+
+		//hitret懸偪忬懺偠傖側偄偲僙乕僽偱偒側偄
+		if(!_hitretState) return;
+
+		//堦搙偟偐僋僀僢僋僙乕僽偱偒側偄乮儃僞儞楢懪懳嶔乯
+		if(_quickSave) return;
+		_quickSave = true;
+
+		//傾僋僔儑儞僞僀儅偺堦帪掆巭
+		pauseAction();
+
+		var save = new Savedata();
+		save.save("qsave.dat", -1, this);
+		invalidate save;
+
+		//傾僋僔儑儞僞僀儅偺嵞奐
+		restartAction();
+
+		dm("僋僀僢僋僙乕僽偟傑偟偨");
+		PlaySystemVoice("俻僙乕僽幚峴");
+		Information("$c:cyan,blue;快速存档$c;完成");
+
+		_msg.refreshQSaveInfo();
+	}
+
+	function close(){
+		stopAction();
+		_msg.interupt = true;
+
+		//壒娭學掆巭
+		StopBgm();
+		StopSe();
+		StopEnvSe();
+		StopVoice();
+
+		valid = false;						//僔乕儞僆僽僕僃僋僩柍岠壔
+	}
+
+	function playMovie(elm){
+		//僆乕僩丄僗僉僢僾嫮惂僗僩僢僾
+		_msg.auto = false;
+		_msg.skip = false;
+
+		//壒娭學掆巭
+		StopBgm();
+		StopSe();
+		StopEnvSe();
+		StopVoice();
+
+		//ADVScreen旕昞帵
+		visible = false;
+
+		if(_sprTrans.isTransition()){
+		//傑偩慜偺僩儔儞僕僢僔儑儞偑廔椆偟偰偄側偄側傜廔椆偝偣傞丅
+			transitionComplete(_sprTrans);
+		}
+
+		hide(0, true);
+
+		PlayMovie(elm.file, this);
+
+		_fMovie = true;
+	}
+	function onStopMovie(){
+		StopMovie();
+		visible = true;
+		_fMovie = false;
+	}
+
+	function staffroll(elm){
+		CallStaffRoll(elm.id, this);
+	}
+
+	function callSystemWindow(type){
+		if(!_msg.isShow()) return;
+		if(_fMovie) return;
+		if(_eyeCatch != null) return;
+		if(IsStaffRoll()) return;
+
+		if(isSkip()) skip(false);
+		if(isAuto()) auto(false);
+
+		if(!_startSelect && (isSkip() || isAuto())) return;
+
+		if(!_hitretState) return;
+
+		switch(type){
+		case SYSWIN_CONFIG : 
+			callConfig();
+			break;
+		case SYSWIN_HISTORY : 
+			callHistory();
+			break;
+		case SYSWIN_LOAD : 
+			callLoad();
+			break;
+		case SYSWIN_SAVE : 
+			callSave();
+			break;
+		}
+	}
+
+	function callConfig(){
+		var returnMenu = _fRecollect?2:1;
+		CallConfig(this, returnMenu, 1);
+	}
+	function callHistory(){
+		CallHistory(this);
+	}
+	function callLoad(){
+		if(_fRecollect) return;
+
+		CallLoadSave(true);
+	}
+	function callSave(){
+		if(_fRecollect) return;
+
+		CallLoadSave(false, this);
+	}
+
+	property hitretState{
+		getter(){return _hitretState;}
+	}
+
+	property interrupt{
+		setter(v){
+			_scCtrl.interrupt = v;
+			_msg.interrupt = v;
+			if(v){
+			//掆巭
+				if(_fAction){pauseAction();}
+			}else{
+			//嵞奐
+				if(!_fAction){restartAction();}
+			}
+		}
+		getter(){return _scCtrl.interrupt;}
+	}
+}
+
+ADVScreen.SYSWIN_CONFIG		= 1;
+ADVScreen.SYSWIN_HISTORY	= 2;
+ADVScreen.SYSWIN_LOAD		= 3;
+ADVScreen.SYSWIN_SAVE		= 4;
+
+class Savedata{
+	var _valid;
+	var _param;
+
+	function Savedata(filename=""){
+		_param = %[];
+
+		init();
+
+		_valid = false;
+
+		if(filename != "")
+			load(filename);
+	}
+	function finalize(){
+		invalidate _param;
+	}
+
+	function init(){
+		with(_param){
+			.save = 0;						//僙乕僽偝傟偰偄傞偐偳偆偐
+
+			.title = GAME_TITLE;
+			.version = GAME_VERSION;
+			.save_version = SAVE_VERSION;
+
+			.save_date = "";
+
+			//僔僫儕僆僼傽僀儖柤
+			.scenario = "";
+			//僔乕儞僞僀僩儖
+			.scene = "";
+			//hitret夞悢
+			.hitret = 0;
+			//慖戰巿忣曬
+			.select = [];
+			//僷儔儊乕僞
+			.param = [];
+			//擔晅
+			.month = 0;
+			.day = 0;
+			//僉儍儔儖乕僩
+			.root = 0;
+
+			//儊僢僙乕僕僼儗乕儉
+			.messageFrame = 0;
+			.messageX = 0;
+			.messageY = 0;
+			//僼僃僀僗
+			.face = "";
+
+			//僇僢僩僀儞
+			.cutin = %[];
+
+			//儊僢僙乕僕丒擔晅丒儖乕僾昞帵偺僔僫儕僆巜掕徚嫀
+			.advDateHide = 0;
+
+			//僶僢僋儘僌
+			.logName = [];
+			.logMess = [];
+			.logVoice = [];
+			.logParam = [];
+
+			//ADV僆僽僕僃僋僩
+			.advObject = [];
+			.autoPosition = true;
+			//僇儊儔
+			.camera = PointNumToStr(0,0,0);
+			.camera_move = "";
+			.camera_move_time = 0;
+
+			//僼儔僢僔儏
+			.flash = "";
+
+			//傾僋僔儑儞
+			.action = [];
+
+			//壒妝
+			.bgm = "";
+			.pauseBgm = 0;
+			//娐嫬壒
+			.envSe = [];
+		}
+	}
+
+	function set(adv){
+		with(_param){
+
+			//僙乕僽偟偨偙偲偵偡傞
+			.save = 1;
+
+			//-----------------------------------------------------------------
+			//僔僫儕僆僼傽僀儖柤
+			.scenario = adv._scenario;
+			//僔乕儞僞僀僩儖
+			.scene = adv._scene;
+			//hitret夞悢
+			.hitret = adv._hitretNum;
+			//慖戰巿忣曬
+			.select.assign(adv._logSelect);
+			//僷儔儊乕僞(僔僫儕僆愭摢偱偺僷儔儊乕僞忬懺)
+			.param.assign(adv._paramPrev.object());
+			//僉儍儔儖乕僩
+			.root = adv._param.get(551);
+
+			(Dictionary.assign incontextof .cutin)(adv._cutinParam);
+
+			//儊僢僙乕僕僼儗乕儉
+			.messageFrame = adv._msg._type;
+			.messageX = adv._msgX;
+			.messageY = adv._msgY;
+			.face = adv._face;
+//			.face = adv._msg._face._prevFace;
+
+			//僶僢僋儘僌
+			.logName.assign(adv._logName);
+			.logMess.assign(adv._logMess);
+			.logVoice.assign(adv._logVoice);
+			.logParam.assign(adv._logParam);
+
+			//ADV僆僽僕僃僋僩
+			var index = 0;
+			for(var i=0;i<adv._objList.count;i++){
+				//嶍彍梊掕偺僆僽僕僃僋僩偼柍帇
+				if(adv._objList[i]._destroy != ADVOBJ_DESTROY_NONE) continue;
+
+				.advObject[index] = %[];
+				//僆僽僕僃僋僩僞僀僾
+				.advObject[index].kind = adv._objList[i]._info.kind;
+				.advObject[index].id = adv._objList[i]._info.id;
+				.advObject[index].file = adv._objList[i]._info.file;
+				.advObject[index].order = adv._objList[i]._info.order;
+				.advObject[index].zOrder = adv._objList[i]._info.zOrder;
+				.advObject[index].relate = adv._objList[i]._info.relate;
+				.advObject[index].opacity = adv._objList[i].opacity;
+				.advObject[index].rotate = adv._objList[i].rotate;
+				.advObject[index].focus = adv._objList[i]._focus;
+				.advObject[index].tone = adv._objList[i]._tone;
+				.advObject[index].flipLR = adv._objList[i]._flipLR;
+				.advObject[index].flipUD = adv._objList[i]._flipUD;
+				var pos = adv._objList[i]._info.center;
+				.advObject[index].center = PointNumToStr(pos.x, pos.y, pos.z);
+				if(adv._objList[i].isBlendingActivation()){
+				//僆僽僕僃僋僩偑僽儗儞僨傿儞僌傾僋僥傿儀乕僔儑儞拞
+					.advObject[index].opacity = adv._objList[i]._endOpacity;
+				}
+				if(adv._actionList.isAction(adv._objList[i])){
+				//僆僽僕僃僋僩偑傾僋僔儑儞拞偺帪偼丄堏摦姰椆帪偺嵗昗傪丅
+					pos = adv._actionList.sequence(adv._objList[i])._world;
+				}else{
+				//摦偄偰側偄側傜偦偺傑傑偺嵗昗傪丅
+					pos = adv._objList[i]._worldPos;
+				}
+				.advObject[index].worldPos = PointNumToStr(pos.x, pos.y, pos.z);
+				pos = adv._objList[i]._basePos;
+				.advObject[index].baseBase = PointNumToStr(pos.x, pos.y, pos.z);
+				index++;
+			}
+			.autoPosition = adv._fBustupAutoPositioning;
+
+			//僇儊儔埵抲(曗惓偟偰偍偔)
+			var pos = new Point();
+			var scale;
+			if(adv._fAction && adv._fCamera_move){
+				pos.set(adv._camera_move._end.x, adv._camera_move._end.y, adv._camera_move._end.z);
+				;scale = 2.0 * (1.0 + ((pos.z+BG_RANGE_MAX)) / BG_RANGE_MAX);
+				scale = 2.0;
+				pos.x /= scale;
+				pos.y /= scale;
+				pos.z += BG_RANGE_MAX;
+				.camera = PointNumToStr(pos.x, pos.y, pos.z);
+
+				pos.set(adv._camera_move._start.x, adv._camera_move._start.y, adv._camera_move._start.z);
+				scale = 2.0 * (1.0 + ((pos.z+BG_RANGE_MAX)) / BG_RANGE_MAX);
+				pos.x /= scale;
+				pos.y /= scale;
+				pos.z += BG_RANGE_MAX;
+				.camera_move = PointNumToStr(pos.x, pos.y, pos.z);
+
+				.camera_move_time = adv._camera_move_time;
+			}else{
+				pos.set(adv._camera_pos);
+				//scale = 2.0 * (1.0 + ((pos.z+BG_RANGE_MAX)) / BG_RANGE_MAX);
+				scale = 2.0;
+				pos.x /= scale;
+				pos.y /= scale;
+				pos.z += BG_RANGE_MAX;
+				.camera = PointNumToStr(pos.x, pos.y, pos.z);
+			}
+
+			//傾僋僔儑儞
+			var index = 0;
+			for(var i=0;i<adv._actionList.count;i++){
+				.action[index] = %[];
+				if(adv._actionList._list[i]._world != void){
+				//_world偑桳岠側傜ADVObj
+					if(adv._actionList._list[i]._target.destroy == ADVOBJ_DESTROY_NONE){
+						(Dictionary.assign incontextof .action[index++])(adv._actionList._list[i]._elm);
+					}
+				}else{
+					(Dictionary.assign incontextof .action[index++])(adv._actionList._list[i]._elm);
+				}
+			}
+
+			//壒妝
+			if(BGM.isPlay("", false)){
+				var obj = BGM.objectOfId("BGM_1", false);
+				if(obj != -1){
+					.bgm = obj._file;
+					.pauseBgm = obj.paused;
+				}
+				obj = BGM.objectOfId("BGM_2", false);
+				if(obj != -1){
+					.bgm = obj._file;
+					.pauseBgm = obj.paused;
+				}
+			}
+			//娐嫬壒
+			.envSe.assign(ENVSE.idList(false));
+		}
+	}
+
+	function isExist(filename){
+		if(Storages.isExistentStorage(DATA_PATH + filename)){
+		//僙乕僽僼僅儖僟撪僠僃僢僋
+			return true;
+		}else if(Storages.isExistentStorage(filename)){
+		//filename傪僼儖僷僗偲偟偰僠僃僢僋
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	function load(filename){
+		var now = System.getTickCount();
+
+		_valid = false;
+
+		var path;
+		if(Storages.isExistentStorage(DATA_PATH + filename)){
+		//僙乕僽僼僅儖僟撪僠僃僢僋
+			path = DATA_PATH;
+		}else if(Storages.isExistentStorage(filename)){
+		//filename傪僼儖僷僗偲偟偰僠僃僢僋
+			path = "";
+		}else{
+			dm("僙乕僽僨乕僞偑尒偮偐傝傑偣傫 : " + filename);
+			return false;
+		}
+
+		var temp;
+		try{
+			temp = Scripts.evalStorage(path + filename);
+		}catch{
+			dm("001.僙乕僽僨乕僞偑晄惓偱偡 : " + filename);
+			return false;
+		}
+
+		var succes = true;
+		//僙乕僽僨乕僞偱偁傞偐僠僃僢僋
+		if(typeof temp[0] != "Object"){
+		//Object僞僀僾偑偳偆偐僠僃僢僋
+			succes = false;
+		}else if(temp[0].title !== void && temp[0].version !== void){
+		//撉傒崬傫偩僨乕僞偵title,version僞僌偑偁傞偐僠僃僢僋
+			//if(temp[0].title != GAME_TITLE){
+			//僞僀僩儖柤傪僠僃僢僋
+			//	succes = false;
+			//	dm("002.僙乕僽僨乕僞偑晄惓偱偡 : " + filename);
+			//}
+			if(real(temp[0].save_version) != real(SAVE_VERSION)){
+			//僶乕僕儑儞傪僠僃僢僋
+				succes = false;
+				dm("003.僙乕僽僨乕僞偑晄惓偱偡 : " + filename);
+			}
+		}else{
+			succes = false;
+			dm("004.僙乕僽僨乕僞偑晄惓偱偡 : " + filename);
+		}
+
+		if(succes == false){
+			return false;
+		}
+
+		if(temp[0].save == 0){
+		//僙乕僽偝傟偰偄側偄僨乕僞偩偗偳丄拞恎偼惓忢
+			_valid = false;		//僙乕僽偝傟偰偄側偄僼傽僀儖偼柍岠埖偄
+			return true;
+		}
+
+		_valid = true;
+
+		//撉傒崬傫偩僨乕僞傪僐僺乕
+		(Dictionary.assign incontextof _param)(temp[0]);
+
+		@if(__DEBUGMODE__)
+			dm("儘乕僪張棟偵"+(System.getTickCount() - now) + "ms偐偐傝傑偟偨");
+		@endif
+
+		return true;
+	}
+
+	function save(filename, index=-1, adv=null, init=false){
+		var now = System.getTickCount();
+
+		var temp = [];
+		temp[0] = _param;
+
+		if(adv != null) set(adv);
+
+		@if(__DEBUGMODE__)
+			var fDebugVisible = debug.visible;
+			debug.visible = false;
+		@endif
+
+		//尰嵼偺帪娫傪愝掕
+		var date = new Date();
+		_param.save_date = "%04d/%02d/%02d %02d:%02d:%02d".sprintf(date.getYear(), date.getMonth()+1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds());
+		invalidate date;
+
+		//僨乕僞僙乕僽
+		//=============================================================
+		@if(__FILE_CRYPT__ == 0)
+			temp.saveStruct(DATA_PATH + filename);
+		@endif
+		@if(__FILE_CRYPT__ == 1)
+			temp.saveStruct(DATA_PATH + filename, "z");
+		@endif
+
+		//僒儉僱乕儖僙乕僽
+		//=============================================================
+		if(adv != null){
+			var sprThumb = new global.Layer(win, win.baseLayer);
+			var obj = adv.getADVObjectObject("攚宨");
+			var file = obj.info.file.substring(0, 6);
+			if(CG_HSCENE_LIST[file] === void){
+			//捠忢攚宨偐捠忢僀儀儞僩
+				var spr = new global.Layer(win, win.baseLayer);
+				adv.screenShot(spr, true);
+
+				var thumbW = 256;
+				var thumbH = 144;
+				sprThumb.setSize(thumbW, thumbH);
+				sprThumb.stretchCopy(0, 0, sprThumb.width, sprThumb.height, spr, 0, 0, spr.width, spr.height, stCubic);
+				invalidate spr;
+			}else{
+			//俫僔乕儞
+				file += "TL.png";
+				if(Storages.isExistentStorage(file))
+					sprThumb.loadImages(file);
+				else
+					sprThumb.setSize(256, 144);
+				sprThumb.setSizeToImageSize();
+
+				var tone = TONE_DIC[obj._tone];
+				if(tone !== void){
+					if(tone[3]) sprThumb.doGrayScale();
+					sprThumb.adjustGamma(
+						tone[0][0], tone[0][1], tone[0][2],
+						tone[1][0], tone[1][1], tone[1][2],
+						tone[2][0], tone[2][1], tone[2][2]
+					);
+				}
+			}
+			sprThumb.saveLayerImage(DATA_PATH + filename.split(".")[0] + ".bmp");
+			invalidate sprThumb;
+		}
+
+		//娗棟僼傽僀儖偵傕僿僢僟忣曬傪曐懚
+		//=============================================================
+		//僙乕僽忣曬嶌惉
+			var name = "";
+			var mess = "";
+			if(adv != null){
+				var logIndex = adv._logName.count-1;
+				name = adv._logName[logIndex];
+				if(name.indexOf("/") != -1) name = name.split("/")[1];
+				if(name == "心之声" || name == "語り")
+					name = "";
+
+				mess = adv._logMess[logIndex];
+				//嫮惂夵峴暥帤丒慡妏僗儁乕僗傪徚偡
+				var reg1 = new RegExp("／|　", "g");
+				mess = mess.replace(reg1, "");
+				invalidate reg1;
+				//惂屼僐乕僪傪徚偡
+				var ma = new MessageArea(adv.window, adv);
+				name = ma.extractOutputString(name);
+				mess = ma.extractOutputString(mess);
+				invalidate ma;
+			}
+		//=============================================================
+		if(index != -1){
+		//捠忢僙乕僽
+			if(!init){
+				saveMan.set(index, "", _param.save_date, name + mess);
+			}else{
+				saveMan.reset(index);
+			}
+		}else{
+		//QSave
+			if(!init){
+				saveMan.setQSave("", _param.save_date, name + mess);
+			}else{
+				saveMan.resetQSave();
+			}
+		}
+		saveMan.save();
+
+		@if(__DEBUGMODE__)
+			debug.visible = fDebugVisible;
+			dm("僙乕僽張棟偵"+(System.getTickCount() - now) + "ms偐偐傝傑偟偨");
+		@endif
+	}
+
+	function applyToAdv(adv){
+		if(!isValid()) return;
+
+		with(_param){
+			adv._scenario = .scenario;
+			adv._scene = .scene;
+			//hitret夞悢
+			adv._hitretNum = .hitret;
+			//慖戰巿忣曬
+			adv._logSelect.assign(.select);
+			//僷儔儊乕僞(僔僫儕僆愭摢偱偺僷儔儊乕僞忬懺)
+			adv._param.object().assign(.param);
+
+			//僶僢僋儘僌
+			adv._logName.assign(.logName);
+			adv._logMess.assign(.logMess);
+			adv._logVoice.assign(.logVoice);
+			adv._logParam.assign(.logParam);
+		}
+	}
+
+	//桳岠側僙乕僽僨乕僞偐
+	function isValid(){
+		return _valid;
+	}
+
+	property param{
+		setter(v){_param = v;}
+		getter(){return _param;}
+	}
+}
+
+class LoadProcessScreen extends Sprite{
+	var _spr = [];
+
+	function LoadProcessScreen(win, par){
+		super.Sprite(...);
+
+		//儀乕僗
+		loadImages("FRM_0501");
+		setSizeToImageSize();
+
+		//儘僑
+		_spr[0] = new global.Sprite(win, this);
+		_spr[0].loadImages("FRM_0505");
+		_spr[0].setSizeToImageSize();
+		_spr[0].setPos(WINDOW_WIDTH-_spr[0].width-16, WINDOW_HEIGHT-_spr[0].height-16);
+		_spr[0].visible = true;
+
+		visible = true;
+	}
+	function finalize(){
+		InvalidateArray(_spr);
+		invalidate _spr;
+
+		super.finalize();
+	}
+}
+
+//儘乕僪張棟偺偨傔偵夋柺傪塀偡
+var SPR_ADV_HIDE = null;
+function BeginLoad(func=null){
+	if(SPR_ADV_HIDE != null){
+		if(!SPR_ADV_HIDE.isActivation() && func != null){
+			func();
+		}else if(func != null){
+			SPR_ADV_HIDE.setTransitionCompleteCall(func);
+		}else{
+			EndLoad();
+		}
+		return;
+	}
+
+	SPR_ADV_HIDE = new LoadProcessScreen(win, win.baseLayer);
+	with(SPR_ADV_HIDE){
+		.setTransitionCompleteCall(func);
+
+		.opacity = 0;
+		.setBlendingEnvelope(255);
+		.beginActivation(300);
+		.visible = true;
+	}
+}
+function EndLoad(func=null){
+	if(SPR_ADV_HIDE == null) return;
+	with(SPR_ADV_HIDE){
+		//僩儔儞僕僢僔儑儞偑廔傢偭偨傜嶍彍偡傞
+		.setTransitionCompleteCall(DestroyLoad, true);
+
+		.setBlendingEnvelope(0);
+		.beginActivation(500);
+	}
+}
+function DestroyLoad(){
+	if(SPR_ADV_HIDE == null) return;
+
+	invalidate SPR_ADV_HIDE;
+	SPR_ADV_HIDE = null;
+}
+function IsLoadProccesing(){
+	return (SPR_ADV_HIDE != null);
+}
+
+//-----------------------------------------------
+//僗僋儕僾僩偺昡壙幃偱棙梡偡傞僐儅儞僪儔僢僷乕
+//-----------------------------------------------
+function GetParam(id){
+	return game.getScene(SCENE_ADV).getParam(id);
+}
+function SetParam(id, arg){
+	return game.getScene(SCENE_ADV).setParam(id, arg);
+}
+function ChkFlagOn(id){
+	return game.getScene(SCENE_ADV).chkFlagOn(id);
+}
+function ChkFlagOff(id){
+	return game.getScene(SCENE_ADV).chkFlagOff(id);
+}
+function ChkSelect(id){
+	if(typeof id == "Integer")
+		return game.getScene(SCENE_ADV).chkSelect(id);
+	else
+		return game.getScene(SCENE_ADV).chkSelectStr(id);
+}
+function ChkDate(month, day){
+	return game.getScene(SCENE_ADV).chkDate(month, day);
+}
+function IsRecollect(){
+	var scene = game.getScene(SCENE_ADV);
+	if(scene === void)
+		return false;
+	else
+		return scene.isRecollect();
+}

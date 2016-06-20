@@ -9,12 +9,14 @@ angular.module('gal')
         var save = function () {
             var index = scriptService.getIndex();
             storage.set('index', index);
+            alert('快速存档完成!');
 
         }
         var load = function () {
             var index = storage.get('index');
             scriptService.setIndex(index);
             console.log(index);
+            alert('快速读档完成!');
         }
         return {
             save: save,

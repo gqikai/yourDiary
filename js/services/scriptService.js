@@ -1,11 +1,11 @@
 "use strict";
 angular.module('gal')
-    .service('scriptService', ['$http', 'URLroot', 'CHAPTERlist', function ($http, URLroot, CHAPTERlist) {
+    .service('scriptService', ['$http', 'URLroot', function ($http, URLroot) {
         'use strict';
 
         var script = null;
         var index = 0;
-        var chapter = 0;
+        var chapter = '@00_01';
         var deleteBackslashR = function(){
             script = script.replace('\r','');
         }
@@ -63,7 +63,7 @@ angular.module('gal')
         var getScript = function () {
             return $http({
                 method: 'GET',
-                url: URLroot + '/assets/script/' + CHAPTERlist[chapter] + '.ks'
+                url: URLroot + '/assets/script/' + chapter + '.ks'
             })
         };
         var onGetScriptSuccess =  function (data, status, headers, config) {
@@ -72,28 +72,29 @@ angular.module('gal')
             script = script.split('\r\n');
             deleteEmptyLines();
             console.log(script);
+            index = 0;
         }
         var onGetScriptError = function (data, status, headers, config) {
             console.log(data + status);
-        }
-        var nextChapter = function () {
-            chapter ++;
-            var promise = getScript();
-            promise.success(onGetScriptSuccess).error(onGetScriptError);
-            index = 0;
         }
 
         var init = function () {
             var promise = getScript();
             promise.success(onGetScriptSuccess).error(onGetScriptError);
         };
+        var change = function (target) {
+            console.log(target);
+            chapter = target;
+            var promise = getScript();
+            promise.success(onGetScriptSuccess).error(onGetScriptError);
 
+        }
         init();
 
         return {
             next: next,
             getIndex: getIndex,
             setIndex: setIndex,
-            nextChapter: nextChapter
+            change:change
         };
     }]);

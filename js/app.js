@@ -21,9 +21,4 @@ gal.config(['$routeProvider', "$provide",
             })
             .otherwise({redirectTo: '/main-title'});
         $provide.value('URLroot', '/yourDiary');
-        $provide.value('CHAPTERlist', [
-            '@00_01','@00_02','@00_03',
-            '@01_01','@01_02',
-            '@02_01','@02_02'
-        ]);
     }]);

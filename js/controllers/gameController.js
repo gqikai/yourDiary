@@ -1,6 +1,6 @@
 "use strict";
 angular.module('gal')
-    .controller('gameController', ['$scope', 'URLroot', 'gameService', 'audioService', function ($scope, URLroot, gameService, audioService) {
+    .controller('gameController', ['$scope','$timeout', 'URLroot', 'gameService', 'audioService', function ($scope,$timeout, URLroot, gameService, audioService) {
         'use strict';
         $scope.URLroot = URLroot;
         $scope.background = {
@@ -14,8 +14,11 @@ angular.module('gal')
         $scope.animateShell = document.getElementsByClassName('game__game__animation-shell')[0];
         $scope.currentToken = {};
         $scope.nextToken = {};
-
-
+        $scope.skipFlag = false;
+        $scope.$on('playerSelect', function (event, index) {
+            console.log(index);
+        })
+        
         $scope.handleTalk = function () {
             $scope.$broadcast($scope.currentToken.direction, $scope.currentToken);
         }
@@ -116,7 +119,12 @@ angular.module('gal')
         $scope.handlePauseBgm = function () {
             audioService.pauseBgm();
         }
-
+        $scope.handleAddSelect = function () {
+            $scope.$broadcast($scope.currentToken.direction, $scope.currentToken.text);
+        }
+        $scope.handleStartSelect = function () {
+            $scope.$broadcast($scope.currentToken.direction);
+        }
         $scope.next = function () {
             while (1) {
                 $scope.nextToken = gameService.next();
@@ -154,9 +162,20 @@ angular.module('gal')
                     case 'waitVoice':
                         $scope.handlePauseBgm();
                         break;
-                    case 'end':
-                        gameService.nextChapter();
                     case 'wait':
+                        $scope.currentToken = $scope.nextToken;
+                        return;
+                    case 'change':
+                        gameService.change($scope.currentToken.target);
+                        break;
+                    case 'end':
+                        $scope.currentToken = $scope.nextToken;
+                        return;
+                    case 'AddSelect':
+                        $scope.handleAddSelect();
+                        break;
+                    case 'StartSelect':
+                        $scope.handleStartSelect();
                         $scope.currentToken = $scope.nextToken;
                         return;
                 }
@@ -169,7 +188,22 @@ angular.module('gal')
         $scope.quickLoad = function () {
             gameService.quickLoad();
         }
-        //for(var i = 0; i < 1000; i ++){
-        //    $scope.next();
-        //}
+        $scope.skip = function () {
+            if($scope.skipFlag){
+                $scope.skipFlag = false;
+            }else{
+                var conf = confirm('要快进吗?');
+                if(conf){
+                    $scope.skipFlag = true;
+                    var skip = function () {
+                        if($scope.skipFlag){
+                            $timeout(skip, 100);
+                            $scope.next();
+                        }
+                    }
+                    $timeout(skip, 100);
+                }
+
+            }
+        }
     }]);

@@ -1,0 +1,448 @@
+/*
+	ADVオブジェクトクラス
+*/
+
+var id = 100;
+var ADVLAYER_BACK1		= (id+=100);	//一番後ろの背景
+var ADVLAYER_BACK2		= (id+=100);
+var ADVLAYER_BUSTUP_S	= (id+=100);	//Sサイズ
+var ADVLAYER_BACK3		= (id+=100);
+var ADVLAYER_BUSTUP_M	= (id+=100);	//Mサイズ
+var ADVLAYER_BACK4		= (id+=100);
+var ADVLAYER_BUSTUP_L	= (id+=100);	//Lサイズ
+var ADVLAYER_CUTIN		= (id+=100);
+var ADVLAYER_BACK5		= (id+=100);
+var ADVLAYER_EFFECT		= (id+=100);
+var ADVLAYER_FLASH		= (id+=100);
+var ADVLAYER_MESSAGE	= (id+=100);
+var ADVLAYER_SELECT		= (id+=100);
+var ADVLAYER_EYECATCH	= (id+=100);
+delete id;
+
+var ADVOBJ_NULL				= 0xefffffffffffffff;
+var ADVOBJ_NONE				= 0;
+var ADVOBJ_CG				= 1;
+var ADVOBJ_BUSTUP			= 2;
+var ADVOBJ_BUSTUP_OPTION	= 3;
+var ADVOBJ_SCREEN			= 99;
+
+var ADVOBJ_DESTROY_NONE		= 0;	//
+var ADVOBJ_DESTROY_WAIT		= 1;	//終了待ち状態
+var ADVOBJ_DESTROY_STANDBY	= 2;	//もう消して良い状態
+
+class ADVObjectInfo{
+	var id;			//文字列ID
+	var file;		//ファイル名
+	var diffBase;	//差分ファイル名
+	var kind;		//オブジェクトタイプ
+	var order;		//表示順
+	var zOrder;		//距離
+	var relate;		//位置関係
+	var center;		//中心位置
+
+	function ADVObjectInfo(){
+		id = "";
+		file = "";
+		diffBase = "";
+		kind = ADVOBJ_NONE;
+		order = 0;
+		zOrder = 0;
+		relate = 0;
+		center = new Point(ADVOBJ_NULL, ADVOBJ_NULL, ADVOBJ_NULL);
+	}
+
+	function copy(info){
+		id = info.id;
+		file = info.file;
+		diffBase = info.diffBase;
+		kind = info.kind;
+		order = info.order;
+		zOrder = info.zOrder;
+		relate = info.relate;
+		center.set(info.center);
+	}
+
+	function finalize(){
+		invalidate center;
+	}
+}
+
+class ADVObject extends Sprite{
+	var _spr;			//本体レイヤ
+
+	var _info;
+
+	var _worldPos;		//表示位置(ワールド座標)
+	var _basePos;
+
+	var _destroy;		//自滅フラグ(トランジションやアクティベーションが終了したときにオブジェクトを無効にする)
+
+	//状態
+	var _fresh;		//新規に作成されたオブジェクトである
+					//adv.updateの最後でfalseにされる
+	var _focus;		//ぼやけ
+	var _tone;		//トーン
+	var _flipLR;
+	var _flipUD;
+
+	var _tempPositioning;
+
+	function ADVObject(win, par=null, id=""){
+		super.Sprite(win, par);
+		hasImage = false;
+		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+
+		hitType = htMask;
+		hitThreshold = 256;
+
+		_spr = new global.Sprite(win, this);
+		_spr.hitType = htMask;
+		_spr.hitThreshold = 256;
+		_spr.visible = true;
+
+		_info = new ADVObjectInfo();
+		_info.kind = ADVOBJ_NONE;
+		_info.relate = 0;
+		_info.id = id;
+
+		_worldPos = new Point(0, 0, 0);
+		_basePos = new Point(0, 0, 0);
+
+		destroy = ADVOBJ_DESTROY_NONE;
+
+		_fresh = false;
+		_focus = 0;
+		_tone = "normal";
+		_flipLR = 0;
+		_flipUD = 0;
+
+		_tempPositioning = false;
+	}
+
+	function finalize(){
+		invalidate _spr;
+		invalidate _info;
+		invalidate _worldPos;
+		invalidate _basePos;
+		super.finalize();
+	}
+
+	function loadImages(file){
+		_spr.loadImages(file);
+		setSizeToImageSize();
+	}
+
+	function setSizeToImageSize(){
+		_spr.setSizeToImageSize();
+	}
+
+	function fillRect(x, y, width, height, col){
+		_spr.fillRect(...);
+	}
+
+	function setup(elm, kind=ADVOBJ_NULL){
+		//画像ファイル読み込み
+		try{
+			var file = elm.file.toUpperCase();
+			var col = GetDefineColorA(file);
+			switch(col){
+			case -1:
+				if(elm.diff !== void){
+					if(elm.diff != ""){
+						loadImages(elm.diff);
+						var imgDiff = new global.Layer(window, this);
+						with(imgDiff){
+							.loadImages(elm.file);
+							.setSizeToImageSize();
+						}
+						_spr.copyRect(0, 0, imgDiff, 0, 0, imgDiff.width, imgDiff.height);
+						invalidate imgDiff;
+					}else{
+						loadImages(elm.file);
+					}
+				}else{
+					loadImages(elm.file);
+				}
+				_focus = 0;
+				_tone = "normal";
+				break;
+			default:
+				_spr.setImageSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+				_spr.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, col);
+				break;
+			}
+
+			setSizeToImageSize();
+		}catch{
+			dm("画像ファイルが見つかりませんでした : "+elm.file);
+			@if(__DEBUGMODE__)
+			//ファイルが見つからないのでダミーを用意する
+				if(kind != ADVOBJ_NULL){
+				}
+			@endif
+			return false;
+		}
+
+		//ぼやかし
+		if(elm.rotate !== void)	_spr.rotate = int(elm.rotate);
+
+		//ぼやかし
+		if(elm.focus !== void)	focus(elm.focus);
+
+		//トーン(ガンマ)処理
+		if(elm.tone !== void)	tone(elm.tone);
+
+		//不透明度
+		if(elm.trans !== void)	.opacity = int(elm.trans);
+
+		//反転処理
+		_flipLR = _flipUD = 0;
+		if(elm.fliplr !== void)	flipLR();
+		if(elm.flipud !== void)	flipUD();
+
+		return true;
+	}
+
+	function setCenter(x, y){
+		_spr.setCenter(x, y);
+		_spr.afx = x;
+		_spr.afy = y;
+		@if(__DEBUGMODE__)
+		//基準点
+			if(debug.tglBuCenter.state){
+				if(info.kind == ADVOBJ_BUSTUP){
+					_spr.colorRect(x-32, y,  64,  1, 0x0000ff, 32);
+					_spr.colorRect(x, y-32,   1, 64, 0x0000ff, 32);
+					_spr.colorRect(x-4, y-4,  9,  9, 0xff0000, 32);
+				}
+			}
+		@endif
+	}
+
+	function setWorldPos(x, y, z){
+		_worldPos.set(x, y, z);
+	}
+
+	function getWorldPos(){
+		return _worldPos;
+	}
+
+	function setBasePos(x, y, z){
+		_basePos.set(x, y, z);
+	}
+
+	function getBasePos(){
+		return _basePos;
+	}
+
+	function setPos(x, y){
+		left = x;
+		top = y;
+	}
+
+	function beginTransition(name, childlen, src, elm){
+		super.beginTransition(...);
+	}
+	function stopTransition(){
+		super.stopTransition();
+		if(destroy==ADVOBJ_DESTROY_WAIT) destroy=ADVOBJ_DESTROY_STANDBY;
+	}
+
+	function onTransitionCompleted(dest, src){
+		super.onTransitionCompleted(dest, src);
+		if(destroy==ADVOBJ_DESTROY_WAIT) destroy=ADVOBJ_DESTROY_STANDBY;
+	}
+
+	function flushActivation(){
+		super.flushActivation();
+		if(destroy==ADVOBJ_DESTROY_WAIT) destroy=ADVOBJ_DESTROY_STANDBY;
+	}
+
+	function stopActivation(){
+		super.stopActivation();
+		if(destroy==ADVOBJ_DESTROY_WAIT) destroy=ADVOBJ_DESTROY_STANDBY;
+	}
+
+	function onTimer(){
+		var tick = real(System.getTickCount() - beginActivationTime) / activationTime;
+		if(tick > 1.0){
+			flushActivation();
+		}
+
+		//透明度
+		if(_startOpacity != -1){
+			opacity = _startOpacity + (_endOpacity - _startOpacity)*tick;
+		}
+		//移動
+		if(_sx != 0xffffffff){
+			setPos(_sx + (_ex - _sx) * tick, _sy + (_ey - _sy) * tick);
+		}
+		//拡大
+		if(_zoom1 != -1){
+			zoom = _zoom1 + (_zoom2 - _zoom1) * tick;
+		}
+		//回転
+		if(_rotate1 != -1){
+			var i = _turn == true ? 1 : -1;
+			rotate = _rotate1 + (_rotate2 - _rotate1) * tick * i;
+		}
+	}
+
+	function doBoxBlur(x, y){
+		_spr.doBoxBlur(x, y);
+	}
+
+	function flipLR(){
+		_flipLR = _flipLR == 0 ? 1 : 0;
+		_spr.flipLR();
+	}
+	function flipUD(){
+		_flipUD = _flipUD == 0 ? 1 : 0;
+		_spr.flipUD();
+	}
+
+	function tone(type="normal"){
+		var tar = TONE_DIC[type];
+		if(tar === void) type = "normal";
+		tar = TONE_DIC[type];
+
+		if(type == "normal" && _tone != "normal"){
+			restoreImage();
+			if(_focus != 0){
+				//２回restoreImageさせない対策・・・
+				_tone = "normal";
+				var value = _focus;
+				_focus = 0;
+
+				focus(value);
+			}
+		}else{
+			if(tar[3]) _spr.doGrayScale();
+			_spr.adjustGamma(
+				tar[0][0], tar[0][1], tar[0][2], 
+				tar[1][0], tar[1][1], tar[1][2], 
+				tar[2][0], tar[2][1], tar[2][2]
+			);
+		}
+		_tone = type;
+	}
+
+	function focus(depth=0){
+		if(_focus != 0){
+			restoreImage();
+			if(_tone != "normal"){
+				//２回restoreImageさせない対策・・・
+				_focus = 0;
+				var value = _tone;
+				_tone = "hoge";
+
+				tone(value);
+			}
+		}
+
+		_spr.doBoxBlur(depth, depth);
+		_focus = depth;
+	}
+
+	//イメージ再読み込み
+	function restoreImage(){
+		setup(%[file:_info.file, diff:_info.diffBase]);
+	}
+
+	property top{
+		setter(v){_spr.top = int(v) + _basePos.y;}
+		getter(){return _spr.top - _basePos.y;}
+	}
+	property left{
+		setter(v){_spr.left = int(v) + _basePos.x;}
+		getter(){return _spr.left - _basePos.x;}
+	}
+	property width{
+		setter(v){_spr.width = v;}
+		getter(){return _spr.width;}
+	}
+	property height{
+		setter(v){_spr.height = v;}
+		getter(){return _spr.height;}
+	}
+	property imageWidth{
+		setter(v){_spr.imageWidth = v;}
+		getter(){return _spr.imageWidth;}
+	}
+	property imageHeight{
+		setter(v){_spr.imageHeight = v;}
+		getter(){return _spr.imageHeight;}
+	}
+
+	property info{
+		setter(v){_info = v;}
+		getter(){return _info;}
+	}
+	property id{
+		setter(v){_info.id=v;}
+		getter(){return _info.id;}
+	}
+	property file{
+		setter(v){_info.file = v;}
+		getter(){return _info.file;}
+	}
+	property kind{
+		setter(v){_info.kind = v;}
+		getter(){return _info.kind;}
+	}
+	property relate{
+		setter(v){_info.relate = v;}
+		getter(){return _info.relate;}
+	}
+
+	property world{
+		getter(){return _worldPos;}
+	}
+	property wtop{
+		setter(v){_worldPos.y = v;}
+		getter(){return _worldPos.y;}
+	}
+	property wleft{
+		setter(v){_worldPos.x = v;}
+		getter(){return _worldPos.x;}
+	}
+
+	property destroy{
+		setter(v){_destroy = v;}
+		getter(){return _destroy;}
+	}
+
+	property fresh{
+		setter(v){_fresh = v;}
+		getter(){return _fresh;}
+	}
+
+	//AffineLayer系のオーバーライド
+	property rotate {
+		setter(v){_spr.rotate = v;}
+		getter(){return _spr.rotate;}
+	}
+	property zoomx {
+		setter(v){_spr.zoomx = v;}
+		getter(){return _spr.zoomx;}
+	}
+	property zoomy {
+		setter(v){_spr.zoomy = v;}
+		getter(){return _spr.zoomy;}
+	}
+	property zoom {
+		setter(v){_spr.zoom = v;}
+		getter(){return _spr.zoom;}
+	}
+	property afx {
+		setter(v){_spr.afx = v;}
+		getter(){return _spr.afx;}
+	}
+	property afy {
+		setter(v){_spr.afy = v;}
+		getter(){return _spr.afy;}
+	}
+	function setZoom(zx, zy=void) {
+		_spr.setZoom(...);
+	}
+}

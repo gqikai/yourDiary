@@ -1,0 +1,1424 @@
+
+class ConfigWindow extends SettingWindowBase{
+	var _adv;
+
+	var _page = -1;
+
+	var _base = [];
+
+	var _item = [];
+	var _group = [];
+
+	var _sampleMsgTimer;
+	var _maSampleMsg;
+
+	var _imgNumber;
+	var _sprNumber;
+
+	var _sampleVoice;
+
+	var i = 0;
+	var B_SYSTEM			= i++;
+	var B_SOUND				= i++;
+
+	//-------------------------------
+	var B_SCRN_WINDOW		= i++;
+	var B_SCRN_FULLSCREEN	= i++;
+	var B_EFCT_NORMAL		= i++;
+	var B_EFCT_NONE			= i++;
+	var S_EFCT_SPEED		= i++;
+	var S_WIND_DEPTH		= i++;
+	var S_MSG_SPEED			= i++;
+	var S_AUTO_SPEED		= i++;
+	var B_FTCL_DONE			= i++;
+	var B_FTCL_NONE			= i++;
+	var B_MSSK_READ			= i++;
+	var B_MSSK_ALL			= i++;
+	var B_VOIC_PLAY			= i++;
+	var B_VOIC_STOP			= i++;
+	var B_SLSK_CONTINUE		= i++;
+	var B_SLSK_STOP			= i++;
+	var B_SLAT_CONTINUE		= i++;
+	var B_SLAT_STOP			= i++;
+	var B_RTGD_SHOW			= i++;
+	var B_RTGD_HIDE			= i++;
+	var B_CNFM_OVERWRITE	= i++;
+	var B_CNFM_LOAD			= i++;
+	var B_CNFM_ENDGAME		= i++;
+	var B_CNFM_DEFAULT		= i++;
+	var B_CNFM_GOTITLE		= i++;
+	var B_MOUS_ON			= i++;
+	var B_MOUS_OFF			= i++;
+	var B_DEFAULT1			= i++;
+	var B_TITLE1			= i++;
+	var B_ENDGAME1			= i++;
+	//-------------------------------
+	var B_BGM_ON			= i++;
+	var B_BGM_OFF			= i++;
+	var B_SE_ON				= i++;
+	var B_SE_OFF			= i++;
+	var B_SYSTEM_ON			= i++;
+	var B_SYSTEM_OFF		= i++;
+	var B_VOICE_ON			= i++;
+	var B_VOICE_OFF			= i++;
+	var B_YA_ON				= i++;
+	var B_YA_OFF			= i++;
+	var B_SY_ON				= i++;
+	var B_SY_OFF			= i++;
+	var B_YH_ON				= i++;
+	var B_YH_OFF			= i++;
+	var B_KN_ON				= i++;
+	var B_KN_OFF			= i++;
+	var B_MS_ON				= i++;
+	var B_MS_OFF			= i++;
+	var B_KH_ON				= i++;
+	var B_KH_OFF			= i++;
+	var B_NT_ON				= i++;
+	var B_NT_OFF			= i++;
+	var B_HB_ON				= i++;
+	var B_HB_OFF			= i++;
+	var B_CT_ON				= i++;
+	var B_CT_OFF			= i++;
+	var B_OT_ON				= i++;
+	var B_OT_OFF			= i++;
+
+	var B_YA_SYS			= i++;
+	var B_SY_SYS			= i++;
+	var B_YH_SYS			= i++;
+	var B_KN_SYS			= i++;
+	var B_MS_SYS			= i++;
+	var B_KH_SYS			= i++;
+	var B_NT_SYS			= i++;
+	var B_HB_SYS			= i++;
+	var B_CT_SYS			= i++;
+
+	var S_BGM_VOL			= i++;
+	var S_SE_VOL			= i++;
+	var S_SYSTEM_VOL		= i++;
+	var S_VOICE_VOL			= i++;
+	var S_YA_VOL			= i++;
+	var S_SY_VOL			= i++;
+	var S_YH_VOL			= i++;
+	var S_KN_VOL			= i++;
+	var S_MS_VOL			= i++;
+	var S_KH_VOL			= i++;
+	var S_NT_VOL			= i++;
+	var S_HB_VOL			= i++;
+	var S_CT_VOL			= i++;
+	var S_OT_VOL			= i++;
+
+	var B_SE_TEST			= i++;
+	var B_SYSTEM_TEST		= i++;
+	var B_YA_TEST			= i++;
+	var B_SY_TEST			= i++;
+	var B_YH_TEST			= i++;
+	var B_KN_TEST			= i++;
+	var B_MS_TEST			= i++;
+	var B_KH_TEST			= i++;
+	var B_NT_TEST			= i++;
+	var B_HB_TEST			= i++;
+	var B_CT_TEST			= i++;
+	var B_OT_TEST			= i++;
+
+	var B_DEFAULT2			= i++;
+	var B_TITLE2			= i++;
+	var B_ENDGAME2			= i++;
+	//-------------------------------
+
+	var i = 0;
+	var G_SCREEN		= i++;
+	var G_EFFECT		= i++;
+	var G_FONTCOLOR		= i++;
+	var G_MSGSKIP		= i++;
+	var G_VOICECUT		= i++;
+	var G_SELECTSKIP	= i++;
+	var G_SELECTAUTO	= i++;
+	var G_ROOTGUIDE		= i++;
+	var G_MOUSECURSOR	= i++;
+	var G_BGM			= i++;
+	var G_SE			= i++;
+	var G_SYSTEM		= i++;
+	var G_VOICE			= i++;
+	var G_YA			= i++;
+	var G_SY			= i++;
+	var G_YH			= i++;
+	var G_KN			= i++;
+	var G_MS			= i++;
+	var G_KH			= i++;
+	var G_NT			= i++;
+	var G_HB			= i++;
+	var G_CT			= i++;
+	var G_OT			= i++;
+	var G_SYSTEMVOICE	= i++;
+	var G_MAX			= i++;
+
+	delete i;
+
+	function ConfigWindow(win, par, adv=null, fShowReturnMenu=0, fShowEnd=0){
+		super.SettingWindowBase(win, par, true);
+
+		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+		fillRect(0, 0, width, height, 0x60000000);
+		setSizeToImageSize();
+
+		absolute = LAYER_CONFIG;
+		opacity = 0;
+
+		ignoreInvalidItem = true;
+
+		_adv = adv;
+		setup(fShowReturnMenu, fShowEnd);
+		setPage(0);
+	}
+	function finalize(){
+		SaveSystemRegister();
+
+		StopSystemSound();
+		_sampleVoice.stop();
+
+		_adv = null;
+
+		InvalidateArray(_group);
+		InvalidateArray(_item);
+		InvalidateArray(_base);
+
+		invalidate _sampleMsgTimer;
+		invalidate _maSampleMsg;
+
+		invalidate _imgNumber;
+		invalidate _sprNumber;
+
+		invalidate _sampleVoice;
+
+		super.finalize();
+	}
+
+	function setup(fShowReturnMenu=0, fShowEnd=0){
+		_base[0] = new SelectItemGroupSprite(window, this);
+		with(_base[0]){
+			.loadImages("FRM_0201");
+			.setSizeToImageSize();
+			.setPos((WINDOW_WIDTH-.width)/2, (WINDOW_HEIGHT-.height)/2);
+			.visible = true;
+		}
+		_base[1] = new SelectItemGroupSprite(window, this);
+		with(_base[1]){
+			.loadImages("FRM_0202");
+			.setSizeToImageSize();
+			.setPos(_base[0].left, _base[0].top-6);
+			.visible = true;
+		}
+
+		for(var i=0;i<G_MAX;i++) _group[i] = new RadioButtonGroup();
+
+		_item[B_SYSTEM] = new Button(window, this);
+		with(_item[B_SYSTEM]){
+			.create("FRM_0212", 3);
+			.setPos(_base[0].left+82, _base[0].top-33);
+		}
+		_item[B_SOUND] = new Button(window, this);
+		with(_item[B_SOUND]){
+			.create("FRM_0211", 3);
+			.setPos(_base[0].left+627, _base[0].top-33);
+		}
+
+		//--------------------------------------------------------------------------------
+		_item[B_SCRN_WINDOW] = new RadioButton(window, _base[0]);
+		with(_item[B_SCRN_WINDOW]){
+			.create("FRM_0231", 3);
+			.setPos(220, 179);
+		}
+		_item[B_SCRN_FULLSCREEN] = new RadioButton(window, _base[0]);
+		with(_item[B_SCRN_FULLSCREEN]){
+			.create("FRM_0232", 3);
+			.setPos(311, 179);
+		}
+		_group[G_SCREEN].add(_item[B_SCRN_WINDOW]);
+		_group[G_SCREEN].add(_item[B_SCRN_FULLSCREEN]);
+		//--------------------------------------------------------------------------------
+		_item[B_EFCT_NORMAL] = new RadioButton(window, _base[0]);
+		with(_item[B_EFCT_NORMAL]){
+			.create("FRM_0233", 3);
+			.setPos(235, 247);
+		}
+		_item[B_EFCT_NONE] = new RadioButton(window, _base[0]);
+		with(_item[B_EFCT_NONE]){
+			.create("FRM_0234", 3);
+			.setPos(337, 248);
+		}
+		_group[G_EFFECT].add(_item[B_EFCT_NORMAL]);
+		_group[G_EFFECT].add(_item[B_EFCT_NONE]);
+		//--------------------------------------------------------------------------------
+		_item[S_EFCT_SPEED] = new SliderH(window, _base[0]);
+		with(_item[S_EFCT_SPEED]){
+			.create("FRM_0261A", "FRM_0261", 1, 200);
+			.setPos(247, 286);
+		}
+		_item[S_WIND_DEPTH] = new SliderH(window, _base[0]);
+		with(_item[S_WIND_DEPTH]){
+			.create("FRM_0261A", "FRM_0261", 1, 100);
+			.setPos(247, 355);
+		}
+		_item[S_MSG_SPEED] = new SliderH(window, _base[0]);
+		with(_item[S_MSG_SPEED]){
+			.create("FRM_0261A", "FRM_0261", 1, 100);
+			.setPos(247, 385);
+		}
+		_item[S_AUTO_SPEED] = new SliderH(window, _base[0]);
+		with(_item[S_AUTO_SPEED]){
+			.create("FRM_0261A", "FRM_0261", 1, 100);
+			.setPos(247, 415);
+		}
+		//--------------------------------------------------------------------------------
+		_item[B_FTCL_DONE] = new RadioButton(window, _base[0]);
+		with(_item[B_FTCL_DONE]){
+			.create("FRM_0235", 3);
+			.setPos(589, 178);
+		}
+		_item[B_FTCL_NONE] = new RadioButton(window, _base[0]);
+		with(_item[B_FTCL_NONE]){
+			.create("FRM_0236", 3);
+			.setPos(684, 178);
+		}
+		_group[G_FONTCOLOR].add(_item[B_FTCL_DONE]);
+		_group[G_FONTCOLOR].add(_item[B_FTCL_NONE]);
+		//--------------------------------------------------------------------------------
+		_item[B_MSSK_READ] = new RadioButton(window, _base[0]);
+		with(_item[B_MSSK_READ]){
+			.create("FRM_0237", 3);
+			.setPos(588, 208);
+		}
+		_item[B_MSSK_ALL] = new RadioButton(window, _base[0]);
+		with(_item[B_MSSK_ALL]){
+			.create("FRM_0238", 3);
+			.setPos(696, 208);
+		}
+		_group[G_MSGSKIP].add(_item[B_MSSK_READ]);
+		_group[G_MSGSKIP].add(_item[B_MSSK_ALL]);
+		//--------------------------------------------------------------------------------
+		_item[B_VOIC_PLAY] = new RadioButton(window, _base[0]);
+		with(_item[B_VOIC_PLAY]){
+			.create("FRM_0239", 3);
+			.setPos(589, 238);
+		}
+		_item[B_VOIC_STOP] = new RadioButton(window, _base[0]);
+		with(_item[B_VOIC_STOP]){
+			.create("FRM_0240", 3);
+			.setPos(690, 238);
+		}
+		_group[G_VOICECUT].add(_item[B_VOIC_PLAY]);
+		_group[G_VOICECUT].add(_item[B_VOIC_STOP]);
+		//--------------------------------------------------------------------------------
+		_item[B_SLSK_CONTINUE] = new RadioButton(window, _base[0]);
+		with(_item[B_SLSK_CONTINUE]){
+			.create("FRM_0241", 3);
+			.setPos(600, 307);
+		}
+		_item[B_SLSK_STOP] = new RadioButton(window, _base[0]);
+		with(_item[B_SLSK_STOP]){
+			.create("FRM_0242", 3);
+			.setPos(701, 307);
+		}
+		_group[G_SELECTSKIP].add(_item[B_SLSK_CONTINUE]);
+		_group[G_SELECTSKIP].add(_item[B_SLSK_STOP]);
+		//--------------------------------------------------------------------------------
+		_item[B_SLAT_CONTINUE] = new RadioButton(window, _base[0]);
+		with(_item[B_SLAT_CONTINUE]){
+			.create("FRM_0241", 3);
+			.setPos(600, 337);
+		}
+		_item[B_SLAT_STOP] = new RadioButton(window, _base[0]);
+		with(_item[B_SLAT_STOP]){
+			.create("FRM_0242", 3);
+			.setPos(701, 337);
+		}
+		_group[G_SELECTAUTO].add(_item[B_SLAT_CONTINUE]);
+		_group[G_SELECTAUTO].add(_item[B_SLAT_STOP]);
+		//--------------------------------------------------------------------------------
+		_item[B_RTGD_SHOW] = new RadioButton(window, _base[0]);
+		with(_item[B_RTGD_SHOW]){
+			.create("FRM_0243", 3);
+			.setPos(587, 367);
+		}
+		_item[B_RTGD_HIDE] = new RadioButton(window, _base[0]);
+		with(_item[B_RTGD_HIDE]){
+			.create("FRM_0244", 3);
+			.setPos(684, 367);
+		}
+		@if(__TRIAL__ == 0)
+			_group[G_ROOTGUIDE].add(_item[B_RTGD_SHOW]);
+			_group[G_ROOTGUIDE].add(_item[B_RTGD_HIDE]);
+		@endif
+		@if(__TRIAL__ != 0)
+			_item[B_RTGD_SHOW].hitThreshold = 256;
+			_item[B_RTGD_SHOW].opacity = 128;
+			_item[B_RTGD_HIDE].hitThreshold = 256;
+			_item[B_RTGD_HIDE].opacity = 128;
+		@endif
+		//--------------------------------------------------------------------------------
+		_item[B_CNFM_OVERWRITE] = new ToggleButton(window, _base[0]);
+		with(_item[B_CNFM_OVERWRITE]){
+			.create("FRM_0251", 4);
+			.setPos(604, 425);
+		}
+		_item[B_CNFM_LOAD] = new ToggleButton(window, _base[0]);
+		with(_item[B_CNFM_LOAD]){
+			.create("FRM_0252", 4);
+			.setPos(687, 425);
+		}
+		_item[B_CNFM_ENDGAME] = new ToggleButton(window, _base[0]);
+		with(_item[B_CNFM_ENDGAME]){
+			.create("FRM_0253", 4);
+			.setPos(610, 449);
+		}
+		_item[B_CNFM_DEFAULT] = new ToggleButton(window, _base[0]);
+		with(_item[B_CNFM_DEFAULT]){
+			.create("FRM_0254", 4);
+			.setPos(679, 449);
+		}
+		_item[B_CNFM_GOTITLE] = new ToggleButton(window, _base[0]);
+		with(_item[B_CNFM_GOTITLE]){
+			.create("FRM_0255", 4);
+			.setPos(600, 474);
+		}
+		//--------------------------------------------------------------------------------
+		_item[B_MOUS_ON] = new RadioButton(window, _base[0]);
+		with(_item[B_MOUS_ON]){
+			.create("FRM_0245", 3);
+			.setPos(602, 523);
+		}
+		_item[B_MOUS_OFF] = new RadioButton(window, _base[0]);
+		with(_item[B_MOUS_OFF]){
+			.create("FRM_0246", 3);
+			.setPos(700, 523);
+		}
+		_group[G_MOUSECURSOR].add(_item[B_MOUS_ON]);
+		_group[G_MOUSECURSOR].add(_item[B_MOUS_OFF]);
+		//--------------------------------------------------------------------------------
+		_item[B_DEFAULT1] = new Button(window, _base[0]);
+		with(_item[B_DEFAULT1]){
+			.create("FRM_0221", 2);
+			.setPos(77, 588-6);
+		}
+		if(fShowReturnMenu){
+			_item[B_TITLE1] = new Button(window, _base[0]);
+			with(_item[B_TITLE1]){
+				if(IsRecollect())	.create("FRM_0223", 2);
+				else				.create("FRM_0222", 2);
+				.setPos(568, 588-6);
+			}
+		}
+		_item[B_ENDGAME1] = new Button(window, _base[0]);
+		with(_item[B_ENDGAME1]){
+			.create("FRM_0224", 2);
+			.setPos(680, 588-6);
+		}
+		//================================================================================
+		_item[B_BGM_ON] = new RadioButton(window, _base[1]);
+		with(_item[B_BGM_ON]){
+			.create("FRM_0245", 3);
+			.setPos(201, 168);
+		}
+		_item[B_BGM_OFF] = new RadioButton(window, _base[1]);
+		with(_item[B_BGM_OFF]){
+			.create("FRM_0246", 3);
+			.setPos(246, 168);
+		}
+		_group[G_BGM].add(_item[B_BGM_ON]);
+		_group[G_BGM].add(_item[B_BGM_OFF]);
+		//--------------------------------------------------------------------------------
+		_item[B_SE_ON] = new RadioButton(window, _base[1]);
+		with(_item[B_SE_ON]){
+			.create("FRM_0245", 3);
+			.setPos(201, 195);
+		}
+		_item[B_SE_OFF] = new RadioButton(window, _base[1]);
+		with(_item[B_SE_OFF]){
+			.create("FRM_0246", 3);
+			.setPos(246, 195);
+		}
+		_group[G_SE].add(_item[B_SE_ON]);
+		_group[G_SE].add(_item[B_SE_OFF]);
+		//--------------------------------------------------------------------------------
+		_item[B_SYSTEM_ON] = new RadioButton(window, _base[1]);
+		with(_item[B_SYSTEM_ON]){
+			.create("FRM_0245", 3);
+			.setPos(201, 222);
+		}
+		_item[B_SYSTEM_OFF] = new RadioButton(window, _base[1]);
+		with(_item[B_SYSTEM_OFF]){
+			.create("FRM_0246", 3);
+			.setPos(246, 222);
+		}
+		_group[G_SYSTEM].add(_item[B_SYSTEM_ON]);
+		_group[G_SYSTEM].add(_item[B_SYSTEM_OFF]);
+		//--------------------------------------------------------------------------------
+		_item[B_VOICE_ON] = new RadioButton(window, _base[1]);
+		with(_item[B_VOICE_ON]){
+			.create("FRM_0245", 3);
+			.setPos(201, 273);
+		}
+		_item[B_VOICE_OFF] = new RadioButton(window, _base[1]);
+		with(_item[B_VOICE_OFF]){
+			.create("FRM_0246", 3);
+			.setPos(246, 273);
+		}
+		_group[G_VOICE].add(_item[B_VOICE_ON]);
+		_group[G_VOICE].add(_item[B_VOICE_OFF]);
+		//--------------------------------------------------------------------------------
+		_item[B_YA_ON] = new RadioButton(window, _base[1]);
+		with(_item[B_YA_ON]){
+			.create("FRM_0245", 3);
+			.setPos(201, 300);
+		}
+		_item[B_YA_OFF] = new RadioButton(window, _base[1]);
+		with(_item[B_YA_OFF]){
+			.create("FRM_0246", 3);
+			.setPos(246, 300);
+		}
+		_group[G_YA].add(_item[B_YA_ON]);
+		_group[G_YA].add(_item[B_YA_OFF]);
+		//--------------------------------------------------------------------------------
+		_item[B_SY_ON] = new RadioButton(window, _base[1]);
+		with(_item[B_SY_ON]){
+			.create("FRM_0245", 3);
+			.setPos(201, 327);
+		}
+		_item[B_SY_OFF] = new RadioButton(window, _base[1]);
+		with(_item[B_SY_OFF]){
+			.create("FRM_0246", 3);
+			.setPos(246, 327);
+		}
+		_group[G_SY].add(_item[B_SY_ON]);
+		_group[G_SY].add(_item[B_SY_OFF]);
+		//--------------------------------------------------------------------------------
+		_item[B_YH_ON] = new RadioButton(window, _base[1]);
+		with(_item[B_YH_ON]){
+			.create("FRM_0245", 3);
+			.setPos(201, 354);
+		}
+		_item[B_YH_OFF] = new RadioButton(window, _base[1]);
+		with(_item[B_YH_OFF]){
+			.create("FRM_0246", 3);
+			.setPos(246, 354);
+		}
+		_group[G_YH].add(_item[B_YH_ON]);
+		_group[G_YH].add(_item[B_YH_OFF]);
+		//--------------------------------------------------------------------------------
+		_item[B_KN_ON] = new RadioButton(window, _base[1]);
+		with(_item[B_KN_ON]){
+			.create("FRM_0245", 3);
+			.setPos(201, 381);
+		}
+		_item[B_KN_OFF] = new RadioButton(window, _base[1]);
+		with(_item[B_KN_OFF]){
+			.create("FRM_0246", 3);
+			.setPos(246, 381);
+		}
+		_group[G_KN].add(_item[B_KN_ON]);
+		_group[G_KN].add(_item[B_KN_OFF]);
+		//--------------------------------------------------------------------------------
+		_item[B_MS_ON] = new RadioButton(window, _base[1]);
+		with(_item[B_MS_ON]){
+			.create("FRM_0245", 3);
+			.setPos(201, 408);
+		}
+		_item[B_MS_OFF] = new RadioButton(window, _base[1]);
+		with(_item[B_MS_OFF]){
+			.create("FRM_0246", 3);
+			.setPos(246, 408);
+		}
+		_group[G_MS].add(_item[B_MS_ON]);
+		_group[G_MS].add(_item[B_MS_OFF]);
+		//--------------------------------------------------------------------------------
+		_item[B_KH_ON] = new RadioButton(window, _base[1]);
+		with(_item[B_KH_ON]){
+			.create("FRM_0245", 3);
+			.setPos(201, 435);
+		}
+		_item[B_KH_OFF] = new RadioButton(window, _base[1]);
+		with(_item[B_KH_OFF]){
+			.create("FRM_0246", 3);
+			.setPos(246, 435);
+		}
+		_group[G_KH].add(_item[B_KH_ON]);
+		_group[G_KH].add(_item[B_KH_OFF]);
+		//--------------------------------------------------------------------------------
+		_item[B_NT_ON] = new RadioButton(window, _base[1]);
+		with(_item[B_NT_ON]){
+			.create("FRM_0245", 3);
+			.setPos(201, 462);
+		}
+		_item[B_NT_OFF] = new RadioButton(window, _base[1]);
+		with(_item[B_NT_OFF]){
+			.create("FRM_0246", 3);
+			.setPos(246, 462);
+		}
+		_group[G_NT].add(_item[B_NT_ON]);
+		_group[G_NT].add(_item[B_NT_OFF]);
+		//--------------------------------------------------------------------------------
+		_item[B_HB_ON] = new RadioButton(window, _base[1]);
+		with(_item[B_HB_ON]){
+			.create("FRM_0245", 3);
+			.setPos(201, 488);
+		}
+		_item[B_HB_OFF] = new RadioButton(window, _base[1]);
+		with(_item[B_HB_OFF]){
+			.create("FRM_0246", 3);
+			.setPos(246, 488);
+		}
+		_group[G_HB].add(_item[B_HB_ON]);
+		_group[G_HB].add(_item[B_HB_OFF]);
+		//--------------------------------------------------------------------------------
+		_item[B_CT_ON] = new RadioButton(window, _base[1]);
+		with(_item[B_CT_ON]){
+			.create("FRM_0245", 3);
+			.setPos(201, 515);
+		}
+		_item[B_CT_OFF] = new RadioButton(window, _base[1]);
+		with(_item[B_CT_OFF]){
+			.create("FRM_0246", 3);
+			.setPos(246, 515);
+		}
+		_group[G_CT].add(_item[B_CT_ON]);
+		_group[G_CT].add(_item[B_CT_OFF]);
+		//--------------------------------------------------------------------------------
+		_item[B_OT_ON] = new RadioButton(window, _base[1]);
+		with(_item[B_OT_ON]){
+			.create("FRM_0245", 3);
+			.setPos(201, 542);
+		}
+		_item[B_OT_OFF] = new RadioButton(window, _base[1]);
+		with(_item[B_OT_OFF]){
+			.create("FRM_0246", 3);
+			.setPos(246, 542);
+		}
+		@if(__TRIAL__ == 0)
+			_group[G_OT].add(_item[B_OT_ON]);
+			_group[G_OT].add(_item[B_OT_OFF]);
+		@endif
+		@if(__TRIAL__ != 0)
+			_item[B_OT_ON].hitThreshold = 256;
+			_item[B_OT_ON].opacity = 128;
+			_item[B_OT_OFF].hitThreshold = 256;
+			_item[B_OT_OFF].opacity = 128;
+		@endif
+		//--------------------------------------------------------------------------------
+		_item[S_BGM_VOL] = new SliderH(window, _base[1]);
+		with(_item[S_BGM_VOL]){
+			.create("FRM_0261B", "FRM_0261", 1, 100);
+			.setPos(386, 176);
+		}
+		_item[S_SE_VOL] = new SliderH(window, _base[1]);
+		with(_item[S_SE_VOL]){
+			.create("FRM_0261B", "FRM_0261", 1, 100);
+			.setPos(386, 203);
+		}
+		_item[S_SYSTEM_VOL] = new SliderH(window, _base[1]);
+		with(_item[S_SYSTEM_VOL]){
+			.create("FRM_0261B", "FRM_0261", 1, 100);
+			.setPos(386, 230);
+		}
+
+		_item[S_VOICE_VOL] = new SliderH(window, _base[1]);
+		with(_item[S_VOICE_VOL]){
+			.create("FRM_0261B", "FRM_0261", 1, 100);
+			.setPos(386, 281);
+		}
+		_item[S_YA_VOL] = new SliderH(window, _base[1]);
+		with(_item[S_YA_VOL]){
+			.create("FRM_0261B", "FRM_0261", 1, 100);
+			.setPos(386, 308);
+		}
+		_item[S_SY_VOL] = new SliderH(window, _base[1]);
+		with(_item[S_SY_VOL]){
+			.create("FRM_0261B", "FRM_0261", 1, 100);
+			.setPos(386, 335);
+		}
+		_item[S_YH_VOL] = new SliderH(window, _base[1]);
+		with(_item[S_YH_VOL]){
+			.create("FRM_0261B", "FRM_0261", 1, 100);
+			.setPos(386, 362);
+		}
+		_item[S_KN_VOL] = new SliderH(window, _base[1]);
+		with(_item[S_KN_VOL]){
+			.create("FRM_0261B", "FRM_0261", 1, 100);
+			.setPos(386, 389);
+		}
+		_item[S_MS_VOL] = new SliderH(window, _base[1]);
+		with(_item[S_MS_VOL]){
+			.create("FRM_0261B", "FRM_0261", 1, 100);
+			.setPos(386, 416);
+		}
+		_item[S_KH_VOL] = new SliderH(window, _base[1]);
+		with(_item[S_KH_VOL]){
+			.create("FRM_0261B", "FRM_0261", 1, 100);
+			.setPos(386, 443);
+		}
+		_item[S_NT_VOL] = new SliderH(window, _base[1]);
+		with(_item[S_NT_VOL]){
+			.create("FRM_0261B", "FRM_0261", 1, 100);
+			.setPos(386, 470);
+		}
+		_item[S_HB_VOL] = new SliderH(window, _base[1]);
+		with(_item[S_HB_VOL]){
+			.create("FRM_0261B", "FRM_0261", 1, 100);
+			.setPos(386, 496);
+		}
+		_item[S_CT_VOL] = new SliderH(window, _base[1]);
+		with(_item[S_CT_VOL]){
+			.create("FRM_0261B", "FRM_0261", 1, 100);
+			.setPos(386, 523);
+		}
+		_item[S_OT_VOL] = new SliderH(window, _base[1]);
+		with(_item[S_OT_VOL]){
+			.create("FRM_0261B", "FRM_0261", 1, 100);
+			.setPos(386, 550);
+		}
+		@if(__TRIAL__ != 0)
+			_item[S_OT_VOL].hitThreshold = 256;
+			_item[S_OT_VOL].opacity = 128;
+		@endif
+		//--------------------------------------------------------------------------------
+		_item[B_SE_TEST] = new Button(window, _base[1]);
+		with(_item[B_SE_TEST]){
+			.create("FRM_0225", 2);
+			.setPos(663, 193);
+		}
+		_item[B_SYSTEM_TEST] = new Button(window, _base[1]);
+		with(_item[B_SYSTEM_TEST]){
+			.create("FRM_0225", 2);
+			.setPos(663, 220);
+		}
+
+		_item[B_YA_TEST] = new Button(window, _base[1]);
+		with(_item[B_YA_TEST]){
+			.create("FRM_0225", 2);
+			.setPos(663, 298);
+		}
+		_item[B_SY_TEST] = new Button(window, _base[1]);
+		with(_item[B_SY_TEST]){
+			.create("FRM_0225", 2);
+			.setPos(663, 325);
+		}
+		_item[B_YH_TEST] = new Button(window, _base[1]);
+		with(_item[B_YH_TEST]){
+			.create("FRM_0225", 2);
+			.setPos(663, 352);
+		}
+		_item[B_KN_TEST] = new Button(window, _base[1]);
+		with(_item[B_KN_TEST]){
+			.create("FRM_0225", 2);
+			.setPos(663, 379);
+		}
+		_item[B_MS_TEST] = new Button(window, _base[1]);
+		with(_item[B_MS_TEST]){
+			.create("FRM_0225", 2);
+			.setPos(663, 406);
+		}
+		_item[B_KH_TEST] = new Button(window, _base[1]);
+		with(_item[B_KH_TEST]){
+			.create("FRM_0225", 2);
+			.setPos(663, 433);
+		}
+		_item[B_NT_TEST] = new Button(window, _base[1]);
+		with(_item[B_NT_TEST]){
+			.create("FRM_0225", 2);
+			.setPos(663, 460);
+		}
+		_item[B_HB_TEST] = new Button(window, _base[1]);
+		with(_item[B_HB_TEST]){
+			.create("FRM_0225", 2);
+			.setPos(663, 487);
+		}
+		_item[B_CT_TEST] = new Button(window, _base[1]);
+		with(_item[B_CT_TEST]){
+			.create("FRM_0225", 2);
+			.setPos(663, 514);
+		}
+		_item[B_OT_TEST] = new Button(window, _base[1]);
+		with(_item[B_OT_TEST]){
+			.create("FRM_0225", 2);
+			.setPos(663, 541);
+		}
+		@if(__TRIAL__ != 0)
+			_item[B_OT_TEST].hitThreshold = 256;
+			_item[B_OT_TEST].opacity = 128;
+		@endif
+		//--------------------------------------------------------------------------------
+		_item[B_YA_SYS] = new RadioButton(window, _base[1]);
+		with(_item[B_YA_SYS]){
+			.create("FRM_0247", 3);
+			.setPos(300, 295);
+		}
+		_item[B_SY_SYS] = new RadioButton(window, _base[1]);
+		with(_item[B_SY_SYS]){
+			.create("FRM_0247", 3);
+			.setPos(300, 322);
+		}
+		_item[B_YH_SYS] = new RadioButton(window, _base[1]);
+		with(_item[B_YH_SYS]){
+			.create("FRM_0247", 3);
+			.setPos(300, 349);
+		}
+		_item[B_KN_SYS] = new RadioButton(window, _base[1]);
+		with(_item[B_KN_SYS]){
+			.create("FRM_0247", 3);
+			.setPos(300, 376);
+		}
+		_item[B_MS_SYS] = new RadioButton(window, _base[1]);
+		with(_item[B_MS_SYS]){
+			.create("FRM_0247", 3);
+			.setPos(300, 403);
+		}
+		_item[B_KH_SYS] = new RadioButton(window, _base[1]);
+		with(_item[B_KH_SYS]){
+			.create("FRM_0247", 3);
+			.setPos(300, 430);
+		}
+		_item[B_NT_SYS] = new RadioButton(window, _base[1]);
+		with(_item[B_NT_SYS]){
+			.create("FRM_0247", 3);
+			.setPos(300, 457);
+		}
+		_item[B_HB_SYS] = new RadioButton(window, _base[1]);
+		with(_item[B_HB_SYS]){
+			.create("FRM_0247", 3);
+			.setPos(300, 484);
+		}
+		_item[B_CT_SYS] = new RadioButton(window, _base[1]);
+		with(_item[B_CT_SYS]){
+			.create("FRM_0247", 3);
+			.setPos(300, 511);
+		}
+		_group[G_SYSTEMVOICE].add(_item[B_YA_SYS]);
+		_group[G_SYSTEMVOICE].add(_item[B_SY_SYS]);
+		_group[G_SYSTEMVOICE].add(_item[B_YH_SYS]);
+		_group[G_SYSTEMVOICE].add(_item[B_KN_SYS]);
+		_group[G_SYSTEMVOICE].add(_item[B_MS_SYS]);
+		_group[G_SYSTEMVOICE].add(_item[B_KH_SYS]);
+		_group[G_SYSTEMVOICE].add(_item[B_NT_SYS]);
+		_group[G_SYSTEMVOICE].add(_item[B_HB_SYS]);
+		_group[G_SYSTEMVOICE].add(_item[B_CT_SYS]);
+		//--------------------------------------------------------------------------------
+		_item[B_DEFAULT2] = new Button(window, _base[1]);
+		with(_item[B_DEFAULT2]){
+			.create("FRM_0221", 2);
+			.setPos(77, 588);
+		}
+		if(fShowReturnMenu){
+			_item[B_TITLE2] = new Button(window, _base[1]);
+			with(_item[B_TITLE2]){
+				if(IsRecollect())	.create("FRM_0223", 2);
+				else				.create("FRM_0222", 2);
+				.setPos(568, 588);
+			}
+		}
+		_item[B_ENDGAME2] = new Button(window, _base[1]);
+		with(_item[B_ENDGAME2]){
+			.create("FRM_0224", 2);
+			.setPos(680, 588);
+		}
+		//--------------------------------------------------------------------------------
+
+		_sampleMsgTimer = new Timer(onSampleMsgOutput, "");
+
+		_maSampleMsg = new MessageArea(window, _base[0]);
+		with(_maSampleMsg){
+			.setSize(320, 30);
+			.setPos(96, 488);
+
+			.setMargin(2, 2, .width-4, .height-4);
+			.setDefaultDrawTextParam(GetDefineColor("white"), 255, true, 1024, GetDefineColor("black"), 2, 1, 1);
+			.setDefaultFontStyle(ADV_FONT_MESS_FACE, 24, ADV_FONT_MESS_INDENT, true);
+			.resetDrawTextParam();
+			.resetFontStyle();
+
+			.setCompleteCall(startSampleMsgOutput);
+			.visible = true;
+		}
+
+		onSampleMsgOutput();
+
+		_imgNumber = new global.Layer(window, this);
+		with(_imgNumber){
+			.loadImages("FRM_0262");
+			.setSizeToImageSize();
+		}
+		_sprNumber = new global.Layer(window, this);
+		with(_sprNumber){
+			.setSize(_imgNumber.width/10 * 3, _imgNumber.height);
+			.fillRect(0, 0, .width, .height, 0x0);
+		}
+
+		_sampleVoice = new WaveSoundBuffer(null);
+
+		applyToConfig();
+	}
+
+	function setPage(page){
+		if(_page == page) return;
+
+		switch(page){
+		case 0:
+			_base[0].visible = true;
+			_base[1].visible = false;
+
+			_item[B_SYSTEM].visible = false;
+			_item[B_SOUND].visible = true;
+
+			removeChainItemAll();
+			addChainItem(_item[B_SYSTEM]);
+			addChainItem(_item[B_SOUND]);
+			for(var i=B_SCRN_WINDOW;i<=B_ENDGAME1;i++) addChainItem(_item[i]);
+			@if(__TRIAL__ != 0)
+				removeChainItem(_item[B_RTGD_SHOW]);
+				removeChainItem(_item[B_RTGD_HIDE]);
+			@endif
+			break;
+		case 1:
+			_base[0].visible = false;
+			_base[1].visible = true;
+
+			_item[B_SYSTEM].visible = true;
+			_item[B_SOUND].visible = false;
+
+			removeChainItemAll();
+			addChainItem(_item[B_SYSTEM]);
+			addChainItem(_item[B_SOUND]);
+			for(var i=B_BGM_ON;i<=B_ENDGAME2;i++) addChainItem(_item[i]);
+			@if(__TRIAL__ != 0)
+				removeChainItem(_item[B_OT_ON]);
+				removeChainItem(_item[B_OT_OFF]);
+				removeChainItem(_item[S_OT_VOL]);
+				removeChainItem(_item[B_OT_TEST]);
+			@endif
+			break;
+		}
+		_page = page;
+	}
+
+	function onSliderEnter(target){
+		drawNumber(target);
+		_sprNumber.visible = true;
+	}
+	function onSliderLeave(target){
+		_sprNumber.visible = false;
+	}
+
+	function onSliderMoveStart(target){
+		switch(target){
+		case _item[S_BGM_VOL] : applyToSystem(); break;
+		case _item[S_YA_VOL] : playSampleVoice(S_YA_VOL, true); break;
+		case _item[S_SY_VOL] : playSampleVoice(S_SY_VOL, true); break;
+		case _item[S_YH_VOL] : playSampleVoice(S_YH_VOL, true); break;
+		case _item[S_KN_VOL] : playSampleVoice(S_KN_VOL, true); break;
+		case _item[S_MS_VOL] : playSampleVoice(S_MS_VOL, true); break;
+		case _item[S_KH_VOL] : playSampleVoice(S_KH_VOL, true); break;
+		case _item[S_NT_VOL] : playSampleVoice(S_NT_VOL, true); break;
+		case _item[S_HB_VOL] : playSampleVoice(S_HB_VOL, true); break;
+		case _item[S_CT_VOL] : playSampleVoice(S_CT_VOL, true); break;
+		case _item[S_OT_VOL] : playSampleVoice(S_OT_VOL, true); break;
+		}
+		drawNumber(target);
+	}
+
+	function onSliderMove(target){
+		switch(target){
+		case _item[S_MSG_SPEED] :
+		case _item[S_AUTO_SPEED] :
+			onSampleMsgOutput();
+			break;
+
+		case _item[S_VOICE_VOL] : 
+			_sampleVoice.volume2 = _item[S_VOICE_VOL].trim * 1000;
+			break;
+		case _item[S_YA_VOL] : 
+		case _item[S_SY_VOL] : 
+		case _item[S_YH_VOL] : 
+		case _item[S_KN_VOL] : 
+		case _item[S_MS_VOL] : 
+		case _item[S_KH_VOL] : 
+		case _item[S_NT_VOL] : 
+		case _item[S_HB_VOL] : 
+		case _item[S_CT_VOL] : 
+		case _item[S_OT_VOL] : 
+			_sampleVoice.volume = target.trim * 1000;
+			break;
+		}
+		applyToSystem();
+
+		drawNumber(target);
+	}
+
+	function onSliderMoveEnd(target){
+		switch(target){
+		case _item[S_VOICE_VOL] : 
+			_sampleVoice.volume2 = _item[S_VOICE_VOL].trim * 1000;
+			break;
+
+		case _item[S_YA_VOL] : 
+		case _item[S_SY_VOL] : 
+		case _item[S_YH_VOL] : 
+		case _item[S_KN_VOL] : 
+		case _item[S_MS_VOL] : 
+		case _item[S_KH_VOL] : 
+		case _item[S_NT_VOL] : 
+		case _item[S_HB_VOL] : 
+		case _item[S_CT_VOL] : 
+		case _item[S_OT_VOL] : 
+			_sampleVoice.stop();
+			break;
+		}
+	}
+
+	function onButtonDownL(target){
+		switch(target){
+		case _item[B_SYSTEM] : setPage(0, 300); break;
+		case _item[B_SOUND] : setPage(1, 300); break;
+
+		case _item[B_ENDGAME1] : 
+		case _item[B_ENDGAME2] : 
+			confirm = true;
+			PlaySystemVoice("僎乕儉廔椆妋擣");
+			CallConfirm("确认退出游戏？", SystemRegister.CONFIRM_END, game.exitGame, cancel);
+			break;
+		case _item[B_DEFAULT1] : 
+		case _item[B_DEFAULT2] : 
+			confirm = true;
+			PlaySystemVoice("弶婜愝掕偵栠偡");
+			CallConfirm("确认返回初始设置？", SystemRegister.CONFIRM_DEFAULT, defaultSetting, cancel);
+			break;
+		case _item[B_TITLE1] : 
+		case _item[B_TITLE2] : 
+			confirm = true;
+			if(IsRecollect()){
+				PlaySystemVoice("夞憐偐傜栠傞");
+				CallConfirm("确认返回回想界面？", SystemRegister.CONFIRM_TITLE, returnRecollect, cancel);
+			}else{
+				PlaySystemVoice("僞僀僩儖偵栠傞");
+				CallConfirm("确认回到标题界面？", SystemRegister.CONFIRM_TITLE, returnTitle, cancel);
+			}
+			break;
+
+		case _item[B_SCRN_WINDOW] : 
+		case _item[B_SCRN_FULLSCREEN] : 
+			applyToSystem();
+			break;
+
+		case _item[B_CNFM_OVERWRITE] : 
+		case _item[B_CNFM_LOAD] : 
+		case _item[B_CNFM_ENDGAME] : 
+		case _item[B_CNFM_DEFAULT] : 
+		case _item[B_CNFM_GOTITLE] : 
+			applyToSystem();
+			break;
+
+		case _item[B_RTGD_SHOW] : 
+		case _item[B_RTGD_HIDE] : 
+		case _item[B_MOUS_ON] : 
+		case _item[B_MOUS_OFF] : 
+			applyToSystem();
+			break;
+
+		case _item[B_BGM_ON] : 
+		case _item[B_BGM_OFF] : 
+		case _item[B_SE_ON] : 
+		case _item[B_SE_OFF] : 
+		case _item[B_SYSTEM_ON] : 
+		case _item[B_SYSTEM_OFF] : 
+		case _item[B_VOICE_ON] : 
+		case _item[B_VOICE_OFF] : 
+			applyToSystem();
+			break;
+
+		case _item[B_YA_ON] : PlaySystemVoice("備偁-屄暿壒惡丗俷俶"); break;
+		case _item[B_SY_ON] : PlaySystemVoice("幯愥-屄暿壒惡丗俷俶"); break;
+		case _item[B_YH_ON] : PlaySystemVoice("梉梲-屄暿壒惡丗俷俶"); break;
+		case _item[B_KN_ON] : PlaySystemVoice("偐側偱-屄暿壒惡丗俷俶"); break;
+		case _item[B_MS_ON] : PlaySystemVoice("旤楅-屄暿壒惡丗俷俶"); break;
+		case _item[B_KH_ON] : PlaySystemVoice("崄曚-屄暿壒惡丗俷俶"); break;
+		case _item[B_NT_ON] : PlaySystemVoice("撧寧-屄暿壒惡丗俷俶"); break;
+		case _item[B_HB_ON] : PlaySystemVoice("嬁-屄暿壒惡丗俷俶"); break;
+		case _item[B_CT_ON] : PlaySystemVoice("愮嵨-屄暿壒惡丗俷俶"); break;
+		case _item[B_OT_ON] : PlaySystemVoice("偦偺懠-屄暿壒惡丗俷俶"); break;
+
+		case _item[B_YA_OFF] : PlaySystemVoice("備偁-屄暿壒惡丗俷俥俥"); break;
+		case _item[B_SY_OFF] : PlaySystemVoice("幯愥-屄暿壒惡丗俷俥俥"); break;
+		case _item[B_YH_OFF] : PlaySystemVoice("梉梲-屄暿壒惡丗俷俥俥"); break;
+		case _item[B_KN_OFF] : PlaySystemVoice("偐側偱-屄暿壒惡丗俷俥俥"); break;
+		case _item[B_MS_OFF] : PlaySystemVoice("旤楅-屄暿壒惡丗俷俥俥"); break;
+		case _item[B_KH_OFF] : PlaySystemVoice("崄曚-屄暿壒惡丗俷俥俥"); break;
+		case _item[B_NT_OFF] : PlaySystemVoice("撧寧-屄暿壒惡丗俷俥俥"); break;
+		case _item[B_HB_OFF] : PlaySystemVoice("嬁-屄暿壒惡丗俷俥俥"); break;
+		case _item[B_CT_OFF] : PlaySystemVoice("愮嵨-屄暿壒惡丗俷俥俥"); break;
+		case _item[B_OT_OFF] : PlaySystemVoice("偦偺懠-屄暿壒惡丗俷俥俥"); break;
+
+		//case _item[B_VOICE_TEST] : PlaySystemVoice("壒惡僥僗僩", true, true); break;
+
+		case _item[B_SE_TEST] : PlaySe("SE009", , , false); break;
+		case _item[B_SYSTEM_TEST] : PlaySystemVoice("僔僗僥儉壒惡僥僗僩", true, false); break;
+
+		case _item[B_YA_TEST] : playSampleVoice(S_YA_VOL, false); break;
+		case _item[B_SY_TEST] : playSampleVoice(S_SY_VOL, false); break;
+		case _item[B_YH_TEST] : playSampleVoice(S_YH_VOL, false); break;
+		case _item[B_KN_TEST] : playSampleVoice(S_KN_VOL, false); break;
+		case _item[B_MS_TEST] : playSampleVoice(S_MS_VOL, false); break;
+		case _item[B_KH_TEST] : playSampleVoice(S_KH_VOL, false); break;
+		case _item[B_NT_TEST] : playSampleVoice(S_NT_VOL, false); break;
+		case _item[B_HB_TEST] : playSampleVoice(S_HB_VOL, false); break;
+		case _item[B_CT_TEST] : playSampleVoice(S_CT_VOL, false); break;
+		case _item[B_OT_TEST] : playSampleVoice(S_OT_VOL, false); break;
+
+		case _item[B_YA_SYS] : 
+		case _item[B_SY_SYS] : 
+		case _item[B_YH_SYS] : 
+		case _item[B_KN_SYS] : 
+		case _item[B_MS_SYS] : 
+		case _item[B_KH_SYS] : 
+		case _item[B_NT_SYS] : 
+		case _item[B_HB_SYS] : 
+		case _item[B_CT_SYS] : 
+			applyToSystem();
+			PlaySystemVoice("僔僗僥儉壒惡");
+			break;
+		}
+	}
+
+	function onButtonDownR(target){
+		onMouseDown(0, 0, mbRight, 0);
+	}
+
+	function applyToConfig(){
+		//-------------------------------------------------------------------------------------
+		//system
+		_group[G_SCREEN].on(_item[window.fullScreen?B_SCRN_FULLSCREEN:B_SCRN_WINDOW]);
+
+		_group[G_EFFECT].on(_item[CONFIG.screenEffect?B_EFCT_NORMAL:B_EFCT_NONE]);
+
+		if(CONFIG.screenEffectSpeed >= 1.0)
+			_item[S_EFCT_SPEED].trim = _item[S_EFCT_SPEED].range - int(100 * CONFIG.screenEffectSpeed);
+		else
+			_item[S_EFCT_SPEED].trim = 100 + int(200 * (1.0-CONFIG.screenEffectSpeed));
+
+		_item[S_WIND_DEPTH].trim = CONFIG.windowDepth;
+
+		_item[S_MSG_SPEED].trim = _item[S_MSG_SPEED].range - CONFIG.messageSpeed;
+
+		_item[S_AUTO_SPEED].trim = (_item[S_AUTO_SPEED].range*100 - CONFIG.autoSpeed) \ 100;
+
+		_group[G_FONTCOLOR].on(_item[CONFIG.readMessColor?B_FTCL_DONE:B_FTCL_NONE]);
+
+		_group[G_MSGSKIP].on(_item[CONFIG.readSkip?B_MSSK_READ:B_MSSK_ALL]);
+
+		_group[G_VOICECUT].on(_item[CONFIG.voiceStopOnClick?B_VOIC_STOP:B_VOIC_PLAY]);
+
+		_group[G_SELECTSKIP].on(_item[CONFIG.lockSkip?B_SLSK_CONTINUE:B_SLSK_STOP]);
+		_group[G_SELECTAUTO].on(_item[CONFIG.lockAuto?B_SLAT_CONTINUE:B_SLAT_STOP]);
+		_group[G_ROOTGUIDE].on(_item[CONFIG.routeGuide?B_RTGD_SHOW:B_RTGD_HIDE]);
+
+		_item[B_CNFM_OVERWRITE].state = CONFIG.confirmWindow[SystemRegister.CONFIRM_OVERWRITE];
+		_item[B_CNFM_LOAD].state = CONFIG.confirmWindow[SystemRegister.CONFIRM_LOAD];
+		_item[B_CNFM_ENDGAME].state = CONFIG.confirmWindow[SystemRegister.CONFIRM_END];
+		_item[B_CNFM_DEFAULT].state = CONFIG.confirmWindow[SystemRegister.CONFIRM_DEFAULT];
+		_item[B_CNFM_GOTITLE].state = CONFIG.confirmWindow[SystemRegister.CONFIRM_TITLE];
+
+		_group[G_MOUSECURSOR].on(_item[CONFIG.mouseTracking?B_MOUS_ON:B_MOUS_OFF]);
+
+		//-------------------------------------------------------------------------------------
+		//sound
+		_group[G_BGM].on(_item[CONFIG.muteBgm?B_BGM_OFF:B_BGM_ON]);
+		_group[G_SE].on(_item[CONFIG.muteSe?B_SE_OFF:B_SE_ON]);
+		_group[G_SYSTEM].on(_item[CONFIG.muteSystem?B_SYSTEM_OFF:B_SYSTEM_ON]);
+
+		_group[G_VOICE].on(_item[CONFIG.muteVoice?B_VOICE_OFF:B_VOICE_ON]);
+		var ref = CONFIG.voiceDetails;
+		_group[G_YA].on(_item[ref[YUA].mute?B_YA_OFF:B_YA_ON]);
+		_group[G_SY].on(_item[ref[SAYUKI].mute?B_SY_OFF:B_SY_ON]);
+		_group[G_YH].on(_item[ref[YUUHI].mute?B_YH_OFF:B_YH_ON]);
+		_group[G_KN].on(_item[ref[KANADE].mute?B_KN_OFF:B_KN_ON]);
+		_group[G_MS].on(_item[ref[MISUZU].mute?B_MS_OFF:B_MS_ON]);
+		_group[G_KH].on(_item[ref[KAHO].mute?B_KH_OFF:B_KH_ON]);
+		_group[G_NT].on(_item[ref[NATSUKI].mute?B_NT_OFF:B_NT_ON]);
+		_group[G_HB].on(_item[ref[HIBIKI].mute?B_HB_OFF:B_HB_ON]);
+		_group[G_CT].on(_item[ref[CHITOSE].mute?B_CT_OFF:B_CT_ON]);
+		_group[G_OT].on(_item[ref[NPC_OTHER].mute?B_OT_OFF:B_OT_ON]);
+
+		_item[S_BGM_VOL].trim = int(100 * CONFIG.volBgm);
+		_item[S_SE_VOL].trim = int(100 * CONFIG.volSe);
+		_item[S_SYSTEM_VOL].trim = int(100 * CONFIG.volSystem);
+		_item[S_VOICE_VOL].trim = int(100 * CONFIG.volVoice);
+
+		_item[S_YA_VOL].trim = int(100 * ref[YUA].volume);
+		_item[S_SY_VOL].trim = int(100 * ref[SAYUKI].volume);
+		_item[S_YH_VOL].trim = int(100 * ref[YUUHI].volume);
+		_item[S_KN_VOL].trim = int(100 * ref[KANADE].volume);
+		_item[S_MS_VOL].trim = int(100 * ref[MISUZU].volume);
+		_item[S_KH_VOL].trim = int(100 * ref[KAHO].volume);
+		_item[S_NT_VOL].trim = int(100 * ref[NATSUKI].volume);
+		_item[S_HB_VOL].trim = int(100 * ref[HIBIKI].volume);
+		_item[S_CT_VOL].trim = int(100 * ref[CHITOSE].volume);
+		_item[S_OT_VOL].trim = int(100 * ref[NPC_OTHER].volume);
+
+		_group[G_SYSTEMVOICE].on(_item[B_YA_SYS+CONFIG.systemVoice-1]);
+	}
+	function applyToSystem(){
+		//-------------------------------------------------------------------------------------
+		//system
+		if(_item[B_SCRN_WINDOW].isOn() && window.fullScreen == true){
+			window.changeScreenMode(false);
+		}else if(_item[B_SCRN_FULLSCREEN].isOn() && window.fullScreen == false){
+			window.changeScreenMode(true);
+		}
+
+		CONFIG.screenEffect = _item[B_EFCT_NORMAL].isOn()?1:0;
+
+		if(_item[S_EFCT_SPEED].trim >= 100)
+		//fast
+			CONFIG.screenEffectSpeed = 1.0 - (0.5 * (_item[S_EFCT_SPEED].trim-100) / 100.0);
+		else
+		//slow
+			CONFIG.screenEffectSpeed = 1.0 + (1.0 * (100-_item[S_EFCT_SPEED].trim)) / 100.0;
+
+		//VOICE.time = CONFIG.screenEffectSpeed;
+
+		CONFIG.windowDepth = _item[S_WIND_DEPTH].trim;
+			if(_adv){
+				_adv._msg.windowDepth((255 * CONFIG.windowDepth) \ 100);
+				//_adv.selectDepth((255 * CONFIG.windowDepth) \ 100);
+			}
+
+		CONFIG.messageSpeed = _item[S_MSG_SPEED].range - _item[S_MSG_SPEED].trim;
+
+		CONFIG.autoSpeed = (_item[S_AUTO_SPEED].range - _item[S_AUTO_SPEED].trim) * 100;
+
+		CONFIG.readMessColor = _item[B_FTCL_DONE].isOn()?1:0;
+
+		CONFIG.readSkip = _item[B_MSSK_READ].isOn()?1:0;
+
+		CONFIG.voiceStopOnClick = _item[B_VOIC_STOP].isOn()?1:0;
+
+		CONFIG.lockSkip = _item[B_SLSK_CONTINUE].isOn()?1:0;
+		CONFIG.lockAuto = _item[B_SLAT_CONTINUE].isOn()?1:0;
+		CONFIG.routeGuide = _item[B_RTGD_SHOW].isOn()?1:0;
+		if(_adv){
+			if(_adv.isSelect()){
+				var ref = _adv._selectBtn;
+				for(var i=0;i<ref.count;i++){
+					if(ref[i].hintSpr !== void)
+						ref[i].hintSpr.visible = CONFIG.routeGuide;
+				}
+			}
+		}
+
+		CONFIG.confirmWindow[SystemRegister.CONFIRM_OVERWRITE] = _item[B_CNFM_OVERWRITE].state;
+		CONFIG.confirmWindow[SystemRegister.CONFIRM_LOAD] = _item[B_CNFM_LOAD].state;
+		CONFIG.confirmWindow[SystemRegister.CONFIRM_END] = _item[B_CNFM_ENDGAME].state;
+		CONFIG.confirmWindow[SystemRegister.CONFIRM_DEFAULT] = _item[B_CNFM_DEFAULT].state;
+		CONFIG.confirmWindow[SystemRegister.CONFIRM_TITLE] = _item[B_CNFM_GOTITLE].state;
+
+		CONFIG.mouseTracking = _item[B_MOUS_ON].isOn()?1:0;
+
+		//-------------------------------------------------------------------------------------
+		//sound
+		CONFIG.muteBgm = _item[B_BGM_OFF].isOn()?1:0;
+			CONFIG.muteBgm?BGM.configStop():BGM.configPlay();
+		CONFIG.muteSe = _item[B_SE_OFF].isOn()?1:0;
+			CONFIG.muteSe?SE.configStop():SE.configPlay();
+			CONFIG.muteSe?ENVSE.configStop():ENVSE.configPlay();
+		CONFIG.muteSystem = _item[B_SYSTEM_OFF].isOn()?1:0;
+			//CONFIG.muteSystem?SYSTEMSOUND.configStop():SYSTEMSOUND.configPlay();
+
+		CONFIG.muteVoice = _item[B_VOICE_OFF].isOn()?1:0;
+
+		var ref = CONFIG.voiceDetails;
+		ref[YUA].mute = _item[B_YA_OFF].isOn()?1:0;
+		ref[SAYUKI].mute = _item[B_SY_OFF].isOn()?1:0;
+		ref[YUUHI].mute = _item[B_YH_OFF].isOn()?1:0;
+		ref[KANADE].mute = _item[B_KN_OFF].isOn()?1:0;
+		ref[MISUZU].mute = _item[B_MS_OFF].isOn()?1:0;
+		ref[KAHO].mute = _item[B_KH_OFF].isOn()?1:0;
+		ref[NATSUKI].mute = _item[B_NT_OFF].isOn()?1:0;
+		ref[HIBIKI].mute = _item[B_HB_OFF].isOn()?1:0;
+		ref[CHITOSE].mute = _item[B_CT_OFF].isOn()?1:0;
+		ref[NPC_OTHER].mute = _item[B_OT_OFF].isOn()?1:0;
+
+		CONFIG.volBgm = _item[S_BGM_VOL].trim / 100.0;
+			BGM.volume = CONFIG.volBgm;
+		CONFIG.volSe = _item[S_SE_VOL].trim / 100.0;
+			SE.volume = CONFIG.volSe;
+			ENVSE.volume = CONFIG.volSe;
+		CONFIG.volSystem = _item[S_SYSTEM_VOL].trim / 100.0;
+			SYSTEMSOUND.volume = CONFIG.volSystem;
+		CONFIG.volVoice = _item[S_VOICE_VOL].trim / 100.0;
+			VOICE.volume = CONFIG.volVoice;
+
+		ref[YUA].volume = _item[S_YA_VOL].trim / 100.0;
+		ref[SAYUKI].volume = _item[S_SY_VOL].trim / 100.0;
+		ref[YUUHI].volume = _item[S_YH_VOL].trim / 100.0;
+		ref[KANADE].volume = _item[S_KN_VOL].trim / 100.0;
+		ref[MISUZU].volume = _item[S_MS_VOL].trim / 100.0;
+		ref[KAHO].volume = _item[S_KH_VOL].trim / 100.0;
+		ref[NATSUKI].volume = _item[S_NT_VOL].trim / 100.0;
+		ref[HIBIKI].volume = _item[S_HB_VOL].trim / 100.0;
+		ref[CHITOSE].volume = _item[S_CT_VOL].trim / 100.0;
+		ref[NPC_OTHER].volume = _item[S_OT_VOL].trim / 100.0;
+
+		     if(_item[B_YA_SYS].isOn()) CONFIG.systemVoice = YUA;
+		else if(_item[B_SY_SYS].isOn()) CONFIG.systemVoice = SAYUKI;
+		else if(_item[B_YH_SYS].isOn()) CONFIG.systemVoice = YUUHI;
+		else if(_item[B_KN_SYS].isOn()) CONFIG.systemVoice = KANADE;
+		else if(_item[B_MS_SYS].isOn()) CONFIG.systemVoice = MISUZU;
+		else if(_item[B_KH_SYS].isOn()) CONFIG.systemVoice = KAHO;
+		else if(_item[B_NT_SYS].isOn()) CONFIG.systemVoice = NATSUKI;
+		else if(_item[B_HB_SYS].isOn()) CONFIG.systemVoice = HIBIKI;
+		else if(_item[B_CT_SYS].isOn()) CONFIG.systemVoice = CHITOSE;
+		else if(_item[B_OT_SYS].isOn()) CONFIG.systemVoice = NPC_OTHER;
+	}
+
+	function startSampleMsgOutput(){
+		_sampleMsgTimer.interval = CONFIG.autoSpeed + 10;
+		_sampleMsgTimer.enabled = true;
+	}
+	function onSampleMsgOutput(){
+		_maSampleMsg.outputSpeed = CONFIG.messageSpeed;
+
+		_sampleMsgTimer.enabled = false;
+
+		_maSampleMsg.clear();
+		_maSampleMsg.output("文字显示速度样例");
+	}
+
+	function drawNumber(item){
+		with(_sprNumber){
+			var x = _base[_page].left+item.left+item._trim.left+(item._trim.width/2) - .width/2 + 4;
+			var y = _base[_page].top+item.top - 12;
+			.setPos(x, y);
+
+			.fillRect(0, 0, .width, .height, 0);
+
+			var num = item.trim;
+			var w = .width / 3;
+			var pitch = w - 4;
+			var h = .height;
+			.pileRect(pitch * 2, 0, _imgNumber, w * (num%10), 0, w, h);
+			num \= 10;
+			.pileRect(pitch * 1, 0, _imgNumber, w * (num%10), 0, w, h);
+			num \= 10;
+			.pileRect(pitch * 0, 0, _imgNumber, w * (num%10), 0, w, h);
+		}
+	}
+
+	function playSampleVoice(id, fLoop=false){
+		with(_sampleVoice){
+			.stop();
+
+			var file;
+			switch(id){
+			case S_YA_VOL : file = SYSTEM_VOICE_LIST["壒惡僥僗僩丗屄暿"][0]; break;
+			case S_SY_VOL : file = SYSTEM_VOICE_LIST["壒惡僥僗僩丗屄暿"][1]; break;
+			case S_YH_VOL : file = SYSTEM_VOICE_LIST["壒惡僥僗僩丗屄暿"][2]; break;
+			case S_KN_VOL : file = SYSTEM_VOICE_LIST["壒惡僥僗僩丗屄暿"][3]; break;
+			case S_MS_VOL : file = SYSTEM_VOICE_LIST["壒惡僥僗僩丗屄暿"][4]; break;
+			case S_KH_VOL : file = SYSTEM_VOICE_LIST["壒惡僥僗僩丗屄暿"][5]; break;
+			case S_NT_VOL : file = SYSTEM_VOICE_LIST["壒惡僥僗僩丗屄暿"][6]; break;
+			case S_HB_VOL : file = SYSTEM_VOICE_LIST["壒惡僥僗僩丗屄暿"][7]; break;
+			case S_CT_VOL : file = SYSTEM_VOICE_LIST["壒惡僥僗僩丗屄暿"][8]; break;
+			case S_OT_VOL : file = SYSTEM_VOICE_LIST["壒惡僥僗僩丗屄暿"][9]; break;
+			default : return;
+			}
+
+			.open(file + ".ogg");
+			.looping = fLoop;
+
+			.volume = _item[id].trim * 1000;
+			.volume2 = _item[S_VOICE_VOL].trim * 1000;
+
+			.play();
+		}
+	}
+
+	function defaultSetting(){
+		sysReg.initConfig();
+		applyToConfig();
+		applyToSystem();
+
+		confirm = false;
+	}
+	function returnTitle(){
+		if(_adv == null) return;
+
+		hide(300, ConfigDelete);
+		_adv.returnTo(SCENE_TITLE);
+
+		confirm = false;
+		_adv = null;
+	}
+	function returnRecollect(){
+		if(_adv == null) return;
+
+		hide(300, ConfigDelete);
+		_adv.returnTo(SCENE_MEMORIES);
+
+		confirm = false;
+		_adv = null;
+	}
+
+	var _closeHide = false;
+	function hide(time, func=null){
+		_closeHide = true;
+		HitThresholdSelectItems(_item, 256);
+
+		applyToSystem();
+		super.hide(...);
+	}
+
+	var _fOnMouseDown = false;
+	function onMouseDown(x, y, button, shift){
+		if(confirm) return;
+
+		//儊僢僙乕僕偑侾僋儕僢僋偱俀夞棃偰偟傑偆偺偱梷惂乧
+		//崻杮揑側夝寛偑昁梫
+		_fOnMouseDown = !_fOnMouseDown;
+		if(_fOnMouseDown) return;
+
+		if(button == mbRight){
+			hide(300, ConfigDelete);
+		}
+	}
+	function onKeyDown(key, shift){
+		if((key == VK_RETURN) && (shift & ssAlt)){
+			applyToConfig();
+		}
+
+		if(confirm) return;
+		if(key == VK_ESCAPE){
+			hide(300, ConfigDelete);
+		}
+		super.onKeyDown(...);
+	}
+
+	function action(ev){
+		if(ev.type == "onClose"){
+			applyToSystem();
+		}else{
+			super.action(ev);
+		}
+	}
+}
+
+function CallConfig(adv=null, fShowReturnMenu=0, fShowEnd=0){
+	if(IsAnyWindow()) return false;
+
+	SPR_CONFIG = new ConfigWindow(win, win.baseLayer, adv, fShowReturnMenu, fShowEnd);
+	SPR_CONFIG.visible = true;
+	SPR_CONFIG.show(300);
+}
+function ConfigDelete(){
+	if(SPR_CONFIG === void) return;
+	invalidate SPR_CONFIG;
+	SPR_CONFIG = void;
+}
+function IsShowConfig(){
+	return (SPR_CONFIG !== void);
+}

@@ -1,0 +1,27 @@
+//--------------------------------------------------------------------
+//テストコード
+//--------------------------------------------------------------------
+
+@if(__DEBUGMODE__)
+	Debug.console.visible = true;
+@endif
+
+win.bringToFront();
+
+global.game = new SceneManager(win);
+
+var boot = 1;
+switch(boot){
+case 1:
+	game.changeScene(SCENE_LOGO);
+	break;
+case 2:
+	//引数にセーブファイルがあるか？
+	var save = System.getArgument("-save");
+
+	if(save === void)
+		game.changeScene(SCENE_LOGO);
+	else
+		game.changeScene(SCENE_ADV, true, %[file:save]);
+	break;
+}

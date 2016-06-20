@@ -2184,21 +2184,21 @@ html.js,
   /* Safari 和 Chrome */
   /* Firefox */
   /* Opera */
-  transform: scale(2.5);
+  transform: scale(2);
   transform-origin: top left;
-  -ms-transform: scale(2.5);
+  -ms-transform: scale(2);
   /* IE 9 */
   -ms-transform-origin: top left;
   /* IE 9 */
-  -webkit-transform: scale(2.5);
+  -webkit-transform: scale(2);
   /* Safari 和 Chrome */
   -webkit-transform-origin: top left;
   /* Safari 和 Chrome */
-  -moz-transform: scale(2.5);
+  -moz-transform: scale(2);
   /* Firefox */
   -moz-transform-origin: top left;
   /* Firefox */
-  -o-transform: scale(2.5);
+  -o-transform: scale(2);
   /* Opera */
   -o-transform-origin: top left;
   /* Opera */
@@ -2206,18 +2206,57 @@ html.js,
 }
 .game__game__menu-item:nth-of-type(1) {
   margin-left: 150px;
-  background: url("../assets/parts/frame/FRM_0332.png") no-repeat;
+  background: url("../assets/parts/frame/FRM_0111.png") no-repeat;
 }
 .game__game__menu-item:nth-of-type(2) {
   margin-left: 130px;
-  background: url("../assets/parts/frame/FRM_0331.png") no-repeat;
+  background: url("../assets/parts/frame/FRM_0112.png") no-repeat;
 }
-.game__game__menu-item:nth-of-type(2) {
+.game__game__menu-item:nth-of-type(3) {
   margin-left: 130px;
-  background: url("../assets/parts/frame/FRM_0331.png") no-repeat;
+  background: url("../assets/parts/frame/FRM_0117.png") no-repeat;
 }
 .game__game__menu-item:hover {
-  background-position-x: -70px;
+  background-position-x: -75px;
+}
+.game__game__selection {
+  position: absolute;
+  left: 434px;
+  top: 100px;
+}
+.game__game__selection__item {
+  width: 700px;
+  height: 100px;
+  background: url("../assets/parts/frame/FRM_0131.png") no-repeat;
+  /* IE 9 */
+  /* Safari 和 Chrome */
+  /* Firefox */
+  /* Opera */
+  transform: scale(1.5);
+  transform-origin: top left;
+  -ms-transform: scale(1.5);
+  /* IE 9 */
+  -ms-transform-origin: top left;
+  /* IE 9 */
+  -webkit-transform: scale(1.5);
+  /* Safari 和 Chrome */
+  -webkit-transform-origin: top left;
+  /* Safari 和 Chrome */
+  -moz-transform: scale(1.5);
+  /* Firefox */
+  -moz-transform-origin: top left;
+  /* Firefox */
+  -o-transform: scale(1.5);
+  /* Opera */
+  -o-transform-origin: top left;
+  /* Opera */
+  margin-top: 32px;
+}
+.game__game__selection__item__text {
+  font-size: 30px;
+  padding-top: 20px;
+  padding-left: 120px;
+  text-shadow: 2px 2px 2px #000;
 }
 .game__main-title {
   position: relative;
