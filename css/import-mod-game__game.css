@@ -109,6 +109,10 @@
   margin-left: 130px;
   background: url("../assets/parts/frame/FRM_0331.png") no-repeat;
 }
+.game__game__menu-item:nth-of-type(2) {
+  margin-left: 130px;
+  background: url("../assets/parts/frame/FRM_0331.png") no-repeat;
+}
 .game__game__menu-item:hover {
   background-position-x: -70px;
 }

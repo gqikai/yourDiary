@@ -155,6 +155,7 @@ angular.module('gal')
                         $scope.handlePauseBgm();
                         break;
                     case 'end':
+                        gameService.nextChapter();
                     case 'wait':
                         $scope.currentToken = $scope.nextToken;
                         return;

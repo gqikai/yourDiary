@@ -1,11 +1,14 @@
 "use strict";
 angular.module('gal')
-    .factory('scriptService', ['$http', 'URLroot', function ($http, URLroot) {
+    .service('scriptService', ['$http', 'URLroot', 'CHAPTERlist', function ($http, URLroot, CHAPTERlist) {
         'use strict';
 
         var script = null;
         var index = 0;
         var chapter = 0;
+        var deleteBackslashR = function(){
+            script = script.replace('\r','');
+        }
         var deleteEmptyLines = function () {
             for (var i = 0; i < script.length; i++) {
                 if (script[i] === '') {
@@ -58,32 +61,39 @@ angular.module('gal')
             index = to;
         }
         var getScript = function () {
-            $http({
+            return $http({
                 method: 'GET',
-                url: URLroot + '/assets/script/@0' + chapter + '_01.ks'
-            }).success(function (data, status, headers, config) {
-                console.log(data);
-            }).error(function (data, status, headers, config) {
-                console.log(data + status);
+                url: URLroot + '/assets/script/' + CHAPTERlist[chapter] + '.ks'
             })
         };
-        var startChapterN = function (chapterN) {
-            chapter = chapterN;
-            script = getScript();
+        var onGetScriptSuccess =  function (data, status, headers, config) {
+            script = data;
+            //deleteBackslashR();
+            script = script.split('\r\n');
+            deleteEmptyLines();
+            console.log(script);
+        }
+        var onGetScriptError = function (data, status, headers, config) {
+            console.log(data + status);
+        }
+        var nextChapter = function () {
+            chapter ++;
+            var promise = getScript();
+            promise.success(onGetScriptSuccess).error(onGetScriptError);
             index = 0;
         }
+
         var init = function () {
-            script = getScript();
-            script = galScript.split('\n');
-            deleteEmptyLines();
+            var promise = getScript();
+            promise.success(onGetScriptSuccess).error(onGetScriptError);
         };
 
         init();
 
         return {
-            startChapterN: startChapterN,
             next: next,
             getIndex: getIndex,
-            setIndex: setIndex
+            setIndex: setIndex,
+            nextChapter: nextChapter
         };
     }]);

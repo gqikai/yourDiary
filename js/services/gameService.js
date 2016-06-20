@@ -17,10 +17,14 @@ angular.module('gal')
         var quickLoad = function () {
             dataService.load();
         }
+        var nextChapter = function () {
+            scriptService.nextChapter();
+        }
         return {
             next: next,
             playerSelect: playerSelect,
             quickSave: quickSave,
-            quickLoad: quickLoad
+            quickLoad: quickLoad,
+            nextChapter: nextChapter
         };
     }]);

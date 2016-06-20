@@ -2,55 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Document</title>
-    <style>
-        .multiselector__input {
-
-        }
-
-        .multiselector__ul {
-            display: none;
-        }
-    </style>
+    <title>我的应用</title>
 </head>
 <body>
-<div class="multiselector">
-    <input class="multiselector__input" value="hello"/>
-    <ul class="multiselector__ul">
-        <li class="multiselector__ul__item"><input type="checkbox"><span>item01</span></li>
-        <li class="multiselector__ul__item"><input type="checkbox" class="item"><span>item02</span></li>
-        <li class="multiselector__ul__item"><input type="checkbox" class="item"><span>item03</span></li>
-    </ul>
-</div>
-
-<script>
-    var oInput = document.querySelector('input');
-    var oUl = document.querySelector('ul');
-    var oLis = document.querySelectorAll('li');
-    var oSelector = document.querySelector('.multiselector');
-
-
-    document.addEventListener('click', function () {
-        console.log('2');
-        oUl.style.display = 'none';
-    },false);
-
-    for (var i = 0; i < oLis.length; i++) {
-        oLis[i].onclick = function (event) {
-            if (this.querySelector('input').checked) {
-                oInput.value += this.querySelector('span').innerHTML;
-            } else {
-                oInput.value = oInput.value.replace(this.querySelector('span').innerHTML, '');
-            }
-            console.log(document.styleSheets);
-        }
-    }
-    oInput.onclick = function (event) {
-        console.log('1');
-        oUl.style.display = getComputedStyle(oUl).display === 'none' ? 'block' : 'none';
-        event.stopPropagation();
-    };
-    
-</script>
+<h1>我的应用</h1>
+<h2>welcome</h2>
 </body>
 </html>
