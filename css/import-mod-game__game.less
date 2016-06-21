@@ -118,19 +118,23 @@
     background-position-x: -75px;
   }
 }
-.game__game__selection{
+
+.game__game__selection {
   position: absolute;
-  left:434px;
+  left: 434px;
   top: 100px;
+  z-index:4;
 }
-.game__game__selection__item{
+.game__game__selection__item {
   width: 700px;
   height: 100px;
   background: url("../assets/parts/frame/FRM_0131.png") no-repeat;
   .scale(1.5);
   margin-top: 32px;
+  &:hover {
+    background-position-x: -710px;
+  }
 }
-
 .game__game__selection__item__text {
   font-size: 30px;
   padding-top: 20px;

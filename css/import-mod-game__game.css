@@ -120,6 +120,7 @@
   position: absolute;
   left: 434px;
   top: 100px;
+  z-index: 4;
 }
 .game__game__selection__item {
   width: 700px;
@@ -135,6 +136,9 @@
   -o-transform: scale(1.5);
   /* Opera */
   margin-top: 32px;
+}
+.game__game__selection__item:hover {
+  background-position-x: -710px;
 }
 .game__game__selection__item__text {
   font-size: 30px;

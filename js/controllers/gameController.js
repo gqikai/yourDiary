@@ -182,13 +182,15 @@ angular.module('gal')
                 $scope.currentToken = $scope.nextToken;
             }
         }
-        $scope.quickSave = function () {
+        $scope.quickSave = function ($event) {
             gameService.quickSave();
+            $event.stopPropagation();
         }
-        $scope.quickLoad = function () {
+        $scope.quickLoad = function ($event) {
             gameService.quickLoad();
+            $event.stopPropagation();
         }
-        $scope.skip = function () {
+        $scope.skip = function ($event) {
             if($scope.skipFlag){
                 $scope.skipFlag = false;
             }else{
@@ -205,5 +207,6 @@ angular.module('gal')
                 }
 
             }
+            $event.stopPropagation();
         }
     }]);

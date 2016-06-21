@@ -16,13 +16,16 @@
         </p>
     </div>
     <ul class="game__game__menu">
-        <li class="game__game__menu-item" ng-click="quickSave()"></li>
-        <li class="game__game__menu-item" ng-click="quickLoad()"></li>
-        <li class="game__game__menu-item" ng-click="skip()"></li>
+        <li class="game__game__menu-item" ng-click="quickSave($event)"></li>
+        <li class="game__game__menu-item" ng-click="quickLoad($event)"></li>
+        <li class="game__game__menu-item" ng-click="skip($event)"></li>
     </ul>
     <ul class="game__game__selection" ng-controller="selectController">
-        <li class="game__game__selection__item" ng-show="selection.show" ng-repeat="item in selection.selections" ng-click="playerSelect(item);">
+        <li class="game__game__selection__item" ng-show="selection.show" ng-repeat="item in selection.selections" ng-click="playerSelect(item, $event)">
             <p class="game__game__selection__item__text">{{item}}</p>
         </li>
+        <!--<li class="game__game__selection__item" id="test">-->
+            <!--<p class="game__game__selection__item__text">fsfsdfsfdfdsfdsfdsdsf</p>-->
+        <!--</li>-->
     </ul>
 </div>

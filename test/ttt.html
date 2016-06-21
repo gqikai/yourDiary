@@ -1,11 +1,33 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>我的应用</title>
+    <style type='text/css'>
+        #body{
+            margin:0px;
+        }
+
+
+        #headerDiv{
+
+            background-color:#e0e2eb;
+        }
+        .header_innerHeaderDivs{
+            border:solid 1px gray;
+            display:inline;
+            font:normal 11px tahoma;
+            color:black;
+        }
+        .header_innerHeaderDivs:hover{
+            padding:4px;
+        }
+    </style>
 </head>
-<body>
-<h1>我的应用</h1>
-<h2>welcome</h2>
+<body id='body'>
+<div id='headerDiv'>
+    <div class='header_innerHeaderDivs'>Comapny</div>
+    <div class='header_innerHeaderDivs'>Edit</div>
+    <div class='header_innerHeaderDivs'>Inventory</div>
+    <div class='header_innerHeaderDivs'>Logout</div>
+</div>
 </body>
 </html>

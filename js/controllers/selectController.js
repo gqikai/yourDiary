@@ -13,6 +13,7 @@ angular.module('gal')
             console.log(select);
             $event.stopPropagation();
             $scope.$emit('playerSelect', $scope.selection.selections.indexOf(select));
+            $scope.selection.show = false;
         }
 
         $scope.$on('AddSelect', function (event, text) {
