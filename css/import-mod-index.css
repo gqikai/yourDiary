@@ -235,7 +235,7 @@ html.js,
   transform: translate3d(0, 0, 0);
 }
 .link {
-  font-size: 0.85em;
+  font-size: 1.5em;
   font-weight: bold;
   position: relative;
   letter-spacing: 1px;
@@ -323,9 +323,10 @@ html.js,
 }
 /* page content */
 .info {
-  font-size: 1.25em;
-  max-width: 50%;
+  font-size: 1.5em;
+  max-width: 80%;
   margin-top: 1.5em;
+  text-indent: 25px;
 }
 .poster {
   position: absolute;

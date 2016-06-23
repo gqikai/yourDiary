@@ -6,8 +6,8 @@ angular.module('gal')
         var script = null;
         var index = 0;
         var chapter = '@00_01';
-        var deleteBackslashR = function(){
-            script = script.replace('\r','');
+        var deleteTab = function(){
+            script = script.replace('\t','');
         }
         var deleteEmptyLines = function () {
             for (var i = 0; i < script.length; i++) {
@@ -68,7 +68,7 @@ angular.module('gal')
         };
         var onGetScriptSuccess =  function (data, status, headers, config) {
             script = data;
-            //deleteBackslashR();
+            deleteTab();
             script = script.split('\r\n');
             deleteEmptyLines();
             console.log(script);

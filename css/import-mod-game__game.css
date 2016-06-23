@@ -139,6 +139,7 @@
 }
 .game__game__selection__item:hover {
   background-position-x: -710px;
+  width: 730px;
 }
 .game__game__selection__item__text {
   font-size: 30px;

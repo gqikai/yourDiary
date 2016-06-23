@@ -1,6 +1,6 @@
 "use strict";
 angular.module('gal')
-    .controller('gameController', ['$scope','$timeout', 'URLroot', 'gameService', 'audioService', function ($scope,$timeout, URLroot, gameService, audioService) {
+    .controller('gameController', ['$scope', '$timeout', 'URLroot', 'gameService', 'audioService', function ($scope, $timeout, URLroot, gameService, audioService) {
         'use strict';
         $scope.URLroot = URLroot;
         $scope.background = {
@@ -15,10 +15,14 @@ angular.module('gal')
         $scope.currentToken = {};
         $scope.nextToken = {};
         $scope.skipFlag = false;
+        $scope.select = 0;
+        $scope.flag = 0;
+        $scope.timeoutPromise = null;
+
         $scope.$on('playerSelect', function (event, index) {
-            console.log(index);
+            $scope.select = index;
         })
-        
+
         $scope.handleTalk = function () {
             $scope.$broadcast($scope.currentToken.direction, $scope.currentToken);
         }
@@ -123,7 +127,47 @@ angular.module('gal')
             $scope.$broadcast($scope.currentToken.direction, $scope.currentToken.text);
         }
         $scope.handleStartSelect = function () {
+            $timeout.cancel($scope.timeoutPromise);
+            $scope.timeoutPromise = null;
+            $scope.skipFlag = false;
             $scope.$broadcast($scope.currentToken.direction);
+        }
+        $scope.handleIf = function () {
+            var exp = $scope.currentToken.exp;
+            var ChkSelect = /ChkSelect/;
+            var ChkFlagOff = /ChkFlagOff/;
+            if (ChkSelect.test(exp)) {
+                handleChkSelect();
+            } else if (ChkFlagOff.test(exp)) {
+                handleChkFlagOff();
+            }
+        }
+        $scope.handleElseif = $scope.handleIf;
+        $scope.handleEndif = function () {
+            $scope.$broadcast($scope.currentToken.direction);
+
+        }
+        var handleChkSelect = function () {
+            var reg = /\d/;
+            var result = reg.exec($scope.currentToken.exp);
+            if (result[0] != $scope.select) {
+                var next = $scope.nextToken;
+                while (next.direction != 'elsif' && next.direction != 'endif') {
+                    next = gameService.next();
+                }
+                $scope.nextToken = next;
+            }
+        }
+        var handleChkFlagOff = function () {
+            var reg = /\d/;
+            var result = reg.exec($scope.currentToken.exp);
+            if (result[0] == $scope.flag) {
+                var next = $scope.nextToken;
+                while (next.direction != 'elsif' && next.direction != 'endif') {
+                    next = gameService.next();
+                }
+                $scope.nextToken = next;
+            }
         }
         $scope.next = function () {
             while (1) {
@@ -178,6 +222,18 @@ angular.module('gal')
                         $scope.handleStartSelect();
                         $scope.currentToken = $scope.nextToken;
                         return;
+                    case 'if':
+                        $scope.handleIf();
+                        break;
+                    case 'elsif':
+                        $scope.handleElseif();
+                        break;
+                    case 'onFlag':
+                        $scope.flag = $scope.currentToken.id;
+                        break;
+                    case 'endif':
+                        $scope.handleEndif();
+                        break;
                 }
                 $scope.currentToken = $scope.nextToken;
             }
@@ -191,22 +247,26 @@ angular.module('gal')
             $event.stopPropagation();
         }
         $scope.skip = function ($event) {
-            if($scope.skipFlag){
+            if ($scope.skipFlag) {
                 $scope.skipFlag = false;
-            }else{
+            } else {
                 var conf = confirm('要快进吗?');
-                if(conf){
+                if (conf) {
                     $scope.skipFlag = true;
                     var skip = function () {
-                        if($scope.skipFlag){
-                            $timeout(skip, 100);
+                        if ($scope.skipFlag) {
+                            $scope.timeoutPromise = $timeout(skip, 100);
                             $scope.next();
                         }
                     }
-                    $timeout(skip, 100);
+                    $scope.timeoutPromise = $timeout(skip, 100);
                 }
 
             }
             $event.stopPropagation();
         }
+        //var init = function () {
+        //    $scope.next();
+        //}
+        //init();
     }]);
