@@ -8,7 +8,7 @@ angular.module('gal')
         var background = null;
         var tween = null;
         var backgroundTween = null;
-
+$scope.percent = 0;
 
         $scope.start = function () {
             if (loading) {
@@ -63,7 +63,7 @@ angular.module('gal')
                 }, function () {
                     console.log('preload failed');
                 }, function (percentComplete) {
-                    console.log(percentComplete);
+                    $scope.percent = percentComplete;
                 })
         }
 
