@@ -1,19 +1,38 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <style>
-        #id{
-            width: 100px;
-            height: 100px;
-            background-color: #3B8CF8;
-            border: 30px black solid;
-
-        }
-    </style>
+    <title>Document</title>
 </head>
 <body>
-<div id="id">hello</div>
+<ul id="id">
+    <li>item 01</li>
+    <li>item 02</li>
+    <li>item 03</li>
+    <li>item 04</li>
+    <li>item 05</li>
+</ul>
+<button id="but">hello</button>
+<script>
+    var oUl = document.getElementById('id');
+    var oChildNodes = oUl.childNodes;
+    arrLi = [];
+    console.log(oChildNodes);
+    var countLi = 0;
+    for (var i = 0; i < oChildNodes.length; i++) {
+        if(oChildNodes[i].nodeName === "LI"){
+            (function (countLi) {
+                console.log(countLi);
+                oChildNodes[i].order = countLi;
+            })(countLi);
+            countLi ++;
+        }
+    }
+    for (var i = 0; i < oChildNodes.length; i++) {
+        oChildNodes[i].addEventListener('click', function (event) {
+            console.log(event.target.order);
+        })
+    }
+</script>
 </body>
 </html>
