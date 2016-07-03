@@ -5,33 +5,8 @@
     <title>Document</title>
 </head>
 <body>
-<ul id="id">
-    <li>item 01</li>
-    <li>item 02</li>
-    <li>item 03</li>
-    <li>item 04</li>
-    <li>item 05</li>
-</ul>
 <script>
-    var oUl = document.getElementById('id');
-    var oChildNodes = oUl.childNodes;
-    arrLi = [];
-    console.log(oChildNodes);
-    var countLi = 0;
-    for (var i = 0; i < oChildNodes.length; i++) {
-        if(oChildNodes[i].nodeName === "LI"){
-            (function (countLi) {
-                console.log(countLi);
-                oChildNodes[i].order = countLi;
-            })(countLi);
-            countLi ++;
-        }
-    }
-    for (var i = 0; i < oChildNodes.length; i++) {
-        oChildNodes[i].addEventListener('click', function (event) {
-            console.log(event.target.order);
-        })
-    }
+    console.log((function(a, b){}).length);
 </script>
 </body>
 </html>
