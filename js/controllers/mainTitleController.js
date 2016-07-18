@@ -1,6 +1,6 @@
 "use strict";
 angular.module('gal')
-    .controller('mainTitleController', ['$scope', '$location', 'preloadService', 'dataService', function ($scope, $location, preloadService, dataService) {
+    .controller('mainTitleController', ['$scope', '$location', 'preloadService', 'dataService','animationService', function ($scope, $location, preloadService, dataService, animationService) {
         'use strict';
         var loading = true;
         var oProgressBar = {};
@@ -60,6 +60,8 @@ $scope.percent = 0;
                 .then(function () {
                     loading = false;
                     console.log('preload success');
+                    animationService.logoBumpIn();
+                    animationService.loadingBumpOut();
                 }, function () {
                     console.log('preload failed');
                 }, function (percentComplete) {

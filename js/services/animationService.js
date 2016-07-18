@@ -3,25 +3,17 @@
  */
 "use strict";
 angular.module('gal')
-    .factory('audioService',['$q', function ($q) {
-        'use strict';
-        var BGM = null;
-        var playBgm = function (file) {
-            if (BGM) {
-                BGM.pause();
-            }
-            BGM = new Howl({
-                src: [file],
-                html5: true,
-                loop:true
-            })
-            BGM.play();
+    .factory('animationService',[function () {
+        var logoBumpIn = function(){
+            var logo = document.querySelector('.game__main-title__logo');
+            logo.classList.add('bump-in');
         }
-        var pauseBgm = function () {
-            BGM.pause();
+        var loadingBumpOut = function () {
+            var loading = document.querySelector('.game__main-title__loading');
+            loading.classList.add('bump-out');
         }
         return {
-            playBgm: playBgm,
-            pauseBgm: pauseBgm
+            logoBumpIn: logoBumpIn,
+            loadingBumpOut: loadingBumpOut
         }
     }]);

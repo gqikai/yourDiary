@@ -1,3 +1,61 @@
+@keyframes boule {
+  0% {
+    left: 0;
+    opacity: 0;
+  }
+  50% {
+    height: 20px;
+    width: 20px;
+    opacity: 1;
+  }
+  100% {
+    left: 300px;
+    opacity: 0;
+    height: 10px;
+    width: 10px;
+  }
+}
+@-webkit-keyframes boule {
+  0% {
+    left: 10px;
+    opacity: 0;
+  }
+  50% {
+    height: 20px;
+    width: 20px;
+    opacity: 1;
+  }
+  100% {
+    left: 300px;
+    opacity: 0;
+    height: 10px;
+    width: 10px;
+  }
+}
+.game__main-title__logo.bump-in {
+  -webkit-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  -o-transform: scale(1.5);
+  transform: scale(1.5);
+  -webkit-transition: all 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51);
+  -moz-transition: all 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51);
+  -ms-transition: all 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51);
+  -o-transition: all 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51);
+  transition: all 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51);
+}
+.game__main-title__loading.bump-out {
+  -webkit-transform: scale(0);
+  -moz-transform: scale(0);
+  -ms-transform: scale(0);
+  -o-transform: scale(0);
+  transform: scale(0);
+  -webkit-transition: all 0.5s cubic-bezier(0.59, -0.59, 0.83, 0.67);
+  -moz-transition: all 0.5s cubic-bezier(0.59, -0.59, 0.83, 0.67);
+  -ms-transition: all 0.5s cubic-bezier(0.59, -0.59, 0.83, 0.67);
+  -o-transition: all 0.5s cubic-bezier(0.59, -0.59, 0.83, 0.67);
+  transition: all 0.5s cubic-bezier(0.59, -0.59, 0.83, 0.67);
+}
 @font-face {
   font-family: 'FontAwesome';
   src: url('../fonts/fontawesome-webfont.eot?v=3.2.1');
@@ -2183,6 +2241,14 @@ html.js,
   width: 71px;
   height: 40px;
   /* IE 9 */
+  /* IE 9 */
+  /* Safari 和 Chrome */
+  /* Safari 和 Chrome */
+  /* Firefox */
+  /* Firefox */
+  /* Opera */
+  /* Opera */
+  /* IE 9 */
   /* Safari 和 Chrome */
   /* Firefox */
   /* Opera */
@@ -2232,6 +2298,14 @@ html.js,
   height: 100px;
   background: url("../assets/parts/frame/FRM_0131.png") no-repeat;
   /* IE 9 */
+  /* IE 9 */
+  /* Safari 和 Chrome */
+  /* Safari 和 Chrome */
+  /* Firefox */
+  /* Firefox */
+  /* Opera */
+  /* Opera */
+  /* IE 9 */
   /* Safari 和 Chrome */
   /* Firefox */
   /* Opera */
@@ -2278,6 +2352,14 @@ html.js,
   top: 0;
   width: 1597px;
   height: 1128px;
+  /* IE 9 */
+  /* IE 9 */
+  /* Safari 和 Chrome */
+  /* Safari 和 Chrome */
+  /* Firefox */
+  /* Firefox */
+  /* Opera */
+  /* Opera */
   /* IE 9 */
   /* Safari 和 Chrome */
   /* Firefox */
@@ -2346,6 +2428,14 @@ html.js,
 .game__main-title__menu__item {
   display: inline-block;
   /* IE 9 */
+  /* IE 9 */
+  /* Safari 和 Chrome */
+  /* Safari 和 Chrome */
+  /* Firefox */
+  /* Firefox */
+  /* Opera */
+  /* Opera */
+  /* IE 9 */
   /* Safari 和 Chrome */
   /* Firefox */
   /* Opera */
@@ -2400,6 +2490,9 @@ html.js,
   height: 137px;
   width: 100%;
   background-color: black;
+  /*支持 IE 浏览器*/
+  /*支持 FireFox 浏览器*/
+  /*支持 Chrome, Opera, Safari 等浏览器*/
   filter: alpha(opacity=40);
   /*支持 IE 浏览器*/
   -moz-opacity: 0.4;

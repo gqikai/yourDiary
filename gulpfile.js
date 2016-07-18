@@ -33,7 +33,9 @@ var paths = {
         "js/services/scriptService.js",
         "js/services/dataService.js",
         "js/services/preloadService.js",
-        "js/services/audioService.js"
+        "js/services/audioService.js",
+        "js/services/animationService.js"
+
     ],
     css:['css/go.css']
 }
