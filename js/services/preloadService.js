@@ -153,6 +153,7 @@ angular.module('gal')
 
         function preloadImages() {
 
+            var backgroundImage = document.querySelector('.game__main-title__background');
             var newimages = [], loadedimages = 0;
             var d = $q.defer();
             var percentComplete = 0;
@@ -167,19 +168,28 @@ angular.module('gal')
                     d.resolve();
                 }
             }
-
-            for (var i = 0; i < arr.length; i++) {
-                newimages[i] = new Image();
-                newimages[i].src = arr[i];
-                newimages[i].onload = function () {
-                    imageloadpost();
-                    console.log('loaded');
-                };
-                newimages[i].onerror = function () {
-                    imageloadpost();
-                    console.log('load failed!');
+            function doPreload(){
+                for (var i = 0; i < arr.length; i++) {
+                    newimages[i] = new Image();
+                    newimages[i].src = arr[i];
+                    newimages[i].onload = function () {
+                        imageloadpost();
+                        console.log('loaded');
+                    };
+                    newimages[i].onerror = function () {
+                        imageloadpost();
+                        console.log('load failed!');
+                    }
                 }
             }
+
+            var timer = setInterval(function () {
+                if(backgroundImage.complete){
+                    clearInterval(timer);
+                    doPreload();
+                }
+            },20);
+
             return d.promise;
         }
 

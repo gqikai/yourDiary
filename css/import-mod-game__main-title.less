@@ -1,3 +1,5 @@
+@import "animation";
+@import "utils";
 .game__main-title {
   position: relative;
   margin: 0 auto;
@@ -65,7 +67,7 @@
 
 .game__main-title__menu__item {
   display: inline-block;
-  .scale(2);
+  .scale(0, left top);
   &:nth-of-type(1) {
     .nthOfType(1);
     margin-left: 485px;
@@ -99,67 +101,9 @@
   margin-left: 246px;
 }
 
-.scale(@times) {
-  -webkit-transform: scale(@times);
-  -webkit-transform-origin: top left;
-
-  transform: scale(@times);
-  transform-origin: top left;
-
-  -ms-transform: scale(@times); /* IE 9 */
-  -ms-transform-origin: top left; /* IE 9 */
-
-  -webkit-transform: scale(@times); /* Safari 和 Chrome */
-  -webkit-transform-origin: top left; /* Safari 和 Chrome */
-
-  -moz-transform: scale(@times); /* Firefox */
-  -moz-transform-origin: top left; /* Firefox */
-
-  -o-transform: scale(@times); /* Opera */
-  -o-transform-origin: top left; /* Opera */
-}
 
 .opacityPercent(@opacity) {
   filter: alpha(opacity=@opacity); /*支持 IE 浏览器*/
   -moz-opacity: @opacity / 100; /*支持 FireFox 浏览器*/
   opacity: @opacity / 100; /*支持 Chrome, Opera, Safari 等浏览器*/
 }
-
-//loading animate
-@keyframes boule {
-  0% {
-    left: 0;
-    opacity: 0;
-  }
-  50% {
-    height: 20px;
-    width: 20px;
-    opacity: 1;
-  }
-  100% {
-    left: 300px;
-    opacity: 0;
-    height: 10px;
-    width: 10px;
-  }
-}
-
-@-webkit-keyframes boule {
-  0% {
-    left: 10px;
-    opacity: 0;
-  }
-  50% {
-    height: 20px;
-    width: 20px;
-    opacity: 1;
-  }
-  100% {
-    left: 300px;
-    opacity: 0;
-    height: 10px;
-    width: 10px;
-  }
-}
-
-//end loading animate

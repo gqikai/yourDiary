@@ -1,3 +1,65 @@
+.scale(@times, @origin) {
+  -webkit-transform: scale(@times);
+  -webkit-transform-origin: @origin;
+
+  transform: scale(@times);
+  transform-origin: @origin;
+
+  -ms-transform: scale(@times); /* IE 9 */
+  -ms-transform-origin: @origin; /* IE 9 */
+
+  -webkit-transform: scale(@times); /* Safari 和 Chrome */
+  -webkit-transform-origin: @origin; /* Safari 和 Chrome */
+
+  -moz-transform: scale(@times); /* Firefox */
+  -moz-transform-origin: @origin; /* Firefox */
+
+  -o-transform: scale(@times); /* Opera */
+  -o-transform-origin: @origin; /* Opera */
+}
+.transition(@property, @duration, @timing-function, @delay){
+  -webkit-transition: @property @duration @timing-function @delay;
+  -moz-transition: @property @duration @timing-function @delay;
+  -ms-transition: @property @duration @timing-function @delay;
+  -o-transition: @property @duration @timing-function @delay;
+  transition: @property @duration @timing-function @delay;
+}
+
+.game__main-title__logo.bump-in {
+  -webkit-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  -o-transform: scale(1.5);
+  transform: scale(1.5);
+
+
+  -webkit-transition: all 0.5s cubic-bezier(.17,.67,.53,1.51);
+  -moz-transition: all 0.5s cubic-bezier(.17,.67,.53,1.51);
+  -ms-transition: all 0.5s cubic-bezier(.17,.67,.53,1.51);
+  -o-transition: all 0.5s cubic-bezier(.17,.67,.53,1.51);
+  transition: all 0.5s cubic-bezier(.17,.67,.53,1.51);
+}
+
+.game__main-title__loading.bump-out {
+  .scale(0, 50% 50%);
+  .transition(transform, 0.5s, cubic-bezier(.59,-0.59,.83,.67), 0);
+}
+
+.game__main-title__menu__item.bump-in:nth-of-type(1) {
+  .scale(2, left top);
+  .transition(transform, 0.5s, cubic-bezier(.17,.67,.53,1.51), 0.2s);
+}
+
+.game__main-title__menu__item.bump-in:nth-of-type(2) {
+  .scale(2, left top);
+  .transition(transform, 0.5s, cubic-bezier(.17,.67,.53,1.51), 0.4s);
+}
+
+.game__main-title__menu__item.bump-in:nth-of-type(3) {
+  .scale(2, left top);
+  .transition(transform, 0.5s, cubic-bezier(.17,.67,.53,1.51), 0.6s);
+}
+
 //loading animate
 @keyframes boule {
   0% {
@@ -36,33 +98,3 @@
 }
 
 //end loading animate
-
-.game__main-title__logo.bump-in {
-  -webkit-transform: scale(1.5);
-  -moz-transform: scale(1.5);
-  -ms-transform: scale(1.5);
-  -o-transform: scale(1.5);
-  transform: scale(1.5);
-
-
-  -webkit-transition: all 0.5s cubic-bezier(.17,.67,.53,1.51);
-  -moz-transition: all 0.5s cubic-bezier(.17,.67,.53,1.51);
-  -ms-transition: all 0.5s cubic-bezier(.17,.67,.53,1.51);
-  -o-transition: all 0.5s cubic-bezier(.17,.67,.53,1.51);
-  transition: all 0.5s cubic-bezier(.17,.67,.53,1.51);
-}
-
-.game__main-title__loading.bump-out {
-  -webkit-transform: scale(0);
-  -moz-transform: scale(0);
-  -ms-transform: scale(0);
-  -o-transform: scale(0);
-  transform: scale(0);
-
-
-  -webkit-transition: all 0.5s cubic-bezier(.59,-0.59,.83,.67);
-  -moz-transition: all 0.5s cubic-bezier(.59,-0.59,.83,.67);
-  -ms-transition: all 0.5s cubic-bezier(.59,-0.59,.83,.67);
-  -o-transition: all 0.5s cubic-bezier(.59,-0.59,.83,.67);
-  transition: all 0.5s cubic-bezier(.59,-0.59,.83,.67);
-}

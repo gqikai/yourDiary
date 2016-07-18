@@ -62,6 +62,7 @@ $scope.percent = 0;
                     console.log('preload success');
                     animationService.logoBumpIn();
                     animationService.loadingBumpOut();
+                    animationService.selectionBumpIn();
                 }, function () {
                     console.log('preload failed');
                 }, function (percentComplete) {

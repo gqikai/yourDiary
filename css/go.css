@@ -1,3 +1,115 @@
+.game__main-title__logo.bump-in {
+  -webkit-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  -o-transform: scale(1.5);
+  transform: scale(1.5);
+  -webkit-transition: all 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51);
+  -moz-transition: all 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51);
+  -ms-transition: all 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51);
+  -o-transition: all 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51);
+  transition: all 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51);
+}
+.game__main-title__loading.bump-out {
+  transform: scale(0);
+  transform-origin: 50% 50%;
+  -ms-transform: scale(0);
+  /* IE 9 */
+  -ms-transform-origin: 50% 50%;
+  /* IE 9 */
+  -webkit-transform: scale(0);
+  /* Safari 和 Chrome */
+  -webkit-transform-origin: 50% 50%;
+  /* Safari 和 Chrome */
+  -moz-transform: scale(0);
+  /* Firefox */
+  -moz-transform-origin: 50% 50%;
+  /* Firefox */
+  -o-transform: scale(0);
+  /* Opera */
+  -o-transform-origin: 50% 50%;
+  /* Opera */
+  -webkit-transition: transform 0.5s cubic-bezier(0.59, -0.59, 0.83, 0.67) 0;
+  -moz-transition: transform 0.5s cubic-bezier(0.59, -0.59, 0.83, 0.67) 0;
+  -ms-transition: transform 0.5s cubic-bezier(0.59, -0.59, 0.83, 0.67) 0;
+  -o-transition: transform 0.5s cubic-bezier(0.59, -0.59, 0.83, 0.67) 0;
+  transition: transform 0.5s cubic-bezier(0.59, -0.59, 0.83, 0.67) 0;
+}
+.game__main-title__menu__item.bump-in:nth-of-type(1) {
+  transform: scale(2);
+  transform-origin: left top;
+  -ms-transform: scale(2);
+  /* IE 9 */
+  -ms-transform-origin: left top;
+  /* IE 9 */
+  -webkit-transform: scale(2);
+  /* Safari 和 Chrome */
+  -webkit-transform-origin: left top;
+  /* Safari 和 Chrome */
+  -moz-transform: scale(2);
+  /* Firefox */
+  -moz-transform-origin: left top;
+  /* Firefox */
+  -o-transform: scale(2);
+  /* Opera */
+  -o-transform-origin: left top;
+  /* Opera */
+  -webkit-transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51) 0.2s;
+  -moz-transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51) 0.2s;
+  -ms-transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51) 0.2s;
+  -o-transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51) 0.2s;
+  transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51) 0.2s;
+}
+.game__main-title__menu__item.bump-in:nth-of-type(2) {
+  transform: scale(2);
+  transform-origin: left top;
+  -ms-transform: scale(2);
+  /* IE 9 */
+  -ms-transform-origin: left top;
+  /* IE 9 */
+  -webkit-transform: scale(2);
+  /* Safari 和 Chrome */
+  -webkit-transform-origin: left top;
+  /* Safari 和 Chrome */
+  -moz-transform: scale(2);
+  /* Firefox */
+  -moz-transform-origin: left top;
+  /* Firefox */
+  -o-transform: scale(2);
+  /* Opera */
+  -o-transform-origin: left top;
+  /* Opera */
+  -webkit-transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51) 0.4s;
+  -moz-transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51) 0.4s;
+  -ms-transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51) 0.4s;
+  -o-transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51) 0.4s;
+  transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51) 0.4s;
+}
+.game__main-title__menu__item.bump-in:nth-of-type(3) {
+  transform: scale(2);
+  transform-origin: left top;
+  -ms-transform: scale(2);
+  /* IE 9 */
+  -ms-transform-origin: left top;
+  /* IE 9 */
+  -webkit-transform: scale(2);
+  /* Safari 和 Chrome */
+  -webkit-transform-origin: left top;
+  /* Safari 和 Chrome */
+  -moz-transform: scale(2);
+  /* Firefox */
+  -moz-transform-origin: left top;
+  /* Firefox */
+  -o-transform: scale(2);
+  /* Opera */
+  -o-transform-origin: left top;
+  /* Opera */
+  -webkit-transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51) 0.6s;
+  -moz-transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51) 0.6s;
+  -ms-transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51) 0.6s;
+  -o-transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51) 0.6s;
+  transition: transform 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51) 0.6s;
+}
 @keyframes boule {
   0% {
     left: 0;
@@ -31,30 +143,6 @@
     height: 10px;
     width: 10px;
   }
-}
-.game__main-title__logo.bump-in {
-  -webkit-transform: scale(1.5);
-  -moz-transform: scale(1.5);
-  -ms-transform: scale(1.5);
-  -o-transform: scale(1.5);
-  transform: scale(1.5);
-  -webkit-transition: all 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51);
-  -moz-transition: all 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51);
-  -ms-transition: all 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51);
-  -o-transition: all 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51);
-  transition: all 0.5s cubic-bezier(0.17, 0.67, 0.53, 1.51);
-}
-.game__main-title__loading.bump-out {
-  -webkit-transform: scale(0);
-  -moz-transform: scale(0);
-  -ms-transform: scale(0);
-  -o-transform: scale(0);
-  transform: scale(0);
-  -webkit-transition: all 0.5s cubic-bezier(0.59, -0.59, 0.83, 0.67);
-  -moz-transition: all 0.5s cubic-bezier(0.59, -0.59, 0.83, 0.67);
-  -ms-transition: all 0.5s cubic-bezier(0.59, -0.59, 0.83, 0.67);
-  -o-transition: all 0.5s cubic-bezier(0.59, -0.59, 0.83, 0.67);
-  transition: all 0.5s cubic-bezier(0.59, -0.59, 0.83, 0.67);
 }
 @font-face {
   font-family: 'FontAwesome';
@@ -2240,35 +2328,27 @@ html.js,
   display: inline-block;
   width: 71px;
   height: 40px;
-  /* IE 9 */
-  /* IE 9 */
-  /* Safari 和 Chrome */
-  /* Safari 和 Chrome */
-  /* Firefox */
-  /* Firefox */
-  /* Opera */
-  /* Opera */
-  /* IE 9 */
-  /* Safari 和 Chrome */
-  /* Firefox */
-  /* Opera */
-  transform: scale(2);
   transform-origin: top left;
-  -ms-transform: scale(2);
   /* IE 9 */
   -ms-transform-origin: top left;
   /* IE 9 */
-  -webkit-transform: scale(2);
   /* Safari 和 Chrome */
   -webkit-transform-origin: top left;
   /* Safari 和 Chrome */
-  -moz-transform: scale(2);
   /* Firefox */
   -moz-transform-origin: top left;
   /* Firefox */
-  -o-transform: scale(2);
   /* Opera */
   -o-transform-origin: top left;
+  /* Opera */
+  transform: scale(2);
+  -ms-transform: scale(2);
+  /* IE 9 */
+  -webkit-transform: scale(2);
+  /* Safari 和 Chrome */
+  -moz-transform: scale(2);
+  /* Firefox */
+  -o-transform: scale(2);
   /* Opera */
   margin-bottom: 20px;
 }
@@ -2297,35 +2377,27 @@ html.js,
   width: 700px;
   height: 100px;
   background: url("../assets/parts/frame/FRM_0131.png") no-repeat;
-  /* IE 9 */
-  /* IE 9 */
-  /* Safari 和 Chrome */
-  /* Safari 和 Chrome */
-  /* Firefox */
-  /* Firefox */
-  /* Opera */
-  /* Opera */
-  /* IE 9 */
-  /* Safari 和 Chrome */
-  /* Firefox */
-  /* Opera */
-  transform: scale(1.5);
   transform-origin: top left;
-  -ms-transform: scale(1.5);
   /* IE 9 */
   -ms-transform-origin: top left;
   /* IE 9 */
-  -webkit-transform: scale(1.5);
   /* Safari 和 Chrome */
   -webkit-transform-origin: top left;
   /* Safari 和 Chrome */
-  -moz-transform: scale(1.5);
   /* Firefox */
   -moz-transform-origin: top left;
   /* Firefox */
-  -o-transform: scale(1.5);
   /* Opera */
   -o-transform-origin: top left;
+  /* Opera */
+  transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  /* IE 9 */
+  -webkit-transform: scale(1.5);
+  /* Safari 和 Chrome */
+  -moz-transform: scale(1.5);
+  /* Firefox */
+  -o-transform: scale(1.5);
   /* Opera */
   margin-top: 32px;
 }
@@ -2352,35 +2424,27 @@ html.js,
   top: 0;
   width: 1597px;
   height: 1128px;
-  /* IE 9 */
-  /* IE 9 */
-  /* Safari 和 Chrome */
-  /* Safari 和 Chrome */
-  /* Firefox */
-  /* Firefox */
-  /* Opera */
-  /* Opera */
-  /* IE 9 */
-  /* Safari 和 Chrome */
-  /* Firefox */
-  /* Opera */
-  transform: scale(1.5);
   transform-origin: top left;
-  -ms-transform: scale(1.5);
   /* IE 9 */
   -ms-transform-origin: top left;
   /* IE 9 */
-  -webkit-transform: scale(1.5);
   /* Safari 和 Chrome */
   -webkit-transform-origin: top left;
   /* Safari 和 Chrome */
-  -moz-transform: scale(1.5);
   /* Firefox */
   -moz-transform-origin: top left;
   /* Firefox */
-  -o-transform: scale(1.5);
   /* Opera */
   -o-transform-origin: top left;
+  /* Opera */
+  transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  /* IE 9 */
+  -webkit-transform: scale(1.5);
+  /* Safari 和 Chrome */
+  -moz-transform: scale(1.5);
+  /* Firefox */
+  -o-transform: scale(1.5);
   /* Opera */
 }
 .game__main-title__logo {
@@ -2427,35 +2491,23 @@ html.js,
 }
 .game__main-title__menu__item {
   display: inline-block;
+  transform: scale(0);
+  transform-origin: left top;
+  -ms-transform: scale(0);
   /* IE 9 */
+  -ms-transform-origin: left top;
   /* IE 9 */
+  -webkit-transform: scale(0);
   /* Safari 和 Chrome */
+  -webkit-transform-origin: left top;
   /* Safari 和 Chrome */
+  -moz-transform: scale(0);
   /* Firefox */
+  -moz-transform-origin: left top;
   /* Firefox */
+  -o-transform: scale(0);
   /* Opera */
-  /* Opera */
-  /* IE 9 */
-  /* Safari 和 Chrome */
-  /* Firefox */
-  /* Opera */
-  transform: scale(2);
-  transform-origin: top left;
-  -ms-transform: scale(2);
-  /* IE 9 */
-  -ms-transform-origin: top left;
-  /* IE 9 */
-  -webkit-transform: scale(2);
-  /* Safari 和 Chrome */
-  -webkit-transform-origin: top left;
-  /* Safari 和 Chrome */
-  -moz-transform: scale(2);
-  /* Firefox */
-  -moz-transform-origin: top left;
-  /* Firefox */
-  -o-transform: scale(2);
-  /* Opera */
-  -o-transform-origin: top left;
+  -o-transform-origin: left top;
   /* Opera */
 }
 .game__main-title__menu__item:nth-of-type(1) {
@@ -2499,38 +2551,4 @@ html.js,
   /*支持 FireFox 浏览器*/
   opacity: 0.4;
   /*支持 Chrome, Opera, Safari 等浏览器*/
-}
-@keyframes boule {
-  0% {
-    left: 0;
-    opacity: 0;
-  }
-  50% {
-    height: 20px;
-    width: 20px;
-    opacity: 1;
-  }
-  100% {
-    left: 300px;
-    opacity: 0;
-    height: 10px;
-    width: 10px;
-  }
-}
-@-webkit-keyframes boule {
-  0% {
-    left: 10px;
-    opacity: 0;
-  }
-  50% {
-    height: 20px;
-    width: 20px;
-    opacity: 1;
-  }
-  100% {
-    left: 300px;
-    opacity: 0;
-    height: 10px;
-    width: 10px;
-  }
 }
