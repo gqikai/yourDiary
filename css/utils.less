@@ -1,0 +1,49 @@
+.bump-in {
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  -ms-transform: scale(1);
+  -o-transform: scale(1);
+  transform: scale(1);
+
+
+  -webkit-transition: all 0.5s cubic-bezier(.17,.67,.53,1.51);
+  -moz-transition: all 0.5s cubic-bezier(.17,.67,.53,1.51);
+  -ms-transition: all 0.5s cubic-bezier(.17,.67,.53,1.51);
+  -o-transition: all 0.5s cubic-bezier(.17,.67,.53,1.51);
+  transition: all 0.5s cubic-bezier(.17,.67,.53,1.51);
+}
+
+
+.nthOfType(@index) {
+  width: 109px;
+  height: 54px;
+  background: url("../assets/parts/frame/FRM_056@{index}.png");
+  margin-bottom: 75px;
+  margin-left: 246px;
+}
+
+.scale(@times) {
+  -webkit-transform: scale(@times);
+  -webkit-transform-origin: top left;
+
+  transform: scale(@times);
+  transform-origin: top left;
+
+  -ms-transform: scale(@times); /* IE 9 */
+  -ms-transform-origin: top left; /* IE 9 */
+
+  -webkit-transform: scale(@times); /* Safari 和 Chrome */
+  -webkit-transform-origin: top left; /* Safari 和 Chrome */
+
+  -moz-transform: scale(@times); /* Firefox */
+  -moz-transform-origin: top left; /* Firefox */
+
+  -o-transform: scale(@times); /* Opera */
+  -o-transform-origin: top left; /* Opera */
+}
+
+.opacityPercent(@opacity) {
+  filter: alpha(opacity=@opacity); /*支持 IE 浏览器*/
+  -moz-opacity: @opacity / 100; /*支持 FireFox 浏览器*/
+  opacity: @opacity / 100; /*支持 Chrome, Opera, Safari 等浏览器*/
+}

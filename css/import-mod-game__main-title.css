@@ -31,28 +31,14 @@
   /* Opera */
 }
 .game__main-title__logo {
-  transform: scale(1.5);
-  transform-origin: top left;
-  -ms-transform: scale(1.5);
-  /* IE 9 */
-  -ms-transform-origin: top left;
-  /* IE 9 */
-  -webkit-transform: scale(1.5);
-  /* Safari 和 Chrome */
-  -webkit-transform-origin: top left;
-  /* Safari 和 Chrome */
-  -moz-transform: scale(1.5);
-  /* Firefox */
-  -moz-transform-origin: top left;
-  /* Firefox */
-  -o-transform: scale(1.5);
-  /* Opera */
-  -o-transform-origin: top left;
-  /* Opera */
   z-index: 5;
   position: absolute;
-  top: 224px;
-  left: 511px;
+  top: 50%;
+  left: 50%;
+  margin-left: -288px;
+  margin-top: -221px;
+  transform: scale(0);
+  transform-origin: 50% 50%;
 }
 .game__main-title__loading {
   height: 140px;

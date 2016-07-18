@@ -4,7 +4,6 @@
   width: 1920px;
   height: 1080px;
   overflow: hidden;
-
 }
 
 .game__main-title__background {
@@ -17,11 +16,15 @@
 }
 
 .game__main-title__logo {
-  .scale(1.5);
   z-index: 5;
   position: absolute;
-  top: 224px;
-  left: 511px;
+  top: 50%;
+  left: 50%;
+  margin-left: -288px;
+  margin-top: -221px;
+  transform: scale(0);
+  transform-origin: 50% 50%;
+
 }
 
 .game__main-title__loading {
