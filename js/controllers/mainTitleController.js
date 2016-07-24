@@ -1,6 +1,6 @@
 "use strict";
 angular.module('gal')
-    .controller('mainTitleController', ['$scope', '$location', 'preloadService', 'dataService','animationService', function ($scope, $location, preloadService, dataService, animationService) {
+    .controller('mainTitleController', ['$scope', '$location', 'preloadService', 'dataService', 'animationService', function ($scope, $location, preloadService, dataService, animationService) {
         'use strict';
         var loading = true;
         var oProgressBar = {};
@@ -8,7 +8,7 @@ angular.module('gal')
         var background = null;
         var tween = null;
         var backgroundTween = null;
-$scope.percent = 0;
+        $scope.percent = 0;
 
         $scope.start = function () {
             if (loading) {
@@ -68,6 +68,21 @@ $scope.percent = 0;
                 }, function (percentComplete) {
                     $scope.percent = percentComplete;
                 })
+
+            var windowWidth = window.innerWidth;
+            var windowHeight = window.innerHeight;
+            var gameWidth = windowWidth - 130;
+            var gameHeight = (1080 / 1920) * gameWidth;
+            var times = gameWidth / 1920;
+            var oGame = document.getElementById('game');
+            console.log(windowWidth);
+            console.log(windowHeight);
+            console.log(gameWidth);
+            console.log(gameHeight);
+            console.log(times);
+            oGame.style.transform = 'scale(' + times + ')';
+            oGame.style.marginLeft = (windowWidth - gameWidth) / 2 + 'px';
+            oGame.style.marginTop = (windowHeight - gameHeight) / 2 + 'px';
         }
 
         init();

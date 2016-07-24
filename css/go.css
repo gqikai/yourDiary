@@ -2226,7 +2226,6 @@ html.js,
   position: absolute;
   background-color: white;
   margin-left: calc(50% - 576px);
-  top: 50%;
   margin-top: -324px;
   background: url("../assets/parts/bg/black.png");
   background-size: cover;
