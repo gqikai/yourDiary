@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh" ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <title>AngularJS入门学习</title>
+    <script src="../libs/angular.js"></script>
+</head>
+<body>
+<div ng-controller="myController">
+    <div>父scope：
+        <div>Say：{{value}}</div>
+    </div>
+    <div>隔离scope：
+        <div isolated-directive action="click()"></div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    var app = angular.module('myApp', []);
+    app.controller("myController", function ($scope) {
+        $scope.value = "hello world";
+        $scope.click = function () {
+            $scope.value = Math.random();
+        };
+    }).directive("isolatedDirective", function () {
+        return {
+            scope: {
+                action: "&"
+            },
+            template: '<input type="button" value="在directive中执行父scope定义的方法" ng-click="action()"/>'
+        }
+    })
+</script>
+</html>

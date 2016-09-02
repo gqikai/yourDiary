@@ -69,20 +69,7 @@ angular.module('gal')
                     $scope.percent = percentComplete;
                 })
 
-            var windowWidth = window.innerWidth;
-            var windowHeight = window.innerHeight;
-            var gameWidth = windowWidth - 130;
-            var gameHeight = (1080 / 1920) * gameWidth;
-            var times = gameWidth / 1920;
-            var oGame = document.getElementById('game');
-            console.log(windowWidth);
-            console.log(windowHeight);
-            console.log(gameWidth);
-            console.log(gameHeight);
-            console.log(times);
-            oGame.style.transform = 'scale(' + times + ')';
-            oGame.style.marginLeft = (windowWidth - gameWidth) / 2 + 'px';
-            oGame.style.marginTop = (windowHeight - gameHeight) / 2 + 'px';
+
         }
 
         init();

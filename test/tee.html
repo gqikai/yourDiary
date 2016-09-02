@@ -1,13 +1,61 @@
-<!doctype html>
-<html lang="en">
+<html ng-app="expanderModule">
 <head>
-    <meta charset="UTF-8">
-    <title>Document</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <script src="../libs/angular.js"></script>
+    <style>
+
+        .expander {
+            border: 1px solid black;
+            width: 250px;
+        }
+
+        .expander>.title {
+            background-color: black;
+            color: white;
+            padding: .1em .3em;
+            cursor: pointer;
+        }
+
+        .expander>.body {
+            padding: .1em .3em;
+        }
+
+    </style>
 </head>
-<body>
-<script>
-    console.log((function(a, b){}).length);
-</script>
+<body ng-controller='SomeController' >
+<background>
+</background>
 </body>
-<test></test>
+
+
+ <script>
+    var expModule=angular.module('expanderModule',[])
+    expModule.directive('background', function() {
+        return {
+            restrict : 'EA',
+            replace : true,
+            template :'<div>'+
+            '<img class="game__game__background" ng-src="{{background.src}}" ng-style="background.css">'+
+            '<img class="game__game__animation-shell" ng-src="{{background.shell.src}}">' +
+            '</div>',
+            controller : function($scope) {
+                var expanders = [];
+                $scope.hell = 'hellll';
+                $scope.background = {
+                    src:'mother3banner.jpg',
+                    css:{},
+                    shell: {
+                    src: ''
+                }
+                }
+
+            }
+        }
+    });
+
+
+    expModule.controller("SomeController",function($scope) {
+
+    });
+</script>
 </html>

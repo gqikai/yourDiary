@@ -1,0 +1,53 @@
+<!doctype html>
+<html ng-app="myApp">
+<head>
+    <script src="../libs/angular.js"></script>
+</head>
+<body>
+
+
+<outer-directive>
+    <inner-directive></inner-directive>
+    <inner-directive2></inner-directive2>
+</outer-directive>
+<script>
+    var app = angular.module('myApp', []);
+    app.directive('outerDirective', function() {
+        return {
+            scope: {},
+            restrict: 'AE',
+            controller: function($scope) {
+                this.say = function(someDirective) {
+                    console.log('Got:' + someDirective.message);
+                };
+            }
+        };
+    });
+    app.directive('innerDirective', function() {
+        return {
+            scope: {},
+            restrict: 'AE',
+            require: '^outerDirective',
+            link: function(scope, elem, attrs, controllerInstance) {
+                scope.message = "Hi,leifeng";
+                controllerInstance.say(scope);
+            }
+        };
+    });
+    app.directive('innerDirective2', function() {
+        return {
+            scope: {},
+            restrict: 'AE',
+            require: '^outerDirective',
+            link: function(scope, elem, attrs, controllerInstance) {
+                scope.message = "Hi,shushu";
+                controllerInstance.say(scope);
+            }
+        };
+    });
+
+
+</script>
+
+</body>
+</html>

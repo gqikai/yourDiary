@@ -25,22 +25,14 @@ var paths = {
         "libs/angular-cookies.js",
         "libs/angularLocalStorage.js",
         "js/app.js",
-        "js/controllers/gameController.js",
-        "js/controllers/dialogueController.js",
-        "js/controllers/selectController.js",
-        "js/controllers/mainTitleController.js",
-        "js/services/gameService.js",
-        "js/services/scriptService.js",
-        "js/services/dataService.js",
-        "js/services/preloadService.js",
-        "js/services/audioService.js",
-        "js/services/animationService.js"
-
+        "js/controllers/*.js",
+        "js/services/*.js",
+        "js/directives/*.js"
     ],
     css:['css/go.css']
 }
 
-gulp.task('default', function () {
+gulp.task('js', function () {
     gulp.src(paths.scripts)
         .pipe(uglify())
         .pipe(concat('all.min.js'))
@@ -51,3 +43,5 @@ gulp.task('minify-css', function() {
         .pipe(cleanCSS({compatibility: 'ie8'}))
         .pipe(gulp.dest('dist/'));
 });
+
+gulp.task('build',['js','minify-css']);

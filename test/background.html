@@ -1,0 +1,32 @@
+<!doctype html>
+<html ng-app="myApp">
+<head>
+    <script src="../libs/angular.js"></script>
+</head>
+<body>
+
+
+<outer-directive>
+</outer-directive>
+<script>
+    var app = angular.module('myApp', []);
+    app.directive('outerDirective', function() {
+        return {
+            scope: {},
+            restrict: 'AE',
+            replace: true,
+            template: '<div>hello{{hello}}</div>',
+            scooe:{hello:'helllll'},
+            controller: function($scope) {
+                this.say = function(someDirective) {
+                    console.log('Got:' + someDirective.message);
+                };
+            }
+        };
+    });
+
+
+</script>
+
+</body>
+</html>

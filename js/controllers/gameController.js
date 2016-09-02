@@ -3,15 +3,7 @@ angular.module('gal')
     .controller('gameController', ['$scope', '$timeout', 'URLroot', 'gameService', 'audioService', function ($scope, $timeout, URLroot, gameService, audioService) {
         'use strict';
         $scope.URLroot = URLroot;
-        $scope.background = {
-            src: '',
-            shell: {
-                src: ''
-            }
-        };
-        $scope.characters = [];
-        $scope.face = {src: ''};
-        $scope.animateShell = document.getElementsByClassName('game__game__animation-shell')[0];
+
         $scope.currentToken = {};
         $scope.nextToken = {};
         $scope.skipFlag = false;
@@ -27,66 +19,13 @@ angular.module('gal')
             $scope.$broadcast($scope.currentToken.direction, $scope.currentToken);
         }
         $scope.handleCg = function () {
-            if ($scope.nextToken.direction === 'update') {
-                switch ($scope.currentToken.file.slice(0, 2)) {
-                    case 'BG':
-                        $scope.background.shell.src = URLroot + '/assets/parts/bg/' + $scope.currentToken.file + '.png';
-                        break;
-                    case 'EV':
-                        $scope.background.shell.src = URLroot + '/assets/event/' + $scope.currentToken.file + '.png';
-                        break;
-                    default:
-                        $scope.background.shell.src = URLroot + '/assets/event/' + $scope.currentToken.file + '.png';
-                        $scope.animateShell.style['background-color'] = $scope.currentToken.file;
-                }
-            } else {
-                switch ($scope.currentToken.file.slice(0, 2)) {
-                    case 'BG':
-                        $scope.background.shell.src = $scope.background.src = URLroot + '/assets/parts/bg/' + $scope.currentToken.file + '.png';
-                        break;
-                    case 'EV':
-                        $scope.background.shell.src = $scope.background.src = URLroot + '/assets/event/' + $scope.currentToken.file + '.png';
-                        break;
-                    default:
-                        $scope.background.src = URLroot + '/assets/event/' + $scope.currentToken.file + '.png';
-                }
-            }
-            $scope.animateShell.style['opacity'] = '0';
+            $scope.$broadcast($scope.currentToken.direction, {
+                currentToken: $scope.currentToken,
+                nextToken: $scope.nextToken
+            });
         }
         $scope.handleChar = function () {
-            var file = $scope.currentToken.file;
-            var character = {
-                name: file.slice(0, 2),
-                head: {src: ''},
-                body: {src: ''},
-                css: {div: {}, img: {}},
-                face: {src: ''}
-            };
-            var update = false;
-
-            for (var i = 0; i < $scope.characters.length; i++) {
-                if ($scope.characters[i].name === file.slice(0, 2)) {
-                    //引用传递
-                    character = $scope.characters[i];
-                    //更新已有立绘 或者 添加立绘
-                    update = true;
-                }
-            }
-
-            character.head.src = URLroot + '/assets/char/' + file + '.png';
-            if (file.slice(file.length - 3, file.length - 1) === '01') {
-                character.body.src = '';
-            } else {
-                character.body.src = 'http://localhost:63343/yourDiary/assets/char/' + file.slice(0, file.length - 3) + '01' + file.charAt(file.length - 1) + '.png';
-            }
-            if ($scope.currentToken.x) {
-                character.css.div['margin-left'] = $scope.currentToken.x + 'px';
-            }
-            character.css.img['-webkit-transform'] = 'scale(1.5)';
-            if (update === false) {
-                $scope.characters.push(character);
-            }
-
+            $scope.$broadcast($scope.currentToken.direction, $scope.currentToken);
         }
         $scope.handleClearCharAndHide = function () {
             $scope.characters = [];
@@ -95,20 +34,7 @@ angular.module('gal')
             if ($scope.currentToken.transition === 'universal') {
                 $scope.characters = [];
             }
-            var backgroundTween = createjs.Tween.get($scope.animateShell, {
-                loop: false,
-                useTicks: false,
-                css: true,
-                ignoreGlobalPause: true
-            });
-            var handleComplete = function () {
-                $scope.background.src = $scope.background.shell.src;
-                $scope.animateShell.style['opacity'] = '0';
-                $scope.$apply();
-            }
-            createjs.CSSPlugin.install(createjs.Tween);
-            backgroundTween.to({opacity: 1}, $scope.currentToken.time).call(handleComplete);
-
+            $scope.$broadcast($scope.currentToken.direction, $scope.currentToken);
         }
         $scope.handleFace = function () {
             $scope.face.src = URLroot + '/assets/parts/face/' + $scope.currentToken.file + 'F.png';
@@ -238,33 +164,7 @@ angular.module('gal')
                 $scope.currentToken = $scope.nextToken;
             }
         }
-        $scope.quickSave = function ($event) {
-            gameService.quickSave();
-            $event.stopPropagation();
-        }
-        $scope.quickLoad = function ($event) {
-            gameService.quickLoad();
-            $event.stopPropagation();
-        }
-        $scope.skip = function ($event) {
-            if ($scope.skipFlag) {
-                $scope.skipFlag = false;
-            } else {
-                var conf = confirm('要快进吗?');
-                if (conf) {
-                    $scope.skipFlag = true;
-                    var skip = function () {
-                        if ($scope.skipFlag) {
-                            $scope.timeoutPromise = $timeout(skip, 100);
-                            $scope.next();
-                        }
-                    }
-                    $scope.timeoutPromise = $timeout(skip, 100);
-                }
 
-            }
-            $event.stopPropagation();
-        }
         //var init = function () {
         //    $scope.next();
         //}
