@@ -1,6 +1,4 @@
-/**
- * Created by gaoqikai on 6/18/16.
- */
+
 angular.module("gal")
     .directive('dialogue', function (URLroot) {
         return {

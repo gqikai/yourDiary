@@ -68,8 +68,6 @@ angular.module('gal')
                 }, function (percentComplete) {
                     $scope.percent = percentComplete;
                 })
-
-
         }
 
         init();
